@@ -1,0 +1,5 @@
+# Tested third-party versions; update deliberately with requirements-dev.lock.
+pip==26.2
+ruff==0.15.7
+setuptools==84.1.0
+wheel==0.46.2

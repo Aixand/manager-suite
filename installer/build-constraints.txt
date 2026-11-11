@@ -1,0 +1,2 @@
+# Package pyproject.toml pins the exact backend version.
+setuptools==84.1.0

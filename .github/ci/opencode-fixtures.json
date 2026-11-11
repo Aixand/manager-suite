@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "version": "2.2.5",
+  "artifacts": {
+    "linux-x86_64-gnu": {
+      "package": "@opencode/cli-linux-x64",
+      "url": "https://registry.npmjs.org/@opencode/cli-linux-x64/-/cli-linux-x64-2.2.5.tgz",
+      "integrity": "sha512-BkHAfTqNsg/qphyHNrnH+DGkOxZsGjamNpM5DvwoEvz7ZAPNw8mEbMXGTCDOAH+/+40Eqeie6KNZBZZQwPCjaA==",
+      "member": "package/bin/opencode"
+    },
+    "linux-arm64-gnu": {
+      "package": "@opencode/cli-linux-arm64",
+      "url": "https://registry.npmjs.org/@opencode/cli-linux-arm64/-/cli-linux-arm64-2.2.5.tgz",
+      "integrity": "sha512-O4qOy/WRYQmhClMB/5qBaoYfzaDK1+PJRQOfU80ixyj5ruQbCxraH+VW2UyHb6RWOlUv41fec+isd62LvCuwuA==",
+      "member": "package/bin/opencode"
+    },
+    "macos-x86_64": {
+      "package": "@opencode/cli-darwin-x64",
+      "url": "https://registry.npmjs.org/@opencode/cli-darwin-x64/-/cli-darwin-x64-2.2.5.tgz",
+      "integrity": "sha512-z+wqIBXk5DVwXVdyQJHOwwnnOlFOx0LfAlx3PzubJjE/3a948KPBkJruF5zm6yyglJGzNgR3ji7oD/B/HOMD+w==",
+      "member": "package/bin/opencode"
+    },
+    "macos-arm64": {
+      "package": "@opencode/cli-darwin-arm64",
+      "url": "https://registry.npmjs.org/@opencode/cli-darwin-arm64/-/cli-darwin-arm64-2.2.5.tgz",
+      "integrity": "sha512-UwGb2MIJqLSh4wfrkvqNiAohG1Wf5t96Nx7113QvmtCn5LGimmXYN0Tb1chD0mMRRdPvnUguevKRdwM0txZY1Q==",
+      "member": "package/bin/opencode"
+    },
+    "windows-x86_64-msvc": {
+      "package": "@opencode/cli-windows-x64",
+      "url": "https://registry.npmjs.org/@opencode/cli-windows-x64/-/cli-windows-x64-2.2.5.tgz",
+      "integrity": "sha512-vIMrmUIvlOgWSXzLkScyHvV2ilcX3YAzbCaZ3RaSH5EgG7XbYu6WeiMMgmE+NIW7QejzAeSXt2yWAJVyaKxp4A==",
+      "member": "package/bin/opencode.exe"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "installation_template_revision": 2,
+  "documentation_standard": "0.1.0",
+  "adoption": "Local help, doctor, develop, check, test and build command semantics; managed release operations retain the existing suite adapter.",
+  "canonical_helper": "scripts/development/python_dev.py",
+  "copy_policy": "Package dev.py files are vendored copies; update them together and verify standalone use.",
+  "documentation_checker_source": "templates/docs-template/files/scripts/checks/check-docs.py",
+  "documentation_checker_scope": "docs-checks.json selects package READMEs and development entry points; other product guides are preserved."
+}

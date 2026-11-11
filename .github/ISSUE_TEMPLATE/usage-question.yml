@@ -1,0 +1,33 @@
+name: Usage question
+description: Ask for help with installation, configuration, or usage.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues are welcome. We are not accepting pull requests because of limited maintainer capacity.
+        See the [participation policy](https://github.com/Aixand/manager-suite/blob/main/CONTRIBUTING.md).
+  - type: markdown
+    attributes:
+      value: |
+        Read [the documentation](https://github.com/Aixand/manager-suite/blob/main/README.md) and search existing issues first.
+        This is a public forum. Remove credentials and private information before posting.
+  - type: textarea
+    id: question
+    attributes:
+      label: What are you trying to do?
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you tried?
+      description: Include relevant instructions and sanitized commands or errors.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Version and environment
+      description: Version or source commit, operating system, and relevant setup.
+    validations:
+      required: true

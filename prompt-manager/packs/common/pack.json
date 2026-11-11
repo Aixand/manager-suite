@@ -1,0 +1,13 @@
+{
+  "schema": "prompt-manager/pack-1",
+  "name": "common",
+  "description": "Reusable instructions and reference material for the demo.",
+  "sections": {
+    "working": {
+      "file": "sections/working.md",
+      "inputs": {"audience": {"type": "string", "default": "the development team"}}
+    }
+  },
+  "documents": {"writing-guide": {"file": "documents/writing-guide.md"}},
+  "prompts": {}
+}

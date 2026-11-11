@@ -1,0 +1,33 @@
+# https://editorconfig.org/
+# Merge with the project's existing formatter and indentation choices.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{json,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.{py,pyi,rs}]
+indent_style = space
+indent_size = 4
+
+[*.go]
+indent_style = tab
+indent_size = tab
+
+[{Makefile,makefile,GNUmakefile,*.mk}]
+indent_style = tab
+indent_size = tab
+
+# Two trailing spaces can express a Markdown line break.
+[*.md]
+trim_trailing_whitespace = false
+
+# Keep Windows batch-script working copies consistent with .gitattributes.
+[*.{bat,cmd}]
+end_of_line = crlf

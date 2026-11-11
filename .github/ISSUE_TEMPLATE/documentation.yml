@@ -1,0 +1,27 @@
+name: Documentation improvement
+description: Report unclear instructions, missing information, or broken links.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues are welcome. We are not accepting pull requests because of limited maintainer capacity.
+        See the [participation policy](https://github.com/Aixand/manager-suite/blob/main/CONTRIBUTING.md).
+  - type: input
+    id: location
+    attributes:
+      label: Page, file, or section
+      description: Link to the relevant documentation, if one exists.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What needs improvement?
+      description: Include the version if the instructions differ between releases.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested change
+      description: Optional wording, examples, or additional context.

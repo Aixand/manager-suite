@@ -1,0 +1,9 @@
+include README.md
+include dev.py dev.sh dev.ps1
+recursive-include docs *
+recursive-include examples *
+recursive-include tests *.py
+recursive-include tests/fixtures *.json
+include dev.py dev.sh dev.ps1 development.toml requirements-dev.lock .python-version
+global-exclude __pycache__ *.py[cod]
+include development-constraints.txt

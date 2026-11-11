@@ -1,0 +1,51 @@
+schema_version = 3
+id = "copilot"
+service = "github"
+label = "GitHub Copilot"
+description = "GitHub’s coding agent"
+aliases = ["copilot-cli"]
+order = 40
+
+[terminal]
+executable = "copilot"
+runtime = "direct"
+detection_profile = "copilot-cli"
+
+[terminal.home]
+strategy = "environment-directory"
+environment = "COPILOT_HOME"
+default_path = "~/.copilot"
+binding = "environment"
+settings_scope = "environment"
+history_scope = "environment"
+
+[terminal.login]
+args = ["login"]
+
+[terminal.sessions]
+strategy = "native-picker"
+resume_args = ["--resume"]
+cross_environment_resume = "copilot-session-link"
+
+[terminal.models]
+strategy = "native-argument"
+
+[terminal.models.discovery]
+adapter = "copilot-models"
+versions = ["1.0.103", "1.0.104", "1.0.105"]
+timeout = 30
+cache_ttl = 86400
+
+[terminal.budget]
+adapter = "copilot-quota"
+versions = ["1.0.103", "1.0.104"]
+timeout = 20
+cache_ttl = 300
+
+[terminal.budget.selection]
+strategy = "max-remaining"
+buckets = ["premium_interactions"]
+
+[terminal.instructions]
+strategy = "home"
+filename = "copilot-instructions.md"

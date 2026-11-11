@@ -1,0 +1,571 @@
+{
+  "description": "Store and render results produced by the implementation before the architecture refactor. Includes captured shared dependencies, an immutable release, a customized active copy, and a pending publisher update.",
+  "expected": {
+    "initial_revision": "sha256:e11d6b36723d6468bb568ce03102908310e123932889e9531bf64601568885ec",
+    "managed_render": {
+      "dependencies": {
+        "common": {
+          "digest": "sha256:7f1eeb070d4810020e9d17640a992cd6fb60db79bfc99bf6275949057a172881",
+          "name": "common"
+        }
+      },
+      "format": "messages",
+      "input_digest": "sha256:12da442b561992f04b5c262a46ed4bb03505d1d0b8afff0dbd68ded04504df98",
+      "output": [
+        {
+          "content": "Use the supplied context.",
+          "role": "system"
+        },
+        {
+          "content": "My review of the parser.",
+          "role": "user"
+        }
+      ],
+      "output_digest": "sha256:23cd20fa4d5672c6a8a31c34c010fb0afcbf7e1b9bf2283dbf93e6daf61e1a7a",
+      "prompt": "review/review",
+      "release": {
+        "digest": "sha256:5f551eb831fca800729d24c9660dd475302af862461a4a140a426aba4b71857d",
+        "name": "review",
+        "version": null
+      },
+      "renderer": "prompt-manager/render-1",
+      "resolution": {
+        "active_digest": "sha256:5f551eb831fca800729d24c9660dd475302af862461a4a140a426aba4b71857d",
+        "baseline": {
+          "digest": "sha256:3325973e08af7f5987eb114031233ec41d80175790b1681aee18fa8061ee1fd7",
+          "revision": 1,
+          "version": null
+        },
+        "baseline_known": true,
+        "customized": true,
+        "id": "default",
+        "previous": "sha256:ffae1aa0b78f5d2fdc0df352a3c50069ab9995a2b4c8b5ba610b5a242c86a29e",
+        "publisher_id": "publisher",
+        "reconciliation_required": true,
+        "revision": "sha256:9cc5b4f3723ee23b1e692a5387dae456ba62c6ba0c374bae03d6cf791533fdaa",
+        "schema": "prompt-manager/managed-1",
+        "sequence": 3,
+        "sync_error": null,
+        "tracking": true,
+        "update_status": "reconciliation_required",
+        "upstream": {
+          "digest": "sha256:83bc617e12dbf4bee432f5ab696de44234a5ce18b57466945c107d4bfe42542d",
+          "revision": 2,
+          "version": null
+        }
+      },
+      "schema": "prompt-manager/managed-render-result-1",
+      "sections": [
+        {
+          "asset": "common/rules",
+          "id": "rules",
+          "included": true,
+          "kind": "section",
+          "pack_digest": "sha256:7f1eeb070d4810020e9d17640a992cd6fb60db79bfc99bf6275949057a172881",
+          "role": "system"
+        },
+        {
+          "asset": "review/body",
+          "id": "body",
+          "included": true,
+          "kind": "section",
+          "pack_digest": "sha256:5f551eb831fca800729d24c9660dd475302af862461a4a140a426aba4b71857d",
+          "role": "user"
+        }
+      ]
+    },
+    "pending_revision": "sha256:9cc5b4f3723ee23b1e692a5387dae456ba62c6ba0c374bae03d6cf791533fdaa",
+    "release_render": {
+      "dependencies": {
+        "common": {
+          "digest": "sha256:7f1eeb070d4810020e9d17640a992cd6fb60db79bfc99bf6275949057a172881",
+          "name": "common"
+        }
+      },
+      "format": "messages",
+      "input_digest": "sha256:12da442b561992f04b5c262a46ed4bb03505d1d0b8afff0dbd68ded04504df98",
+      "output": [
+        {
+          "content": "Use the supplied context.",
+          "role": "system"
+        },
+        {
+          "content": "Review the parser.",
+          "role": "user"
+        }
+      ],
+      "output_digest": "sha256:5442e6601b7d4824e12418e8704b7b0c9e517b7d721af9d9b0e56c12299297f4",
+      "prompt": "review/review",
+      "release": {
+        "digest": "sha256:3325973e08af7f5987eb114031233ec41d80175790b1681aee18fa8061ee1fd7",
+        "name": "review",
+        "version": "1"
+      },
+      "renderer": "prompt-manager/render-1",
+      "schema": "prompt-manager/render-result-1",
+      "sections": [
+        {
+          "asset": "common/rules",
+          "id": "rules",
+          "included": true,
+          "kind": "section",
+          "pack_digest": "sha256:7f1eeb070d4810020e9d17640a992cd6fb60db79bfc99bf6275949057a172881",
+          "role": "system"
+        },
+        {
+          "asset": "review/body",
+          "id": "body",
+          "included": true,
+          "kind": "section",
+          "pack_digest": "sha256:3325973e08af7f5987eb114031233ec41d80175790b1681aee18fa8061ee1fd7",
+          "role": "user"
+        }
+      ]
+    }
+  },
+  "files": {
+    "applications/consumer.json": {
+      "fallback_policy": "none",
+      "id": "consumer",
+      "label": "consumer",
+      "prompts": {
+        "review": {
+          "kind": "managed",
+          "package_id": "default",
+          "prompt": "review",
+          "publisher_id": "publisher"
+        }
+      },
+      "revision": "sha256:7a93ab4c8809a388941ad449406551a95d3523d83cef5851d2adb148ac87ffbe",
+      "schema": "prompt-manager/application-1"
+    },
+    "managed-history/publisher/default/9cc5b4f3723ee23b1e692a5387dae456ba62c6ba0c374bae03d6cf791533fdaa.json": {
+      "active_digest": "sha256:5f551eb831fca800729d24c9660dd475302af862461a4a140a426aba4b71857d",
+      "baseline": {
+        "digest": "sha256:3325973e08af7f5987eb114031233ec41d80175790b1681aee18fa8061ee1fd7",
+        "revision": 1,
+        "version": null
+      },
+      "id": "default",
+      "previous": "sha256:ffae1aa0b78f5d2fdc0df352a3c50069ab9995a2b4c8b5ba610b5a242c86a29e",
+      "publisher_id": "publisher",
+      "revision": "sha256:9cc5b4f3723ee23b1e692a5387dae456ba62c6ba0c374bae03d6cf791533fdaa",
+      "schema": "prompt-manager/managed-1",
+      "sequence": 3,
+      "sync_error": null,
+      "tracking": true,
+      "upstream": {
+        "digest": "sha256:83bc617e12dbf4bee432f5ab696de44234a5ce18b57466945c107d4bfe42542d",
+        "revision": 2,
+        "version": null
+      }
+    },
+    "managed-history/publisher/default/e11d6b36723d6468bb568ce03102908310e123932889e9531bf64601568885ec.json": {
+      "active_digest": "sha256:3325973e08af7f5987eb114031233ec41d80175790b1681aee18fa8061ee1fd7",
+      "baseline": {
+        "digest": "sha256:3325973e08af7f5987eb114031233ec41d80175790b1681aee18fa8061ee1fd7",
+        "revision": 1,
+        "version": null
+      },
+      "id": "default",
+      "previous": null,
+      "publisher_id": "publisher",
+      "revision": "sha256:e11d6b36723d6468bb568ce03102908310e123932889e9531bf64601568885ec",
+      "schema": "prompt-manager/managed-1",
+      "sequence": 1,
+      "sync_error": null,
+      "tracking": true,
+      "upstream": {
+        "digest": "sha256:3325973e08af7f5987eb114031233ec41d80175790b1681aee18fa8061ee1fd7",
+        "revision": 1,
+        "version": null
+      }
+    },
+    "managed-history/publisher/default/ffae1aa0b78f5d2fdc0df352a3c50069ab9995a2b4c8b5ba610b5a242c86a29e.json": {
+      "active_digest": "sha256:5f551eb831fca800729d24c9660dd475302af862461a4a140a426aba4b71857d",
+      "baseline": {
+        "digest": "sha256:3325973e08af7f5987eb114031233ec41d80175790b1681aee18fa8061ee1fd7",
+        "revision": 1,
+        "version": null
+      },
+      "id": "default",
+      "previous": "sha256:e11d6b36723d6468bb568ce03102908310e123932889e9531bf64601568885ec",
+      "publisher_id": "publisher",
+      "revision": "sha256:ffae1aa0b78f5d2fdc0df352a3c50069ab9995a2b4c8b5ba610b5a242c86a29e",
+      "schema": "prompt-manager/managed-1",
+      "sequence": 2,
+      "sync_error": null,
+      "tracking": true,
+      "upstream": {
+        "digest": "sha256:3325973e08af7f5987eb114031233ec41d80175790b1681aee18fa8061ee1fd7",
+        "revision": 1,
+        "version": null
+      }
+    },
+    "managed/publisher/default.json": {
+      "active_digest": "sha256:5f551eb831fca800729d24c9660dd475302af862461a4a140a426aba4b71857d",
+      "baseline": {
+        "digest": "sha256:3325973e08af7f5987eb114031233ec41d80175790b1681aee18fa8061ee1fd7",
+        "revision": 1,
+        "version": null
+      },
+      "id": "default",
+      "previous": "sha256:ffae1aa0b78f5d2fdc0df352a3c50069ab9995a2b4c8b5ba610b5a242c86a29e",
+      "publisher_id": "publisher",
+      "revision": "sha256:9cc5b4f3723ee23b1e692a5387dae456ba62c6ba0c374bae03d6cf791533fdaa",
+      "schema": "prompt-manager/managed-1",
+      "sequence": 3,
+      "sync_error": null,
+      "tracking": true,
+      "upstream": {
+        "digest": "sha256:83bc617e12dbf4bee432f5ab696de44234a5ce18b57466945c107d4bfe42542d",
+        "revision": 2,
+        "version": null
+      }
+    },
+    "objects/3325973e08af7f5987eb114031233ec41d80175790b1681aee18fa8061ee1fd7.json": {
+      "dependencies": {
+        "common": {
+          "digest": "sha256:7f1eeb070d4810020e9d17640a992cd6fb60db79bfc99bf6275949057a172881",
+          "snapshot": {
+            "dependencies": {},
+            "files": {
+              "rules.md": "Use the supplied context.\n"
+            },
+            "pack": {
+              "name": "common",
+              "prompts": {
+                "main": {
+                  "sections": [
+                    {
+                      "id": "rules",
+                      "role": "system",
+                      "section": "rules"
+                    }
+                  ]
+                }
+              },
+              "schema": "prompt-manager/pack-1",
+              "sections": {
+                "rules": {
+                  "file": "rules.md"
+                }
+              }
+            },
+            "renderer": "prompt-manager/render-1",
+            "schema": "prompt-manager/snapshot-1"
+          }
+        }
+      },
+      "files": {
+        "body.md": "Review {{ task }}.\n"
+      },
+      "pack": {
+        "dependencies": {
+          "common": "common@1"
+        },
+        "examples": [
+          {
+            "expect": {
+              "contains": [
+                "the parser"
+              ],
+              "section_ids": [
+                "rules",
+                "body"
+              ]
+            },
+            "inputs": {
+              "task": "the parser"
+            },
+            "name": "parser",
+            "prompt": "review"
+          }
+        ],
+        "name": "review",
+        "prompts": {
+          "review": {
+            "inputs": {
+              "task": {
+                "type": "string"
+              }
+            },
+            "sections": [
+              {
+                "id": "rules",
+                "role": "system",
+                "section": "common/rules"
+              },
+              {
+                "id": "body",
+                "inputs": {
+                  "task": {
+                    "input": "task"
+                  }
+                },
+                "role": "user",
+                "section": "body"
+              }
+            ]
+          }
+        },
+        "schema": "prompt-manager/pack-1",
+        "sections": {
+          "body": {
+            "file": "body.md",
+            "inputs": {
+              "task": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "renderer": "prompt-manager/render-1",
+      "schema": "prompt-manager/snapshot-1"
+    },
+    "objects/5f551eb831fca800729d24c9660dd475302af862461a4a140a426aba4b71857d.json": {
+      "dependencies": {
+        "common": {
+          "digest": "sha256:7f1eeb070d4810020e9d17640a992cd6fb60db79bfc99bf6275949057a172881",
+          "snapshot": {
+            "dependencies": {},
+            "files": {
+              "rules.md": "Use the supplied context.\n"
+            },
+            "pack": {
+              "name": "common",
+              "prompts": {
+                "main": {
+                  "sections": [
+                    {
+                      "id": "rules",
+                      "role": "system",
+                      "section": "rules"
+                    }
+                  ]
+                }
+              },
+              "schema": "prompt-manager/pack-1",
+              "sections": {
+                "rules": {
+                  "file": "rules.md"
+                }
+              }
+            },
+            "renderer": "prompt-manager/render-1",
+            "schema": "prompt-manager/snapshot-1"
+          }
+        }
+      },
+      "files": {
+        "body.md": "My review of {{ task }}.\n"
+      },
+      "pack": {
+        "dependencies": {
+          "common": "common@1"
+        },
+        "examples": [
+          {
+            "expect": {
+              "contains": [
+                "the parser"
+              ],
+              "section_ids": [
+                "rules",
+                "body"
+              ]
+            },
+            "inputs": {
+              "task": "the parser"
+            },
+            "name": "parser",
+            "prompt": "review"
+          }
+        ],
+        "name": "review",
+        "prompts": {
+          "review": {
+            "inputs": {
+              "task": {
+                "type": "string"
+              }
+            },
+            "sections": [
+              {
+                "id": "rules",
+                "role": "system",
+                "section": "common/rules"
+              },
+              {
+                "id": "body",
+                "inputs": {
+                  "task": {
+                    "input": "task"
+                  }
+                },
+                "role": "user",
+                "section": "body"
+              }
+            ]
+          }
+        },
+        "schema": "prompt-manager/pack-1",
+        "sections": {
+          "body": {
+            "file": "body.md",
+            "inputs": {
+              "task": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "renderer": "prompt-manager/render-1",
+      "schema": "prompt-manager/snapshot-1"
+    },
+    "objects/7f1eeb070d4810020e9d17640a992cd6fb60db79bfc99bf6275949057a172881.json": {
+      "dependencies": {},
+      "files": {
+        "rules.md": "Use the supplied context.\n"
+      },
+      "pack": {
+        "name": "common",
+        "prompts": {
+          "main": {
+            "sections": [
+              {
+                "id": "rules",
+                "role": "system",
+                "section": "rules"
+              }
+            ]
+          }
+        },
+        "schema": "prompt-manager/pack-1",
+        "sections": {
+          "rules": {
+            "file": "rules.md"
+          }
+        }
+      },
+      "renderer": "prompt-manager/render-1",
+      "schema": "prompt-manager/snapshot-1"
+    },
+    "objects/83bc617e12dbf4bee432f5ab696de44234a5ce18b57466945c107d4bfe42542d.json": {
+      "dependencies": {
+        "common": {
+          "digest": "sha256:7f1eeb070d4810020e9d17640a992cd6fb60db79bfc99bf6275949057a172881",
+          "snapshot": {
+            "dependencies": {},
+            "files": {
+              "rules.md": "Use the supplied context.\n"
+            },
+            "pack": {
+              "name": "common",
+              "prompts": {
+                "main": {
+                  "sections": [
+                    {
+                      "id": "rules",
+                      "role": "system",
+                      "section": "rules"
+                    }
+                  ]
+                }
+              },
+              "schema": "prompt-manager/pack-1",
+              "sections": {
+                "rules": {
+                  "file": "rules.md"
+                }
+              }
+            },
+            "renderer": "prompt-manager/render-1",
+            "schema": "prompt-manager/snapshot-1"
+          }
+        }
+      },
+      "files": {
+        "body.md": "Publisher review for {{ task }}.\n"
+      },
+      "pack": {
+        "dependencies": {
+          "common": "common@1"
+        },
+        "examples": [
+          {
+            "expect": {
+              "contains": [
+                "the parser"
+              ],
+              "section_ids": [
+                "rules",
+                "body"
+              ]
+            },
+            "inputs": {
+              "task": "the parser"
+            },
+            "name": "parser",
+            "prompt": "review"
+          }
+        ],
+        "name": "review",
+        "prompts": {
+          "review": {
+            "inputs": {
+              "task": {
+                "type": "string"
+              }
+            },
+            "sections": [
+              {
+                "id": "rules",
+                "role": "system",
+                "section": "common/rules"
+              },
+              {
+                "id": "body",
+                "inputs": {
+                  "task": {
+                    "input": "task"
+                  }
+                },
+                "role": "user",
+                "section": "body"
+              }
+            ]
+          }
+        },
+        "schema": "prompt-manager/pack-1",
+        "sections": {
+          "body": {
+            "file": "body.md",
+            "inputs": {
+              "task": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "renderer": "prompt-manager/render-1",
+      "schema": "prompt-manager/snapshot-1"
+    },
+    "releases/common/1.json": {
+      "digest": "sha256:7f1eeb070d4810020e9d17640a992cd6fb60db79bfc99bf6275949057a172881",
+      "name": "common",
+      "version": "1"
+    },
+    "releases/review/1.json": {
+      "digest": "sha256:3325973e08af7f5987eb114031233ec41d80175790b1681aee18fa8061ee1fd7",
+      "name": "review",
+      "version": "1"
+    }
+  },
+  "inputs": {
+    "task": "the parser"
+  }
+}

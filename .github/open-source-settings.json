@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "profile": "solo",
+  "repository": "Aixand/manager-suite",
+  "new_repository": true,
+  "documentation_only": false,
+  "project_checks": [
+    {
+      "context": "Product validation",
+      "app_slug": "github-actions"
+    }
+  ],
+  "overrides": {
+    "repository_settings": {
+      "description": "Native agent, conversation, MCP, prompt, and skill managers with shared development and installation tooling"
+    }
+  }
+}

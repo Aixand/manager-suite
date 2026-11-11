@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "packages": {
+    "aixand-lib-filesystem": {
+      "version": "0.1.0b0",
+      "wheel": {
+        "filename": "aixand_lib_filesystem-0.1.0b0-py3-none-any.whl",
+        "url": "https://files.pythonhosted.org/packages/e5/da/8252566ba8176b6c8c703636e7f79fd81629653a2448bdff1a2b9d75e612/aixand_lib_filesystem-0.1.0b0-py3-none-any.whl",
+        "sha256": "9a32265eadd406141ff9c381e7efc6de9a37b32214c27d54638a3edafc77900b"
+      }
+    },
+    "aixand-lib-local-runtime": {
+      "version": "0.1.0b0",
+      "wheel": {
+        "filename": "aixand_lib_local_runtime-0.1.0b0-py3-none-any.whl",
+        "url": "https://files.pythonhosted.org/packages/f2/d8/1d8e3b1051b2632bef1ac37d1a4f80b452dec5f36c6c8c0972298e664b32/aixand_lib_local_runtime-0.1.0b0-py3-none-any.whl",
+        "sha256": "95f675b4f0a88a228d2bcd401ae434a003b90dfeec549c97c4f428aeee28b638"
+      }
+    },
+    "aixand-lib-github-source": {
+      "version": "0.1.0b0",
+      "wheel": {
+        "filename": "aixand_lib_github_source-0.1.0b0-py3-none-any.whl",
+        "url": "https://files.pythonhosted.org/packages/85/be/5bd0f4e173f04e67f0d53d50a54b8960767582c1d7bd8585f242e4e2798f/aixand_lib_github_source-0.1.0b0-py3-none-any.whl",
+        "sha256": "dd01f2ab1e22c0efd0bba935b86a9ba9feb742274953d5fa1bd861ce578236bb"
+      }
+    },
+    "aixand-carrier-mcp": {
+      "version": "0.1.0b0",
+      "wheel": {
+        "filename": "aixand_carrier_mcp-0.1.0b0-py3-none-any.whl",
+        "url": "https://files.pythonhosted.org/packages/a4/d9/382ca2c19219e6aaa208ab307893dec7c7982a524ef9df066d888434d198/aixand_carrier_mcp-0.1.0b0-py3-none-any.whl",
+        "sha256": "653c2b7aa20a31f5897877104781f2b7e6a684fe893e6c886b1bb8b72efdd2f8"
+      }
+    },
+    "aixand-undercurrent-sdk": {
+      "version": "0.1.0b0",
+      "runtime_release": "v0.1.0-beta",
+      "wheel": {
+        "filename": "aixand_undercurrent_sdk-0.1.0b0-py3-none-any.whl",
+        "url": "https://files.pythonhosted.org/packages/89/c3/e73a306db423f150adbd4e2bbe1c3a14c016ddf128603a88af9dfe495c01/aixand_undercurrent_sdk-0.1.0b0-py3-none-any.whl",
+        "sha256": "4c452a067f41e0c6878f9b03ae8035a06ae484c0c16ec6b1fb372d2a76a88990"
+      }
+    }
+  }
+}
