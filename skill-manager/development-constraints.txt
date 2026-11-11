@@ -2,5 +2,5 @@
 pip==25.3
 pyyaml==6.0.3
 ruff==0.15.7
-setuptools==80.9.0
+setuptools==84.1.0
 wheel==0.45.1

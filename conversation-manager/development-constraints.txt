@@ -6,7 +6,7 @@ pip==25.3
 referencing==0.37.0
 rpds-py==2026.9.1
 ruff==0.15.7
-setuptools==80.9.0
+setuptools==84.1.0
 typing-extensions==4.16.0
 websockets==16.0
 wheel==0.45.1

@@ -26,7 +26,7 @@ pywin32==312
 referencing==0.37.0
 rpds-py==2026.9.1
 ruff==0.15.7
-setuptools==80.9.0
+setuptools==84.1.0
 sse-starlette==3.5.0
 starlette==1.8.0
 typing-extensions==4.16.0
