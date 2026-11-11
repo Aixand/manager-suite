@@ -1,0 +1,169 @@
+name: Reusable product checks and installers
+on:
+  workflow_call:
+    inputs:
+      product:
+        type: string
+        required: true
+      mode:
+        type: string
+        default: check
+      python:
+        type: string
+        default: '3.11'
+      runner:
+        type: string
+        default: ubuntu-24.04
+      target:
+        type: string
+        default: linux-x86_64-gnu
+      source-integration:
+        type: boolean
+        default: false
+      python-artifact:
+        type: boolean
+        default: false
+      pinned:
+        type: boolean
+        default: false
+    secrets:
+      SOURCE_READ_TOKEN:
+        required: false
+permissions:
+  contents: read
+jobs:
+  product:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+        working-directory: manager-suites
+    env:
+      PRODUCT: ${{ inputs.product }}
+      MODE: ${{ inputs.mode }}
+      LOCAL_SOURCES: ${{ inputs.source-integration }}
+      PINNED: ${{ inputs.pinned }}
+      CI_PYTHON: ${{ inputs.python }}
+      NATIVE_TARGET: ${{ inputs.target }}
+      UV_PYTHON: ${{ inputs.python }}
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUTF8: '1'
+      UV_LINK_MODE: copy
+      CM_TEST_COMMAND_LAUNCHER: ${{ github.workspace }}/codex-fixture.exe
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          path: manager-suites
+          persist-credentials: false
+          fetch-depth: ${{ inputs.pinned && '0' || '1' }}
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          # Host Python runs build tooling; uv supplies the pinned product runtime.
+          python-version: ${{ inputs.mode == 'installer' && '3.11' || inputs.python }}
+      - name: Select source checkouts
+        id: sources
+        env:
+          AIXAND_LIBRARIES_REPOSITORY: ${{ vars.AIXAND_LIBRARIES_REPOSITORY }}
+          AIXAND_LIBRARIES_REF: ${{ vars.AIXAND_LIBRARIES_REF }}
+          AIXAND_UNDERCURRENT_REF: ${{ vars.AIXAND_UNDERCURRENT_REF }}
+        run: |
+          case "$MODE" in check|installer) ;; *) echo 'Unknown product workflow mode' >&2; exit 2 ;; esac
+          if [ "$MODE" = installer ] && [ "$PINNED" != true ]; then
+            echo 'Installer builds require committed source pins.' >&2
+            exit 2
+          fi
+          args=(sources --product "$PRODUCT" --github-output "$GITHUB_OUTPUT")
+          if [ "$PINNED" = true ]; then args+=(--release); fi
+          if [ "$LOCAL_SOURCES" = true ]; then args+=(--local); fi
+          if [ "$MODE" = installer ]; then args+=(--installer); fi
+          python -B scripts/ci_release.py "${args[@]}"
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        if: steps.sources.outputs.libraries-needed == 'true'
+        with:
+          token: ${{ secrets.SOURCE_READ_TOKEN || github.token }}
+          repository: ${{ steps.sources.outputs.libraries-repository }}
+          ref: ${{ steps.sources.outputs.libraries-ref }}
+          path: aixand-libraries
+          persist-credentials: false
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        if: steps.sources.outputs.undercurrent-needed == 'true'
+        with:
+          token: ${{ secrets.SOURCE_READ_TOKEN || github.token }}
+          repository: ${{ steps.sources.outputs.undercurrent-repository }}
+          ref: ${{ steps.sources.outputs.undercurrent-ref }}
+          path: undercurrent
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c # v7.0.0
+        with:
+          version: '0.12.7'
+          enable-cache: true
+          cache-dependency-glob: |
+            **/requirements-dev.lock
+            **/uv.lock
+            **/dependencies.json
+          cache-suffix: ${{ inputs.product }}-${{ inputs.mode }}-${{ inputs.python }}
+      - name: Validate release metadata and checked-out pins
+        if: inputs.pinned
+        run: |
+          args=(validate --product "$PRODUCT" --release)
+          if [ "$MODE" = installer ]; then args+=(--installer); fi
+          python -B scripts/ci_release.py "${args[@]}"
+      - name: Check, test, build, and consume one package
+        if: inputs.mode == 'check'
+        run: |
+          args=("$PRODUCT" --python "$CI_PYTHON" --output "$RUNNER_TEMP/product-wheels")
+          if [ "$LOCAL_SOURCES" = true ]; then args+=(--local); fi
+          SOURCE_DATE_EPOCH=315532800 python -B scripts/ci_product.py "${args[@]}"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: inputs.mode == 'check' && inputs.python-artifact
+        with:
+          name: python-${{ inputs.product }}
+          path: |
+            ${{ runner.temp }}/product-wheels/*.whl
+            ${{ runner.temp }}/product-wheels/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+      - name: Validate the release tag
+        if: inputs.mode == 'installer' && github.event_name == 'push' && github.ref_type == 'tag'
+        run: |
+          selection="manager-suite/$PRODUCT"
+          if [ "$PRODUCT" = manager-suite ]; then selection=manager-suite; fi
+          python -B scripts/manager_dev.py release-check --product "$selection" --version "$GITHUB_REF_NAME"
+      - name: Native Windows command launcher toolchain
+        if: inputs.mode == 'installer' && runner.os == 'Windows'
+        run: rustup toolchain install 1.98.0 --profile minimal
+      - name: Prepare pinned OpenCode localhost fixture
+        if: inputs.mode == 'installer' && (inputs.product == 'conversation-manager' || inputs.product == 'manager-suite')
+        run: |
+          python -B scripts/prepare_opencode_fixture.py --output "$RUNNER_TEMP/opencode-fixture"
+          echo "$RUNNER_TEMP/opencode-fixture" >> "$GITHUB_PATH"
+      - name: Check native conversation transports
+        if: inputs.mode == 'installer' && (inputs.product == 'conversation-manager' || inputs.product == 'manager-suite')
+        run: |
+          python -B scripts/ci_environment.py conversation-manager --python "$CI_PYTHON"
+          test_python=conversation-manager/.venv/bin/python
+          if [ "$RUNNER_OS" = Windows ]; then test_python=conversation-manager/.venv/Scripts/python.exe; fi
+          if [ "$RUNNER_OS" = Windows ]; then
+            rustc conversation-manager/tests/fixtures/codex_launcher.rs -o "$CM_TEST_COMMAND_LAUNCHER"
+          fi
+          "$test_python" -B -m unittest discover -s agent-manager/tests -p test_environment_lease.py -v
+          for module in agents support stdio codex_local opencode_frontend opencode_native; do
+            "$test_python" -B -m unittest discover -s conversation-manager/tests -p "test_${module}.py" -v
+          done
+      - name: Build and qualify selected installers
+        if: inputs.mode == 'installer'
+        run: |
+          uv python install 3.12.14
+          uv lock --project installer --check
+          python -B scripts/build_installers.py --product "$PRODUCT" --output dist/installers
+      - name: Assemble qualified release assets
+        if: inputs.mode == 'installer'
+        run: python -B scripts/ci_release.py archive --product "$PRODUCT" --input dist/installers --output dist/release --target "$NATIVE_TARGET"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: inputs.mode == 'installer'
+        with:
+          name: release-${{ inputs.product }}-${{ inputs.target }}
+          path: manager-suites/dist/release/
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,79 @@
+name: Product validation
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+    inputs:
+      product:
+        description: Package to check; affected includes downstream consumers
+        type: choice
+        default: affected
+        options: [affected, all, agent-manager, conversation-manager, mcp-manager, prompt-manager, skill-manager]
+      source-integration:
+        description: Explicitly test sibling source checkouts instead of released dependencies
+        type: boolean
+        default: false
+      full:
+        description: Check Python 3.11 and 3.14 instead of only 3.11
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: product-ci-${{ github.ref }}-${{ inputs.product || 'affected' }}
+  cancel-in-progress: true
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      has-products: ${{ steps.plan.outputs.has-products }}
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.11'
+      - id: plan
+        env:
+          PRODUCT: ${{ inputs.product || 'affected' }}
+          FULL: ${{ inputs.full }}
+          BASE: ${{ github.event.before }}
+        run: |
+          args=(--product "$PRODUCT" --head "$GITHUB_SHA" --github-output "$GITHUB_OUTPUT")
+          if [ -n "$BASE" ]; then args+=(--base "$BASE"); fi
+          if [ "$FULL" = true ]; then args+=(--full); fi
+          python -B scripts/ci_plan.py "${args[@]}"
+  tooling:
+    uses: ./.github/workflows/repository-checks.yml
+  product:
+    name: ${{ matrix.product }} (Python ${{ matrix.python }})
+    needs: plan
+    if: needs.plan.outputs.has-products == 'true'
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    uses: ./.github/workflows/product.yml
+    secrets:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    with:
+      product: ${{ matrix.product }}
+      python: ${{ matrix.python }}
+      source-integration: ${{ inputs.source-integration || false }}
+  complete:
+    name: Product validation
+    if: always()
+    needs: [plan, tooling, product]
+    runs-on: ubuntu-24.04
+    steps:
+      - env:
+          PLAN: ${{ needs.plan.result }}
+          TOOLING: ${{ needs.tooling.result }}
+          PRODUCT: ${{ needs.product.result }}
+        run: |
+          test "$PLAN" = success
+          test "$TOOLING" = success
+          test "$PRODUCT" = success -o "$PRODUCT" = skipped

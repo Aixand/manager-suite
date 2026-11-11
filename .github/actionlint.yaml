@@ -1,0 +1,4 @@
+# Compatibility for actionlint releases predating the GitHub-hosted Intel label.
+self-hosted-runner:
+  labels:
+    - macos-15-intel

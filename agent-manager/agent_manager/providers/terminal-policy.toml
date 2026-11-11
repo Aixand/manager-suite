@@ -1,0 +1,53 @@
+# Agent Manager terminal features. General CLI/SDK policy remains shared with
+# conversation backends; a compatible CLI need not support these history adapters.
+schema = 1
+
+[providers.codex]
+install_version = "0.166.0"
+install_versions = ["0.162.1", "0.164.0", "0.166.0"]
+[providers.codex.continuation]
+mechanism = "codex-linux-history"
+supported_range = ">=0.162.1,<0.167.0"
+platforms = ["linux"]
+prerequisites = ["bubblewrap (bwrap)", "enabled user namespaces", "aixand-agent-manager[sdk]"]
+verification = "partial"
+verification_notes = "Native history, write-back and writer locks checked with disposable homes on 0.162.1 and 0.166.0; full interactive terminal check remains pending."
+
+[providers.opencode]
+install_version = "2.2.5"
+install_versions = ["2.0.18", "2.1.4", "2.2.0", "2.2.5"]
+[providers.opencode.continuation]
+mechanism = "opencode-session-copy"
+recommended_version = "2.0.18"
+supported_range = "==2.0.18"
+platforms = ["linux", "darwin", "win32"]
+prerequisites = []
+verification = "pending"
+verification_notes = "2.0.18 synthetic transfer checks passed. Native 2.2.5 import overwrote an existing session in the disposable safety probe, so it is not approved for cross-environment continuation."
+
+[providers.claude]
+install_version = "2.1.316"
+install_versions = ["2.1.302", "2.1.316"]
+[providers.claude.continuation]
+mechanism = "claude-transcript-path"
+supported_range = "==2.1.316"
+platforms = ["linux"]
+prerequisites = []
+verification = "offline-verified"
+verification_notes = "Native 2.1.316 resume and write-back checked with disposable homes; authenticated model turns have not been checked."
+
+[providers.copilot]
+install_version = "1.0.105"
+install_versions = ["1.0.103", "1.0.104", "1.0.105"]
+[providers.copilot.continuation]
+mechanism = "copilot-session-link"
+supported_range = "==1.0.105"
+platforms = ["linux"]
+prerequisites = []
+verification = "offline-verified"
+verification_notes = "Native 1.0.105 resume and write-back checked with disposable homes; authenticated model turns have not been checked."
+
+[providers.antigravity]
+install_version = "1.4.12"
+# Managed downloads require a version-specific verified artifact for this host.
+install_versions = ["1.4.12"]

@@ -1,0 +1,21 @@
+# Normalize detected text to LF; preserve binary contents.
+# Review existing attributes and line endings before adopting these defaults.
+* text=auto eol=lf
+
+# Windows batch scripts use CRLF in working copies and LF in Git.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary

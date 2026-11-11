@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "include": [
+    "*.md",
+    "docs/**/*.md",
+    "*-manager/README.md",
+    "*-manager/docs/**/*.md",
+    "conversation-manager/examples/reference_chat/README.md"
+  ],
+  "exclude": [],
+  "allow_placeholders": false
+}

@@ -1,0 +1,58 @@
+schema_version = 3
+id = "antigravity"
+service = "google"
+label = "Antigravity"
+description = "Google’s coding agent"
+aliases = ["agy"]
+order = 50
+
+[terminal]
+executable = "agy"
+runtime = "direct"
+detection_profile = "antigravity"
+
+[terminal.home]
+strategy = "native-shared"
+default_path = "~/.gemini/antigravity-cli"
+binding = "shared"
+settings_scope = "shared"
+history_scope = "shared"
+
+[terminal.login]
+# Interactive native sign-in; Manager does not submit a prompt.
+args = []
+
+[terminal.sessions]
+strategy = "native-latest"
+resume_args = ["--continue"]
+resume_label = "Native latest-session shortcut; may start a new conversation"
+cross_environment_resume = "disabled"
+cross_environment_resume_reason = "Antigravity uses a shared native home and keyring; isolated profile homes and cross-profile writer handoff are not qualified."
+
+[terminal.models]
+strategy = "native-argument"
+
+[terminal.models.discovery]
+adapter = "antigravity-models"
+versions = ["1.4.8"]
+timeout = 30
+cache_ttl = 86400
+
+[terminal.budget]
+adapter = "antigravity-usage"
+versions = ["1.4.8"]
+timeout = 20
+cache_ttl = 300
+
+[terminal.budget.selection]
+strategy = "max-remaining"
+buckets = ["gemini-*", "3p-*"]
+
+[terminal.budget.selection.model_families]
+gemini = ["*gemini*"]
+third_party = ["*claude*", "*gpt*", "*opus*", "*sonnet*", "*haiku*", "*fable*"]
+
+[terminal.instructions]
+strategy = "global"
+filename = "GEMINI.md"
+paths = ["~/.gemini/GEMINI.md", "~/.gemini/AGENTS.md", "~/.gemini/config/GEMINI.md", "~/.gemini/config/AGENTS.md"]

@@ -1,0 +1,27 @@
+name: Feature request
+description: Explain a use case and a proposed improvement.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues are welcome. We are not accepting pull requests because of limited maintainer capacity.
+        See the [participation policy](https://github.com/Aixand/manager-suite/blob/main/CONTRIBUTING.md).
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What are you trying to accomplish, and what is difficult today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the outcome and who would benefit.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or workarounds
+      description: Include any relevant tradeoffs or constraints.

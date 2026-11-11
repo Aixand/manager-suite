@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability privately
+    url: "https://github.com/Aixand/manager-suite/blob/HEAD/SECURITY.md"
+    about: Follow the security policy instead of opening a public issue.
+  - name: Report a conduct concern privately
+    url: "https://github.com/Aixand/manager-suite/blob/HEAD/CODE_OF_CONDUCT.md"
+    about: Contact the conduct reporting address in this policy.
