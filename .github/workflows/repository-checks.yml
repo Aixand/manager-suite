@@ -1,0 +1,32 @@
+name: Repository checks
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  tooling:
+    name: Repository checks
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.11'
+      - uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c
+        with:
+          version: '0.12.7'
+          enable-cache: true
+      - run: uv pip install --system ruff==0.15.7 PyYAML==6.0.3
+      - run: ruff check --config pyproject.toml .
+      - run: python -B scripts/checks/check-repository-files.py
+      - run: python -B scripts/checks/check-docs.py --root .
+      - name: Test repository tooling without sibling checkouts
+        run: |
+          python -B tests/tooling/checks/docs_test.py
+          python -B tests/tooling/checks/current_wording_test.py
+          python -B tests/tooling/checks/repository_files_test.py
+          python -B tests/tooling/checks/installer_routing_test.py
+          python -B tests/tooling/checks/ci_test.py
+          python -B tests/tooling/checks/published_dependencies_test.py

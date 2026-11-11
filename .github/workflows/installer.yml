@@ -1,0 +1,217 @@
+name: Product and suite releases
+on:
+  push:
+    tags:
+      - 'aixand-agent-manager/v*'
+      - 'aixand-conversation-manager/v*'
+      - 'aixand-mcp-manager/v*'
+      - 'aixand-prompt-manager/v*'
+      - 'aixand-skill-manager/v*'
+      - 'aixand-manager-suite/v*'
+  workflow_dispatch:
+    inputs:
+      product:
+        description: Build and qualify a candidate without publishing
+        type: choice
+        required: true
+        options: [agent-manager, conversation-manager, mcp-manager, prompt-manager, skill-manager, manager-suite]
+permissions:
+  contents: read
+concurrency:
+  group: product-release-${{ github.ref }}-${{ inputs.product || 'tag' }}
+  cancel-in-progress: false
+jobs:
+  tooling:
+    uses: ./.github/workflows/repository-checks.yml
+  security:
+    uses: ./.github/workflows/secret-scan.yml
+  policy:
+    uses: ./.github/workflows/repository-files.yml
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      product: ${{ steps.plan.outputs.product }}
+      version: ${{ steps.plan.outputs.version }}
+      tag: ${{ steps.plan.outputs.tag }}
+      prerelease: ${{ steps.plan.outputs.prerelease }}
+      matrix: ${{ steps.plan.outputs.matrix }}
+      native-matrix: ${{ steps.plan.outputs.native-matrix }}
+      native-count: ${{ steps.plan.outputs.native-count }}
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.11'
+      - id: plan
+        env:
+          PRODUCT: ${{ inputs.product }}
+        run: |
+          args=(plan --github-output "$GITHUB_OUTPUT")
+          if [ "$GITHUB_EVENT_NAME" = push ] && [ "$GITHUB_REF_TYPE" = tag ]; then
+            args+=(--tag "$GITHUB_REF_NAME")
+          else
+            args+=(--product "$PRODUCT")
+          fi
+          python -B scripts/ci_release.py "${args[@]}"
+  checks:
+    name: Check ${{ matrix.product }} (Python ${{ matrix.python }})
+    needs: plan
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    uses: ./.github/workflows/product.yml
+    secrets:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    with:
+      product: ${{ matrix.product }}
+      python: ${{ matrix.python }}
+      pinned: true
+      python-artifact: ${{ matrix.product == needs.plan.outputs.product && matrix.python == '3.11' }}
+  installers:
+    name: ${{ needs.plan.outputs.product }} (${{ matrix.target }})
+    needs: [plan, checks]
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix: ${{ fromJSON(needs.plan.outputs.native-matrix) }}
+    uses: ./.github/workflows/product.yml
+    secrets:
+      SOURCE_READ_TOKEN: ${{ secrets.SOURCE_READ_TOKEN }}
+    with:
+      product: ${{ needs.plan.outputs.product }}
+      mode: installer
+      python: '3.12.14'
+      runner: ${{ matrix.os }}
+      target: ${{ matrix.target }}
+      pinned: true
+  prepare:
+    name: Verify publication inputs
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    needs: [plan, installers, tooling, security, policy]
+    runs-on: ubuntu-24.04
+    concurrency:
+      group: manager-release-publication
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: release-${{ needs.plan.outputs.product }}-*
+          path: release
+          merge-multiple: true
+      - name: Reject changed payloads under an existing product version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/payload-history"
+          gh api --paginate "repos/$GH_REPO/releases?per_page=100" --jq '.[] | select(.draft == false) | .assets[] | select(.name | endswith("-payload-identities.json")) | .id' > "$RUNNER_TEMP/payload-assets"
+          while read -r asset; do
+            gh api -H 'Accept: application/octet-stream' "repos/$GH_REPO/releases/assets/$asset" > "$RUNNER_TEMP/payload-history/$asset.json"
+          done < "$RUNNER_TEMP/payload-assets"
+          python -B scripts/release_identity.py --current release --history "$RUNNER_TEMP/payload-history"
+      - name: Verify native assets
+        working-directory: release
+        env:
+          NATIVE_COUNT: ${{ needs.plan.outputs.native-count }}
+        run: |
+          test "$(find . -maxdepth 1 -name '*-provenance.json' | wc -l)" -eq "$NATIVE_COUNT"
+          for sums in *-SHA256SUMS.txt; do sha256sum -c "$sums"; done
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        if: needs.plan.outputs.product != 'manager-suite'
+        with:
+          name: python-${{ needs.plan.outputs.product }}
+          path: dist
+      - name: Validate Python distributions and existing PyPI files
+        if: needs.plan.outputs.product != 'manager-suite'
+        env:
+          PRODUCT: ${{ needs.plan.outputs.product }}
+        run: python -B scripts/pypi_release.py "$PRODUCT" dist --pending pending
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: qualified-publication
+          path: |
+            release/*
+            dist/*
+          if-no-files-found: error
+          retention-days: 14
+  pypi:
+    name: Publish Python distribution
+    needs: [plan, prepare]
+    if: needs.plan.outputs.product != 'manager-suite'
+    runs-on: ubuntu-24.04
+    environment: ${{ needs.plan.outputs.product == 'mcp-manager' && 'pypi-manager-suite' || format('pypi-{0}', needs.plan.outputs.product) }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: python-${{ needs.plan.outputs.product }}
+          path: dist
+      - name: Select unpublished files, refusing changed existing files
+        id: pending
+        env:
+          PRODUCT: ${{ needs.plan.outputs.product }}
+        run: python -B scripts/pypi_release.py "$PRODUCT" dist --pending pending --github-output "$GITHUB_OUTPUT"
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086
+        if: steps.pending.outputs.count != '0'
+        with:
+          packages-dir: pending/
+  publish:
+    name: Publish qualified release
+    needs: [plan, prepare, pypi]
+    if: always() && needs.prepare.result == 'success' && (needs.pypi.result == 'success' || (needs.plan.outputs.product == 'manager-suite' && needs.pypi.result == 'skipped'))
+    runs-on: ubuntu-24.04
+    concurrency:
+      group: manager-release-publication
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: qualified-publication
+          path: release
+      - name: Flatten qualified assets
+        run: |
+          mkdir -p assets
+          find release -type f -exec cp -t assets {} +
+      - name: Verify assets and publish once all selected native targets passed
+        working-directory: assets
+        env:
+          NATIVE_COUNT: ${{ needs.plan.outputs.native-count }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.plan.outputs.tag }}
+          PRODUCT: ${{ needs.plan.outputs.product }}
+          PRERELEASE: ${{ needs.plan.outputs.prerelease }}
+        run: |
+          test "$(find . -maxdepth 1 -name '*-provenance.json' | wc -l)" -eq "$NATIVE_COUNT"
+          for sums in *-SHA256SUMS.txt; do sha256sum -c "$sums"; done
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo 'This release already exists; refusing to replace its assets.' >&2
+            exit 1
+          fi
+          args=(release create "$TAG" --verify-tag --draft --latest=false --title "$TAG" --notes "Qualified native installers for $PRODUCT. Source commits and checksums are attached.")
+          if [ "$PRERELEASE" = true ]; then args+=(--prerelease); fi
+          gh "${args[@]}" ./*
+          latest=false
+          if [ "$PRODUCT" = manager-suite ] && [ "$PRERELEASE" = false ]; then latest=true; fi
+          gh release edit "$TAG" --draft=false --latest="$latest"

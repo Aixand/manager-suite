@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools==84.1.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aixand-mcp-manager"
+version = "0.1.0b0"
+description = "Profile-independent MCP definitions and retained preparation jobs"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["aixand-lib-filesystem>=0.1.0b0,<0.2", "aixand-lib-github-source>=0.1.0b0,<0.2"]
+
+[project.scripts]
+mcp-manager = "mcp_manager.interfaces.cli.application:main"
+
+[project.urls]
+Repository = "https://github.com/Aixand/manager-suite"
+Issues = "https://github.com/Aixand/manager-suite/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+mcp_manager = ["schemas/*.json"]

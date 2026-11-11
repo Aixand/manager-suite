@@ -1,0 +1,51 @@
+{
+  "schema": "prompt-manager/pack-1",
+  "name": "demo",
+  "description": "Two prompts sharing instructions and a reference document.",
+  "dependencies": {"common": "common@1"},
+  "sections": {
+    "review-task": {
+      "file": "sections/review-task.md",
+      "inputs": {"task": {"type": "string"}, "context": {"type": "object"}}
+    },
+    "summary-task": {
+      "file": "sections/summary-task.md",
+      "inputs": {"task": {"type": "string"}}
+    }
+  },
+  "prompts": {
+    "review": {
+      "description": "Review supplied work with optional writing guidance.",
+      "inputs": {
+        "task": {"type": "string"},
+        "context": {"type": "object", "default": {}},
+        "include_guide": {"type": "boolean", "default": true}
+      },
+      "sections": [
+        {"id": "working", "section": "common/working", "role": "system"},
+        {"id": "task", "section": "review-task", "role": "user", "heading": "Review request",
+         "inputs": {"task": {"input": "task"}, "context": {"input": "context"}}},
+        {"id": "guide", "document": "common/writing-guide", "heading": "Writing reference",
+         "when": {"input": "include_guide", "equals": true}}
+      ]
+    },
+    "summarize": {
+      "description": "Summarize a task using the same shared instructions and guide.",
+      "inputs": {"task": {"type": "string"}},
+      "sections": [
+        {"id": "working", "section": "common/working", "role": "system"},
+        {"id": "task", "section": "summary-task", "heading": "Summary request",
+         "inputs": {"task": {"input": "task"}}},
+        {"id": "guide", "document": "common/writing-guide", "heading": "Writing reference"}
+      ]
+    }
+  },
+  "examples": [
+    {"name": "review-with-guide", "prompt": "review", "inputs": {"task": "Review the parser", "context": {"language": "Python"}},
+     "expect": {"contains": ["Review the parser", "{\"language\":\"Python\"}", "{{ example }}"], "section_ids": ["working", "task", "guide"]}},
+    {"name": "review-without-guide", "prompt": "review", "inputs": {"task": "Review the parser", "include_guide": false},
+     "expect": {"excludes": ["Writing reference"], "section_ids": ["working", "task"]}},
+    {"name": "short-summary", "prompt": "summarize", "inputs": {"task": "A new parser"},
+     "expect": {"contains": ["Summarize this task", "A new parser"], "section_ids": ["working", "task", "guide"]}}
+  ]
+}

@@ -1,0 +1,57 @@
+schema_version = 3
+id = "codex"
+service = "openai"
+label = "Codex"
+description = "OpenAI’s coding agent"
+aliases = []
+order = 10
+
+[terminal]
+executable = "codex"
+runtime = "direct"
+run_args = []
+launch_args = []
+app_server_args = []
+
+[terminal.home]
+strategy = "environment-directory"
+environment = "CODEX_HOME"
+default_path = "~/.codex"
+binding = "environment"
+settings_scope = "environment"
+history_scope = "environment"
+
+[terminal.login]
+args = ["login"]
+status_args = ["login", "status"]
+logout_args = ["logout"]
+
+[terminal.sessions]
+strategy = "codex-transcripts"
+resume_args = ["resume"]
+activity_glob = "sessions/**/*.jsonl"
+cross_environment_resume = "codex-linux-history"
+
+[terminal.models]
+strategy = "codex-config"
+
+[terminal.models.discovery]
+adapter = "codex-models"
+versions = ["0.162.1", "0.164.0", "0.166.0"]
+timeout = 30
+cache_ttl = 86400
+
+[terminal.budget]
+adapter = "codex-rate-limits"
+versions = ["0.162.1", "0.164.0", "0.166.0"]
+timeout = 20
+cache_ttl = 300
+
+[terminal.budget.selection]
+strategy = "max-remaining"
+buckets = ["codex:primary", "codex:secondary", "default:primary", "default:secondary"]
+
+[terminal.instructions]
+strategy = "home"
+filename = "AGENTS.md"
+overrides = ["AGENTS.override.md"]

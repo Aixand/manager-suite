@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conversation Lab</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2375ddc3'/%3E%3Cpath d='M8 9h16v11H14l-5 4v-4H8z' fill='%230d181b'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="/" aria-label="Conversation Lab home"><span class="brand-icon">↗</span><span>Conversation Lab<small>REFERENCE FRONTEND</small></span></a>
+    <button class="new-button" id="new-chat"><span>＋</span> New conversation <kbd>N</kbd></button>
+    <div class="section-label">CONVERSATIONS <span id="chat-count">0</span></div>
+    <nav id="chat-list" aria-label="Conversations"></nav>
+    <div class="sidebar-bottom"><span class="online-dot"></span><div>Local workspace<small>Browser ↔ Python SDK ↔ agent</small></div><span class="local-tag">LOCAL</span></div>
+  </aside>
+  <main>
+    <header class="topbar">
+      <button class="icon-button mobile-menu" id="menu" aria-label="Toggle conversations">☰</button>
+      <div class="breadcrumbs">WORKSPACE <span>/</span> <strong>Conversation</strong></div>
+      <div class="top-actions"><span class="mode-badge" id="mode">No conversation</span><button class="quiet" id="inspector-toggle">◫ Inspector</button></div>
+    </header>
+    <section class="conversation-header">
+      <div><div class="eyebrow" id="agent-label">CONVERSATION MANAGER</div><h1 id="title">A place to test the conversation.</h1><div class="connection-line"><span class="status-dot" id="status-dot"></span><span id="connection-status">Choose an agent to begin</span><span class="model-label" id="model-label"></span></div></div>
+      <div class="conversation-actions"><button class="quiet" id="detach" disabled>Detach</button><button class="quiet danger" id="stop" disabled>Stop backend</button></div>
+    </section>
+    <div class="content-row">
+      <section class="chat-area">
+        <div class="timeline" id="timeline" aria-live="polite" aria-label="Conversation messages">
+          <div class="empty" id="empty"><div class="empty-mark">↗</div><h2>Start with a small conversation.</h2><p>Try a message, answer a question, or disconnect while an agent is working.</p><button class="primary" id="empty-start">New conversation <span>↗</span></button><div class="feature-row"><span>Streaming</span><i>·</i><span>Approvals</span><i>·</i><span>Reconnect</span></div></div>
+        </div>
+        <div class="requests" id="requests"></div>
+        <div class="composer-wrap">
+          <section id="queue-panel" class="queue-panel" aria-label="Queued messages" hidden></section>
+          <div id="queue-delivery" class="queue-delivery" hidden><label>Delivery <select id="delivery-mode"><option value="after_turn">After current turn</option><option value="next_tool_completion" disabled>At next tool completion</option></select></label><small id="queue-hint"></small></div>
+          <div class="demo-shortcuts" id="demo-shortcuts" hidden><span>TRY THE DEMO</span><button data-prompt="Hello, conversation manager!">Say hello</button><button data-prompt="permission">Ask for approval</button><button data-prompt="question">Ask a question</button><button data-prompt="hold">Long-running turn</button><button data-prompt="queue-demo">Queue demo</button><button data-prompt="tool-queue-demo">Tool queue demo</button></div>
+          <div class="command-palette" id="palette" hidden><div class="palette-heading"><span>Slash commands</span><label><input type="checkbox" id="show-unavailable"> Show unavailable</label></div><div id="palette-list"></div></div>
+          <form class="composer" id="composer"><textarea id="message" rows="2" placeholder="Start a conversation to send a message…" aria-label="Message" disabled></textarea><div class="composer-bottom"><div><button type="button" id="commands" class="slash-button" disabled aria-label="Browse slash commands">/</button><span class="composer-hint">Enter to send <span>·</span> Shift + Enter for a new line</span></div><button type="button" class="cancel-button" id="cancel" hidden>■ Stop turn</button><button type="submit" class="send-button" id="send" disabled aria-label="Send message">↑</button></div></form>
+          <div class="footer-note"><span id="footer-mode">Offline demo available · no provider quota needed</span><span>Built against the public SDK</span></div>
+        </div>
+      </section>
+      <aside class="inspector" id="inspector" hidden><div class="inspector-title">Inspector <button class="icon-button" id="inspector-close" aria-label="Close inspector">×</button></div><div class="tabs"><button data-tab="activity" class="active">Activity</button><button data-tab="settings">Settings</button><button data-tab="catalog">Commands</button><button data-tab="recovery">Recovery</button></div><div class="inspector-body" id="inspector-body"></div></aside>
+    </div>
+  </main>
+</div>
+<dialog id="start-dialog"><form id="start-form"><div class="dialog-heading"><span class="eyebrow">NEW CONVERSATION</span><button type="button" class="icon-button" id="dialog-close" aria-label="Close dialog">×</button></div><h2>Choose where to begin.</h2><p class="muted">The offline demo runs a retained SDK worker. Live agents use your configured account.</p><label class="field">Agent<select id="agent" required></select></label><div class="mode-explanation" id="mode-explanation"></div><label class="field">Working directory<input id="cwd" type="text" autocomplete="off"></label><label class="field">Model <span class="optional">optional</span><input id="model" type="text" placeholder="Use the agent’s default" autocomplete="off"></label><p class="form-error" id="start-error" role="alert"></p><button type="submit" class="primary full" id="start-submit">Create conversation <span>↗</span></button></form></dialog>
+<div id="toast" class="toast" role="status" hidden></div>
+</body></html>

@@ -1,0 +1,58 @@
+schema_version = 3
+id = "opencode"
+label = "OpenCode"
+description = "An open-source agent with multiple model providers"
+aliases = []
+order = 20
+
+[terminal]
+executable = "opencode"
+runtime = "direct"
+run_args = []
+launch_args = []
+
+[terminal.home]
+strategy = "opencode-xdg"
+environment = "XDG_DATA_HOME"
+default_path = "~/.local/share/opencode"
+binding = "environment"
+settings_scope = "environment"
+history_scope = "environment"
+
+[terminal.login]
+args = ["auth", "login", "--standalone"]
+
+[terminal.sessions]
+strategy = "opencode-database"
+resume_args = ["--session"]
+cross_environment_resume = "opencode-session-copy"
+
+[terminal.models]
+strategy = "opencode-config"
+
+[terminal.models.discovery]
+adapter = "opencode-models"
+versions = ["2.0.18", "2.2.5"]
+timeout = 30
+cache_ttl = 86400
+
+[terminal.budget]
+adapter = "disabled"
+reason = "Account allowances are inspected through reviewed integrations."
+
+[terminal.budget.selection]
+strategy = "comparable-or-default"
+buckets = ["openai:codex:primary", "openai:codex:secondary"]
+
+[terminal.integrations]
+adapter = "opencode-integrations"
+versions = ["2.0.18", "2.2.5"]
+timeout = 30
+cache_ttl = 300
+
+# Discovery automatically uses shared service definitions. An optional services
+# array restricts it, for example services = ["openai", "openrouter"].
+
+[terminal.instructions]
+strategy = "opencode-config"
+filename = "AGENTS.md"

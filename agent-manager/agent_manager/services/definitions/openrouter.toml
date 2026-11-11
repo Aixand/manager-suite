@@ -1,0 +1,12 @@
+schema_version = 1
+id = "openrouter"
+label = "OpenRouter"
+
+[discovery.opencode]
+integration_ids = ["openrouter"]
+packages = ["@opencode/ai/providers/openrouter"]
+endpoints = ["https://openrouter.ai/api/v1"]
+
+[authentication.key]
+budget_kind = "credits"
+budget_adapter = "openrouter-key"

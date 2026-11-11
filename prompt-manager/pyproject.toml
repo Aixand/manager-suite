@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools==84.1.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aixand-prompt-manager"
+version = "0.1.0b0"
+description = "Local, reproducible prompt packs, composition, and releases"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+
+[project.scripts]
+prompt-manager = "prompt_manager.interfaces.cli.dispatch:main"
+
+[project.urls]
+Repository = "https://github.com/Aixand/manager-suite"
+Issues = "https://github.com/Aixand/manager-suite/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+prompt_manager = ["py.typed"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]

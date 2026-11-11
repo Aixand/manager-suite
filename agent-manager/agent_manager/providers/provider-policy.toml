@@ -1,0 +1,75 @@
+# Canonical provider release policy. Regenerate packaged copies with scripts/provider_policy.py.
+schema = 1
+release = "2026-11-02.2"
+
+[providers.codex.cli]
+label = "Codex"
+executable = "codex"
+install_version = "0.166.0"
+supported_range = ">=0.162.1,<0.167.0"
+tested_versions = ["0.162.1", "0.164.0", "0.166.0"]
+blocked_versions = []
+
+[providers.opencode.cli]
+label = "OpenCode"
+executable = "opencode"
+install_version = "2.2.5"
+supported_range = ">=2.0.18,<3.0.0"
+tested_versions = ["2.0.18", "2.1.4", "2.2.0", "2.2.5"]
+blocked_versions = []
+
+[providers.claude.cli]
+label = "Claude Code"
+executable = "claude"
+install_version = "2.1.316"
+supported_range = ">=2.1.302,<3.0.0"
+tested_versions = ["2.1.302", "2.1.316"]
+# SDK 0.2.168: approval callback and steering regressions in local model fixtures.
+blocked_versions = ["2.1.310"]
+
+[providers.copilot.cli]
+label = "GitHub Copilot"
+executable = "copilot"
+install_version = "1.0.105"
+supported_range = ">=1.0.103,<2.0.0"
+tested_versions = ["1.0.103", "1.0.104", "1.0.105"]
+blocked_versions = []
+
+[providers.antigravity.cli]
+label = "Antigravity"
+executable = "agy"
+install_version = "1.4.12"
+supported_range = ">=1.4.7,<2.0.0"
+tested_versions = ["1.4.7", "1.4.8", "1.4.12"]
+self_updates = true
+blocked_versions = []
+
+[artifacts.antigravity.linux_amd64]
+version = "1.4.12"
+url = "https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.12-4768735748292608/linux-x64/cli_linux_x64.tar.gz"
+sha512 = "ea01c73b772187bca928852cf96235f0d846d6da5ebdac188b9ae719597465737f325540d483ee5f3f62d151029001713344972a187ddfb98cc7b97f7204b7f4"
+
+[artifacts.antigravity.linux_arm64]
+version = "1.4.12"
+url = "https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.12-4768735748292608/linux-arm/cli_linux_arm64.tar.gz"
+sha512 = "7cae317fb6a02eb387982f06bfb234b366879cf9a80ad8969b571e5a55d1e37a6a5a49cd6b703c0443bb417937cf5e3b14a8c80cb26917ad79eef723a9f374c7"
+
+[artifacts.antigravity.darwin_amd64]
+version = "1.4.12"
+url = "https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.12-4768735748292608/darwin-x64/cli_mac_x64.tar.gz"
+sha512 = "1d78368cd5a136dc4c7cc71cfe4649d1b1e643630d79327ff3c4efd4b19a90d5603e2cf65a54f80c7eaef973dd09f854dae8a8228b4edd4c6466c679ded9babf"
+
+[artifacts.antigravity.darwin_arm64]
+version = "1.4.12"
+url = "https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.12-4768735748292608/darwin-arm/cli_mac_arm64.tar.gz"
+sha512 = "e858cfc02fb5bb500a760643da270accd2847aa986b7e2973da97ad1928b99d62f62bad28c039e25b65e1ca073d27b2f30b13ed0919d0329774eb1e0ee5b4748"
+
+[artifacts.antigravity.windows_amd64]
+version = "1.4.12"
+url = "https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.12-4768735748292608/windows-x64/cli_windows_x64.exe"
+sha512 = "6f44299b3b2f8ddb349f1e21bf07962c602a117adb62d7e81a4b041ede2067ec77ed26059f8636cb94295bfc9dd9f8ca9bf9ca4f4b4159ee6171a17a082c4082"
+
+[artifacts.antigravity.windows_arm64]
+version = "1.4.12"
+url = "https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.12-4768735748292608/windows-arm/cli_windows_arm64.exe"
+sha512 = "8d25c63471091b49578ecca401f61ae9b5104b86d8b51971b904c15ffb96c829e8ea195b46be1eac23274bbb17f1ebc8d92e2e0a29f9fa01d40e4f04eb30aeb0"

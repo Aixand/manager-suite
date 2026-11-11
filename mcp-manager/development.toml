@@ -1,0 +1,14 @@
+# Local contributor commands follow installation-template revision 2.
+# Paths are consulted only with explicit --local; installed packages use wheels.
+[development]
+import = "mcp_manager"
+extras = []
+tools = ["ruff==0.15.7", "setuptools==84.1.0", "wheel==0.46.2", "pip==26.2"]
+
+[sources]
+"aixand-lib-filesystem" = "../../aixand-libraries/filesystem"
+"aixand-lib-github-source" = "../../aixand-libraries/github-source"
+
+[release]
+suite = ".."
+product = "mcp-manager"

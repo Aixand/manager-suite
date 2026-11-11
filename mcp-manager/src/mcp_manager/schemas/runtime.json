@@ -1,0 +1,409 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mcp-manager:runtime:1",
+  "$defs": {
+    "target": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "const": "mcp-manager/runtime-target-1"
+        },
+        "connector_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "backend_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "connection_ref": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "runtime_ref": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "native_session_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "selection_ref": {},
+        "selection_digest": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "prepared_generations": {
+          "type": [
+            "array",
+            "object"
+          ]
+        }
+      },
+      "required": [
+        "schema",
+        "connector_id",
+        "backend_id",
+        "connection_ref",
+        "runtime_ref"
+      ]
+    },
+    "capabilities": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "const": "mcp-manager/runtime-capabilities-1"
+        },
+        "connector_id": {
+          "type": "string"
+        },
+        "backend_id": {
+          "type": "string"
+        },
+        "inventory": {
+          "type": "boolean"
+        },
+        "reconnect": {
+          "type": "boolean"
+        },
+        "inventory_scopes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "server",
+              "session",
+              "process"
+            ]
+          }
+        },
+        "reconnect_scopes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "server",
+              "session",
+              "process"
+            ]
+          }
+        },
+        "server_filter": {
+          "type": "boolean"
+        },
+        "live_updates": {
+          "type": "boolean"
+        },
+        "preserve_selection": {
+          "type": "boolean"
+        },
+        "evidence": {
+          "type": "object"
+        },
+        "observed_at": {}
+      },
+      "required": [
+        "schema",
+        "connector_id",
+        "backend_id",
+        "inventory",
+        "reconnect",
+        "inventory_scopes",
+        "reconnect_scopes",
+        "server_filter",
+        "live_updates",
+        "preserve_selection",
+        "evidence",
+        "observed_at"
+      ]
+    },
+    "inventory": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "const": "mcp-manager/runtime-inventory-1"
+        },
+        "target": {
+          "$ref": "#/$defs/target"
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "server",
+            "session",
+            "process"
+          ]
+        },
+        "selection_ref": {},
+        "selection_digest": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "prepared_generations": {
+          "type": [
+            "array",
+            "object",
+            "null"
+          ]
+        },
+        "servers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/server"
+          }
+        },
+        "live_updates": {
+          "type": "boolean"
+        },
+        "observed_at": {}
+      },
+      "required": [
+        "schema",
+        "target",
+        "scope",
+        "selection_ref",
+        "selection_digest",
+        "prepared_generations",
+        "servers",
+        "live_updates",
+        "observed_at"
+      ]
+    },
+    "server": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "native_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "connection_status": {
+          "enum": [
+            "connected",
+            "connecting",
+            "failed",
+            "disconnected",
+            "unknown"
+          ]
+        },
+        "auth_status": {},
+        "tools": {},
+        "definition_state": {},
+        "preparation_state": {},
+        "native": {}
+      },
+      "required": [
+        "name",
+        "native_name",
+        "connection_status",
+        "auth_status",
+        "tools",
+        "definition_state",
+        "preparation_state",
+        "native"
+      ]
+    },
+    "reconnect": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "const": "mcp-manager/runtime-reconnect-1"
+        },
+        "operation_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "status": {
+          "enum": [
+            "accepted",
+            "completed",
+            "failed",
+            "unsupported",
+            "uncertain"
+          ]
+        },
+        "target": {
+          "$ref": "#/$defs/target"
+        },
+        "requested_scope": {
+          "type": "string",
+          "enum": [
+            "server",
+            "session",
+            "process"
+          ]
+        },
+        "actual_scope": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "server",
+                "session",
+                "process"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "affected_targets": {
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "selection_before": {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "selection_ref",
+                "selection_digest",
+                "prepared_generations"
+              ],
+              "properties": {
+                "selection_ref": {},
+                "selection_digest": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "prepared_generations": {
+                  "type": [
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "selection_after": {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "selection_ref",
+                "selection_digest",
+                "prepared_generations"
+              ],
+              "properties": {
+                "selection_ref": {},
+                "selection_digest": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "prepared_generations": {
+                  "type": [
+                    "array",
+                    "object",
+                    "null"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "selection_preserved": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "inventory": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/inventory"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "recovery": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schema",
+        "operation_id",
+        "status",
+        "target",
+        "requested_scope",
+        "actual_scope",
+        "affected_targets",
+        "selection_before",
+        "selection_after",
+        "selection_preserved",
+        "inventory",
+        "error",
+        "recovery"
+      ]
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "uncertain": {
+          "type": "boolean"
+        },
+        "operation_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "recovery": {}
+      },
+      "required": [
+        "code",
+        "message",
+        "uncertain",
+        "operation_id",
+        "recovery"
+      ]
+    }
+  }
+}

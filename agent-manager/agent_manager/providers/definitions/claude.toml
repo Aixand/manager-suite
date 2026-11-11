@@ -1,0 +1,59 @@
+schema_version = 3
+id = "claude"
+service = "anthropic"
+label = "Claude Code"
+description = "Anthropic’s coding agent"
+aliases = ["claude-code"]
+order = 30
+
+[terminal]
+executable = "claude"
+runtime = "direct"
+detection_profile = "claude-code"
+
+[terminal.home]
+strategy = "environment-directory"
+environment = "CLAUDE_CONFIG_DIR"
+default_path = "~/.claude"
+binding = "environment"
+settings_scope = "environment"
+history_scope = "environment"
+
+[terminal.login]
+args = ["auth", "login"]
+status_args = ["auth", "status"]
+logout_args = ["auth", "logout"]
+
+[terminal.sessions]
+strategy = "native-picker"
+resume_args = ["--resume"]
+cross_environment_resume = "claude-transcript-path"
+
+[terminal.models]
+strategy = "native-argument"
+
+[terminal.models.discovery]
+adapter = "claude-models"
+versions = ["2.1.302", "2.1.316"]
+timeout = 30
+cache_ttl = 86400
+
+[terminal.budget]
+adapter = "claude-usage"
+versions = ["2.1.302", "2.1.317"]
+timeout = 20
+cache_ttl = 300
+
+[terminal.budget.selection]
+strategy = "max-remaining"
+buckets = ["claude:*"]
+
+[terminal.budget.selection.model_families]
+opus = ["*opus*"]
+sonnet = ["*sonnet*", "opusplan"]
+haiku = ["*haiku*"]
+fable = ["*fable*"]
+
+[terminal.instructions]
+strategy = "home"
+filename = "CLAUDE.md"
