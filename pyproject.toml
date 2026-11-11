@@ -13,7 +13,7 @@ runtime = [
   "jsonschema==4.25.1",
   "windows-curses>=2.4; sys_platform == 'win32'",
 ]
-dev = ["aixand-undercurrent-sdk==0.1.0b0", "mcp==1.30.0", "aixand-carrier-mcp==0.1.0b0", "ruff==0.15.7", "setuptools==80.9.0", "wheel==0.45.1", "pip==25.3"]
+dev = ["aixand-undercurrent-sdk==0.1.0b0", "mcp==1.30.0", "aixand-carrier-mcp==0.1.0b0", "ruff==0.15.7", "setuptools==80.9.0", "wheel==0.45.1", "pip==26.2"]
 sdk-backends = ["claude-agent-sdk==0.2.168", "google-antigravity==0.1.22", "github-copilot-sdk==1.0.26", "mcp>=1.30,<2"]
 sdk-claude = ["claude-agent-sdk==0.2.168", "mcp==1.30.0"]
 sdk-antigravity = ["google-antigravity==0.1.22", "mcp==1.30.0"]
