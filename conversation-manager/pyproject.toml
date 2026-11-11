@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aixand-conversation-manager"
+version = "0.1.0b0"
+description = "Retained AI agent conversations for chat interfaces"
+readme = "README.md"
+requires-python = ">=3.11,<3.15"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["aixand-lib-filesystem>=0.1.0b0,<0.2", "aixand-lib-local-runtime>=0.1.0b0,<0.2"]
+
+[project.optional-dependencies]
+undercurrent = ["aixand-undercurrent-sdk>=0.1.0b0,<0.2"]
+agents = ["aixand-agent-manager>=0.1.0b0,<0.2"]
+native-codex = ["aixand-lib-local-runtime[websocket]>=0.1.0b0,<0.2", "websockets>=15,<18", "jsonschema>=4.23,<5"]
+claude-sdk = ["claude-agent-sdk==0.2.168", "mcp>=1.30,<2"]
+antigravity-sdk = ["google-antigravity==0.1.22", "mcp>=1.30,<2"]
+copilot-sdk = ["github-copilot-sdk==1.0.26"]
+
+[project.scripts]
+conversation-manager = "conversation_manager.cli:main"
+
+[project.urls]
+Repository = "https://github.com/Aixand/manager-suite"
+Issues = "https://github.com/Aixand/manager-suite/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+conversation_manager = ["native_response_schemas.json", "notices/*.LICENSE", "provider-policy.toml", "provider-sdk-*.txt"]

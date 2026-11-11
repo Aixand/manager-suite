@@ -1,0 +1,40 @@
+{
+  "schema": "prompt-manager/pack-1",
+  "name": "agents",
+  "description": "Opt-in instructions for Agent Manager conversations; no task message.",
+  "dependencies": {"common": "common@1"},
+  "sections": {
+    "coding": {"file": "sections/coding.md"},
+    "review": {"file": "sections/review.md"},
+    "research": {"file": "sections/research.md"}
+  },
+  "prompts": {
+    "coding": {
+      "inputs": {"audience": {"type": "string", "default": "the development team"}},
+      "sections": [
+        {"id": "working", "section": "common/working", "role": "system", "inputs": {"audience": {"input": "audience"}}},
+        {"id": "coding", "section": "coding", "role": "system", "heading": "Coding approach"}
+      ]
+    },
+    "review": {
+      "inputs": {"audience": {"type": "string", "default": "the development team"}},
+      "sections": [
+        {"id": "working", "section": "common/working", "role": "system", "inputs": {"audience": {"input": "audience"}}},
+        {"id": "review", "section": "review", "role": "system", "heading": "Review approach"},
+        {"id": "writing", "document": "common/writing-guide", "role": "system", "heading": "Writing reference"}
+      ]
+    },
+    "research": {
+      "inputs": {"audience": {"type": "string", "default": "the development team"}},
+      "sections": [
+        {"id": "working", "section": "common/working", "role": "system", "inputs": {"audience": {"input": "audience"}}},
+        {"id": "research", "section": "research", "role": "system", "heading": "Research approach"}
+      ]
+    }
+  },
+  "examples": [
+    {"name": "coding", "prompt": "coding", "inputs": {}, "expect": {"section_ids": ["working", "coding"], "contains": ["Coding approach"]}},
+    {"name": "review", "prompt": "review", "inputs": {"audience": "maintainers"}, "expect": {"section_ids": ["working", "review", "writing"], "contains": ["Write for maintainers", "Review approach"]}},
+    {"name": "research", "prompt": "research", "inputs": {}, "expect": {"section_ids": ["working", "research"], "contains": ["Research approach"]}}
+  ]
+}

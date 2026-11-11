@@ -1,0 +1,12 @@
+# Local contributor commands follow installation-template revision 2.
+# Paths are consulted only with explicit --local; installed packages use wheels.
+[development]
+import = "prompt_manager"
+extras = []
+tools = ["ruff==0.15.7", "setuptools==80.9.0", "wheel==0.45.1", "pip==25.3"]
+
+[sources]
+
+[release]
+suite = ".."
+product = "prompt-manager"

@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aixand-skill-manager"
+version = "0.1.0b0"
+description = "Local native skill authoring, immutable whole-directory releases, and export"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["aixand-prompt-manager>=0.1.0b0,<0.2", "aixand-lib-filesystem>=0.1.0b0,<0.2", "PyYAML>=6.0.3,<7"]
+
+[project.optional-dependencies]
+github = ["aixand-lib-github-source>=0.1.0b0,<0.2"]
+dev = ["build>=1,<2"]
+
+[project.scripts]
+skill-manager = "skill_manager.cli:main"
+
+[project.urls]
+Repository = "https://github.com/Aixand/manager-suite"
+Issues = "https://github.com/Aixand/manager-suite/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+skill_manager = ["py.typed"]

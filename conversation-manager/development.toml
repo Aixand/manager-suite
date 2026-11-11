@@ -1,0 +1,15 @@
+# Local contributor commands follow installation-template revision 2.
+# Paths are consulted only with explicit --local; installed packages use wheels.
+[development]
+import = "conversation_manager"
+extras = ["agents", "native-codex"]
+tools = ["ruff==0.15.7", "setuptools==80.9.0", "wheel==0.45.1", "pip==25.3", "websockets==16.0", "jsonschema==4.25.1"]
+
+[sources]
+"aixand-lib-filesystem" = "../../aixand-libraries/filesystem"
+"aixand-lib-local-runtime" = "../../aixand-libraries/local-runtime"
+"aixand-agent-manager" = "../agent-manager"
+
+[release]
+suite = ".."
+product = "conversation-manager"

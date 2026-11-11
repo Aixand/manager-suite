@@ -1,0 +1,28 @@
+[project]
+name = "aixand-manager-suite-installation"
+version = "0.1.0b0"
+requires-python = ">=3.12,<3.13"
+
+[dependency-groups]
+build-inputs = ["aixand-lib-local-runtime==0.1.0b0", "aixand-lib-filesystem==0.1.0b0", "aixand-lib-github-source==0.1.0b0", "aixand-undercurrent-sdk==0.1.0b0"]
+mcp-manager = ["aixand-mcp-manager==0.1.0b0"]
+prompt-manager = ["aixand-prompt-manager==0.1.0b0"]
+skill-manager = ["aixand-skill-manager==0.1.0b0"]
+agent-manager = ["aixand-agent-manager[mcp,undercurrent]==0.1.0b0"]
+conversation-manager = ["aixand-conversation-manager[agents,native-codex]==0.1.0b0"]
+
+[tool.uv]
+package = false
+default-groups = []
+constraint-dependencies = [
+    "PyYAML==6.0.3",
+    "websockets==16.0",
+    "jsonschema==4.25.1",
+]
+
+[tool.uv.sources]
+aixand-mcp-manager = { path = "../mcp-manager" }
+aixand-prompt-manager = { path = "../prompt-manager" }
+aixand-skill-manager = { path = "../skill-manager" }
+aixand-agent-manager = { path = "../agent-manager", editable = true }
+aixand-conversation-manager = { path = "../conversation-manager", editable = true }

@@ -1,0 +1,5 @@
+{
+  "task": "Review the proposed prompt pack format.",
+  "context": {"language": "Python", "priority": "Simple local composition"},
+  "include_guide": true
+}

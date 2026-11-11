@@ -1,0 +1,74 @@
+# Official recipes reviewed 2026-11-02. Installation is independent of profiles.
+# npm/brew package identifiers below identify existing external software only.
+# Managed installations always use the official native installer/download.
+[agents.codex]
+label = "Codex"
+executable = "codex"
+docs = "https://learn.chatgpt.com/docs/codex/cli"
+npm_package = "@openai/codex"
+installer_url = "https://chatgpt.com/codex/install.sh"
+interpreter = "sh"
+version_flag = "--release"
+native_bin = "~/.local/bin/codex"
+brew_package = "codex"
+brew_cask = true
+brew_platforms = ["Darwin"]
+
+[agents.opencode]
+label = "OpenCode 2"
+executable = "opencode"
+docs = "https://opencode.ai/v2/docs"
+compatible_major = 2
+npm_package = "@opencode/cli"
+installer_url = "https://opencode.ai/v2/install"
+interpreter = "bash"
+version_flag = "--version"
+native_bin = "~/.opencode/bin/opencode"
+brew_package = "anomalyco/tap/opencode-v2"
+brew_cask = false
+brew_platforms = ["Darwin", "Linux"]
+
+[agents.claude]
+label = "Claude Code"
+docs = "https://code.claude.com/docs/en/setup"
+executable = "claude"
+native_bin = "~/.local/bin/claude"
+npm_package = "@anthropic-ai/claude-code"
+installer_url = "https://claude.ai/install.sh"
+interpreter = "bash"
+version_flag = ""
+brew_package = "claude-code"
+brew_cask = true
+brew_platforms = ["Darwin"]
+posix_command = "curl -fsSL https://claude.ai/install.sh | bash"
+windows_command = "irm https://claude.ai/install.ps1 | iex"
+
+[agents.copilot]
+label = "GitHub Copilot"
+executable = "copilot"
+# --version may run a newer cached release instead of the installed binary.
+version_args = ["--binary-version"]
+docs = "https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/install-copilot-cli"
+npm_package = "@github/copilot"
+installer_url = "https://gh.io/copilot-install"
+interpreter = "bash"
+version_environment = "VERSION"
+native_bin = "~/.local/bin/copilot"
+brew_package = "copilot-cli"
+brew_cask = true
+brew_platforms = ["Darwin", "Linux"]
+# No qualified native Windows recipe yet; never fall back to npm/WinGet.
+windows_methods = []
+
+[agents.antigravity]
+label = "Antigravity"
+docs = "https://antigravity.google/docs/getting-started?tab=cli"
+executable = "agy"
+methods = ["installer"]
+native_bin = "~/.local/bin/agy"
+installer_url = "https://antigravity.google/cli/install.sh"
+interpreter = "bash"
+pinned_artifact = true
+release_manifest = "https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/{platform}_{architecture}.json"
+posix_command = "curl -fsSL https://antigravity.google/cli/install.sh | bash"
+windows_command = "irm https://antigravity.google/cli/install.ps1 | iex"

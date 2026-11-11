@@ -1,0 +1,16 @@
+schema_version = 1
+id = "openai"
+label = "OpenAI"
+
+[discovery.opencode]
+integration_ids = ["openai"]
+packages = ["@opencode/ai/providers/openai"]
+endpoints = ["https://api.openai.com/v1", "https://chatgpt.com/backend-api/codex"]
+
+[authentication.oauth]
+budget_kind = "subscription"
+budget_adapter = "openai-native"
+
+[authentication.key]
+budget_kind = "api-billing"
+budget_adapter = "openai-native"

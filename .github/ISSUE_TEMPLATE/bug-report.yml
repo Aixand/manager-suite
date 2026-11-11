@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a reproducible problem.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues are welcome. We are not accepting pull requests because of limited maintainer capacity.
+        See the [participation policy](https://github.com/Aixand/manager-suite/blob/main/CONTRIBUTING.md).
+  - type: markdown
+    attributes:
+      value: |
+        For suspected vulnerabilities, follow [SECURITY.md](https://github.com/Aixand/manager-suite/blob/HEAD/SECURITY.md) privately.
+        Remove credentials and private information from all examples and logs.
+  - type: input
+    id: version
+    attributes:
+      label: Version or source commit
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system and relevant installation or configuration details.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Provide the smallest example that reproduces the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Relevant diagnostics
+      description: Optional sanitized logs, error messages, or screenshots. Review attachments before posting.

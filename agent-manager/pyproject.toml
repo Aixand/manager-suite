@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aixand-agent-manager"
+version = "0.1.0b0"
+description = "Manage native agent profiles, environments, and execution"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["aixand-lib-filesystem>=0.1.0b0,<0.2", "aixand-lib-local-runtime>=0.1.0b0,<0.2", "jsonschema>=4.25,<5", "websockets>=15,<18", "windows-curses>=2.4; sys_platform == 'win32'"]
+
+[project.optional-dependencies]
+undercurrent = ["aixand-undercurrent-sdk>=0.1.0b0,<0.2"]
+mcp = ["aixand-lib-local-runtime>=0.1.0b0,<0.2", "mcp>=1.30,<2"]
+sdk = ["aixand-undercurrent-sdk>=0.1.0b0,<0.2"]
+
+[project.scripts]
+agent = "agent_manager.interfaces.cli.dispatch:main"
+agent-manager-mcp = "agent_manager.interfaces.management_mcp:main"
+
+[project.urls]
+Repository = "https://github.com/Aixand/manager-suite"
+Issues = "https://github.com/Aixand/manager-suite/issues"
+
+[tool.setuptools.packages.find]
+include = ["agent_manager*"]
+
+[tool.setuptools.package-data]
+"agent_manager.services" = ["definitions/*.toml"]
+"agent_manager.integrations" = ["native/*.js", "native/package.json"]
+"agent_manager.providers" = ["definitions/*.toml", "provider-policy.toml", "terminal-policy.toml"]
+"agent_manager.providers.installation" = ["install_catalog.toml"]

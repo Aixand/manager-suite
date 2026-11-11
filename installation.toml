@@ -1,0 +1,191 @@
+schema = 2
+profile = "workspace"
+# Product releases use SemVer; Python wheels use the equivalent 0.1.0b0.
+
+[workspace]
+name = "manager-suite"
+version = "0.1.0-beta"
+default-product = "manager-suite"
+targets = ["linux-x86_64-gnu", "linux-arm64-gnu", "macos-x86_64", "macos-arm64", "windows-x86_64-msvc"]
+
+[commands]
+doctor = [["{python}", "-B", "scripts/suite.py", "doctor"]]
+develop = [["{python}", "-B", "scripts/suite.py", "develop"]]
+check = [["{python}", "-B", "scripts/suite.py", "check"]]
+test = [["{python}", "-B", "scripts/suite.py", "test"]]
+
+[components.mcp-manager]
+adapter = "payload"
+manifest = "pyproject.toml"
+path = "mcp-manager"
+dependencies = []
+build = [["{python}", "-B", "{root}/scripts/product_payload.py", "wheel", "--source", "{source}", "--output", "{output}", "--target", "{target}"]]
+
+[components.prompt-manager]
+adapter = "payload"
+manifest = "pyproject.toml"
+path = "prompt-manager"
+build = [["{python}", "-B", "{root}/scripts/product_payload.py", "wheel", "--source", "{source}", "--output", "{output}", "--target", "{target}"]]
+
+[components.skill-manager]
+adapter = "payload"
+manifest = "pyproject.toml"
+path = "skill-manager"
+dependencies = ["prompt-manager"]
+build = [["{python}", "-B", "{root}/scripts/product_payload.py", "wheel", "--source", "{source}", "--output", "{output}", "--target", "{target}"]]
+
+[components.conversation-manager]
+adapter = "payload"
+manifest = "pyproject.toml"
+path = "conversation-manager"
+dependencies = ["agent-manager"]
+build = [["{python}", "-B", "{root}/scripts/product_payload.py", "wheel", "--source", "{source}", "--output", "{output}", "--target", "{target}"]]
+
+[components.agent-manager]
+adapter = "payload"
+manifest = "pyproject.toml"
+path = "agent-manager"
+dependencies = []
+build = [["{python}", "-B", "{root}/scripts/product_payload.py", "wheel", "--source", "{source}", "--output", "{output}", "--target", "{target}"]]
+
+[components.mcp-manager-dependencies]
+adapter = "payload"
+build = [["{python}", "-B", "{root}/scripts/product_payload.py", "dependencies", "--profile", "mcp-manager", "--output", "{output}", "--target", "{target}"]]
+
+[products."manager-suite/mcp-manager"]
+release-tag = "aixand-mcp-manager/v{version}"
+adapter = "python"
+version = "0.1.0-beta"
+components = ["mcp-manager", "mcp-manager-dependencies"]
+dependencies = []
+python = "3.12.14"
+runtimes = ["python"]
+stateful = true
+verification = [["{command:mcp-manager}", "--help"], ["{python}", "-I", "{payload}/share/manager-suite/mcp-manager/verify.py"]]
+
+[products."manager-suite/mcp-manager".commands.mcp-manager]
+program = "bin/mcp-manager"
+runtime = "python"
+
+[components.prompt-manager-dependencies]
+adapter = "payload"
+build = [["{python}", "-B", "{root}/scripts/product_payload.py", "dependencies", "--profile", "prompt-manager", "--output", "{output}", "--target", "{target}"]]
+
+[products."manager-suite/prompt-manager"]
+release-tag = "aixand-prompt-manager/v{version}"
+adapter = "python"
+version = "0.1.0-beta"
+components = ["prompt-manager", "prompt-manager-dependencies"]
+dependencies = []
+python = "3.12.14"
+runtimes = ["python"]
+stateful = true
+verification = [["{command:prompt-manager}", "--help"], ["{python}", "-I", "{payload}/share/manager-suite/prompt-manager/verify.py"]]
+
+[products."manager-suite/prompt-manager".commands.prompt-manager]
+program = "bin/prompt-manager"
+runtime = "python"
+
+[components.skill-manager-dependencies]
+adapter = "payload"
+build = [["{python}", "-B", "{root}/scripts/product_payload.py", "dependencies", "--profile", "skill-manager", "--output", "{output}", "--target", "{target}"]]
+
+[products."manager-suite/skill-manager"]
+release-tag = "aixand-skill-manager/v{version}"
+adapter = "python"
+version = "0.1.0-beta"
+components = ["skill-manager", "skill-manager-dependencies"]
+dependencies = []
+python = "3.12.14"
+runtimes = ["python"]
+stateful = true
+verification = [["{command:skill-manager}", "--help"], ["{python}", "-I", "{payload}/share/manager-suite/skill-manager/verify.py"]]
+
+[products."manager-suite/skill-manager".commands.skill-manager]
+program = "bin/skill-manager"
+runtime = "python"
+
+[components.conversation-manager-dependencies]
+adapter = "payload"
+build = [["{python}", "-B", "{root}/scripts/product_payload.py", "dependencies", "--profile", "conversation-manager", "--output", "{output}", "--target", "{target}"]]
+
+[products."manager-suite/conversation-manager"]
+release-tag = "aixand-conversation-manager/v{version}"
+adapter = "python"
+version = "0.1.0-beta"
+components = ["conversation-manager", "conversation-manager-dependencies"]
+dependencies = []
+python = "3.12.14"
+runtimes = ["python"]
+stateful = true
+verification = [["{command:conversation-manager}", "--help"], ["{python}", "-I", "{payload}/share/manager-suite/conversation-manager/verify.py"]]
+[products."manager-suite/conversation-manager".extras]
+"aixand-conversation-manager" = ["agents", "native-codex"]
+
+[products."manager-suite/conversation-manager".commands.conversation-manager]
+program = "bin/conversation-manager"
+runtime = "python"
+
+[components.agent-manager-dependencies]
+adapter = "payload"
+build = [["{python}", "-B", "{root}/scripts/product_payload.py", "dependencies", "--profile", "agent-manager", "--output", "{output}", "--target", "{target}"]]
+
+[products."manager-suite/agent-manager"]
+release-tag = "aixand-agent-manager/v{version}"
+adapter = "python"
+version = "0.1.0-beta"
+components = ["agent-manager", "agent-manager-dependencies"]
+dependencies = []
+python = "3.12.14"
+runtimes = ["python"]
+stateful = true
+verification = [["{command:agent}", "--help"], ["{command:agent-manager-mcp}", "--help"], ["{python}", "-I", "{payload}/share/manager-suite/agent-manager/verify.py"]]
+[products."manager-suite/agent-manager".extras]
+"aixand-agent-manager" = ["mcp", "undercurrent"]
+
+[products."manager-suite/agent-manager".commands.agent]
+program = "bin/agent"
+runtime = "python"
+
+[products."manager-suite/agent-manager".commands.agent-manager-mcp]
+program = "bin/agent-manager-mcp"
+runtime = "python"
+
+[groups.manager-suite]
+release-tag = "aixand-manager-suite/v{version}"
+version = "0.1.0-beta"
+products = ["manager-suite/mcp-manager", "manager-suite/prompt-manager", "manager-suite/skill-manager", "manager-suite/conversation-manager", "manager-suite/agent-manager"]
+
+[runtimes.python]
+role = "python"
+version = "3.12.14"
+
+[runtimes.python.targets.linux-x86_64-gnu]
+path = "build/runtimes/linux-x86_64-gnu.tar.gz"
+sha256 = "7ce4a71285d913955a76053cc7605ea96da8ecada54dba9cf395245961816421"
+executable = "bin/python3"
+strip = 1
+
+[runtimes.python.targets.linux-arm64-gnu]
+path = "build/runtimes/linux-arm64-gnu.tar.gz"
+sha256 = "4c250ec7cea2aedde2b2e8925d7aaf5ba4924895469d6b5c81c7bdc453341c65"
+executable = "bin/python3"
+strip = 1
+
+[runtimes.python.targets.macos-x86_64]
+path = "build/runtimes/macos-x86_64.tar.gz"
+sha256 = "bd486eadd20259ad1fece28c800205baac0113c3b9cc663ddae495c19ba9db38"
+executable = "bin/python3"
+strip = 1
+
+[runtimes.python.targets.macos-arm64]
+path = "build/runtimes/macos-arm64.tar.gz"
+sha256 = "8b0f1fa71eab7ca644e482c631807a1116fa848491051cd1c8d9429491de63a6"
+executable = "bin/python3"
+strip = 1
+
+[runtimes.python.targets.windows-x86_64-msvc]
+path = "build/runtimes/windows-x86_64-msvc.tar.gz"
+sha256 = "8e6aad12ef6fc9685e67ce66253f8f72d6e8fa02cb7187e5850bd4db5ecd9e2a"
+executable = "python.exe"
+strip = 1
