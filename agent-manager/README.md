@@ -7,6 +7,21 @@ Manage native agent profiles, environments and execution independently of other
 managers. Supports Codex, Claude Code, Copilot, OpenCode and Antigravity, with
 provider-specific capabilities and native login ownership.
 
+## Install the CLI
+
+As an alternative to downloading a release archive, use the hosted beta installer
+on Linux/macOS:
+
+```sh
+curl -fsSL https://installer.aixand.org/manager/agent | sh
+```
+
+It bundles Python and dependencies, asks for confirmation, and keeps software
+separate from existing manager data. See
+[hosted installation](../docs/release-installation.md#hosted-installer-alternative)
+for supported targets, Windows PowerShell, script review, and custom stores.
+Python API consumers install the package in their own application's environment.
+
 ## Native CLI
 
 ```sh

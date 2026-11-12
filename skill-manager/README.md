@@ -37,6 +37,21 @@ Store locking and Windows pinned-path access use the standalone
 `aixand-lib-filesystem` library. The `.locks/store.lock` path and locking
 protocol coordinate concurrent store users.
 
+## Install the CLI
+
+As an alternative to downloading a release archive, use the hosted beta installer
+on Linux/macOS:
+
+```sh
+curl -fsSL https://installer.aixand.org/manager/skill | sh
+```
+
+It bundles Python and dependencies, asks for confirmation, and keeps software
+separate from existing manager data. See
+[hosted installation](../docs/release-installation.md#hosted-installer-alternative)
+for supported targets, Windows PowerShell, script review, and custom stores.
+Python API consumers install the package in their own application's environment.
+
 ## Install and verify
 
 ```sh

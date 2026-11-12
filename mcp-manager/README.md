@@ -31,6 +31,21 @@ JSON or `@PATH`; duplicate keys, nonfinite numbers and invalid Unicode are rejec
 also without `--json`, formatted for reading. Errors use
 `mcp-manager/error-1` with the exported `McpError.to_dict()` fields.
 
+## Install the CLI
+
+As an alternative to downloading a release archive, use the hosted beta installer
+on Linux/macOS:
+
+```sh
+curl -fsSL https://installer.aixand.org/manager/mcp | sh
+```
+
+It bundles Python and dependencies, asks for confirmation, and keeps software
+separate from existing manager data. See
+[hosted installation](../docs/release-installation.md#hosted-installer-alternative)
+for supported targets, Windows PowerShell, script review, and custom stores.
+Python API consumers install the package in their own application's environment.
+
 ## Home and independent API
 
 `home` is the MCP store itself. Selection is explicit `home`, `MCP_MANAGER_HOME`,

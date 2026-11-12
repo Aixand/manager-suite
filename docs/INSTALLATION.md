@@ -26,8 +26,9 @@ Provider executables, a running Undercurrent service, Runner, Carrier and Connec
 remain explicit integrations. Claude and Antigravity SDK extras are not included
 in these initial release profiles.
 
-For downloaded archives, follow [Install a release](release-installation.md).
-The same guide is included as `INSTALL.md` inside every release archive.
+For hosted installers or downloaded archives, follow
+[Install a release](release-installation.md).
+Release archives include an `INSTALL.md` guide from their release source revision.
 
 ## Build from source
 
@@ -91,9 +92,14 @@ sh dist/installers/bootstrap/bootstrap.sh install \
   --artifact dist/installers/aggregate --prefix "$HOME/.local/share/aixand/products"
 ```
 
-The future hosted routes are `manager-suite/install.sh` and
-`manager-suite/<product>/install.sh`, with PowerShell counterparts. These routes
-are a publishing contract; this change does not make them live.
+The independent hosted routes are live at
+`https://installer.aixand.org/manager/agent`, `/manager/conversation`,
+`/manager/mcp`, `/manager/prompt`, and `/manager/skill`, with `/install.ps1`
+PowerShell counterparts. They deliver verified `0.1.0-beta` archives through
+the same bootstrap and shared ownership model. See
+[the hosted installer guide](release-installation.md#hosted-installer-alternative).
+The all-five `/manager` route remains disabled until a collection is published
+and qualified; it does not run the five individual installers implicitly.
 
 ## Private application bundles and data
 

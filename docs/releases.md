@@ -122,6 +122,11 @@ marked as the repository's global latest release; stable suite releases are.
 The `installer.yml` workflow publishes each product to PyPI and attaches its
 wheel and source distribution to its GitHub release alongside native installers.
 The collection has only GitHub assets. Hosted installer catalog entries are separate.
+The qualified `0.1.0-beta` individual releases are available through `installer.aixand.org/manager/<name>`;
+see [hosted installation](release-installation.md#hosted-installer-alternative).
+Future releases require verified registration and hosted qualification before
+moving their catalog channel. A product tag or PyPI upload alone does not change
+the hosted installer. The all-five collection route remains disabled.
 
 Configure each PyPI trusted publisher with owner `Aixand`, repository
 `manager-suite`, workflow `installer.yml`, and environment `pypi-<product>`

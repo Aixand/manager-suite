@@ -9,7 +9,7 @@ collection installs all five.
 
 Start with the [candidate notes](docs/beta-release-notes.md),
 [platform and provider limits](docs/beta-support.md), and
-[archive installation guide](docs/release-installation.md).
+[hosted and archive installation guide](docs/release-installation.md).
 
 Native releases target Linux x64/ARM64 with glibc, macOS ARM64, and Windows x64.
 Prompt, Skill, and MCP Manager also target Intel Macs. Agent, Conversation, and
@@ -36,6 +36,23 @@ See [resource imports](docs/resource-imports.md) for owned creation, public GitH
 imports, and explicit MCP preparation. Python API dependencies stay inside their
 consuming product's environment. Applications can integrate the managers through
 their public APIs without a separate host application.
+
+## Install a manager
+
+As an alternative to downloading release archives, install one manager on
+Linux/macOS with the hosted beta installer:
+
+```sh
+curl -fsSL https://installer.aixand.org/manager/agent | sh
+```
+
+Replace `agent` with `conversation`, `mcp`, `prompt`, or `skill` for another
+manager. The installer bundles Python and dependencies, asks for confirmation,
+and preserves existing manager data. Provider installation, authentication, and
+runtime services remain separate. The all-five `/manager` collection route is
+reserved and unavailable until a qualified collection release is registered.
+See [installation options](docs/release-installation.md#hosted-installer-alternative)
+for Windows PowerShell, script review, exact versions, and custom software stores.
 
 ## Develop a package
 

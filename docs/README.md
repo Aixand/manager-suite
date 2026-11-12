@@ -8,7 +8,7 @@ Start with the [package overview](../README.md) for setup and first use.
 
 - [Dependency and notice inventory](DEPENDENCIES.md)
 - [Develop a package independently](DEVELOPMENT.md)
-- [Install a release](release-installation.md)
+- [Install a release: hosted scripts or archives](release-installation.md)
 - [Beta candidate notes](beta-release-notes.md)
 - [Beta support and limits](beta-support.md)
 - [Product installation](INSTALLATION.md)
