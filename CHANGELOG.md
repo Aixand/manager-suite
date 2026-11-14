@@ -1,5 +1,10 @@
 # Changelog
 
+## Agent Manager and Conversation Manager 0.1.1-beta
+
+- **Agent Manager:** stop verified native Codex sessions on Linux and improve busy-session diagnostics.
+- **Conversation Manager:** optional shared Codex servers, rebuildable transcripts, question-answer history, and clearer startup failure recovery.
+
 ## 0.1.0-beta
 
 Initial beta candidate for five standalone managers:

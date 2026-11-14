@@ -40,6 +40,7 @@ class Core:
         "turn_result",
         "steer",
         "queue_update",
+        "stop_background_process",
     )
 
     def __init__(self, store, prepared, ref, *, services=None):
@@ -137,6 +138,7 @@ class Core:
             },
             "queue_modes": self.message_queue.modes(),
             "queue_revision": 1,
+            "background_activity_version": 1,
             "resource_policy_version": "conversation-manager/resource-policy-1",
         }
 
@@ -1065,6 +1067,8 @@ class Core:
         # No await between validation and durable reservation: at most one answer can dispatch.
         record["state"] = "reserved"
         live["operation_id"] = operation_id
+        from .question_history import summary
+        live["answer_summary"] = redact(summary(record, response), self.secrets)
         self.store.put("request", request_id, record)
         live["future"].set_result(response)
         if getattr(self.adapter, "reply_mode", None) == "sdk_callback":
@@ -1147,6 +1151,8 @@ class Core:
                     },
                     record["native_session_id"],
                 )
+                if error is None and live.get("answer_summary"):
+                    self.emit("request.answered", live["answer_summary"], record["native_session_id"])
                 live["ack"].set()
                 self.requests.pop(request_id, None)
                 return
@@ -1285,6 +1291,14 @@ class Core:
             ]
         if method == "queue_state":
             return self.message_queue.view(self.session(params["session_ref"]))
+        if method in ("background_activity", "background_agent", "background_process"):
+            from .background import inspect_activity, inspect_agent, inspect_process
+            session = self.session(params["session_ref"])
+            if method == "background_process":
+                return redact(await inspect_process(self.adapter, session, params["process_id"]), self.secrets)
+            if method == "background_agent":
+                return redact(await inspect_agent(self.adapter, session, params["agent_id"]), self.secrets)
+            return redact(await inspect_activity(self.adapter, session), self.secrets)
         if method == "session_state":
             session = self.session(params["session_ref"])
             active = self.active.get(session["session_id"])

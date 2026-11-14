@@ -144,6 +144,10 @@ class PreparedLaunch:
         if any(not isinstance(x, str) or "\0" in x for x in self.argv):
             raise ConversationError("validation", "argv must contain strings without NUL")
         if self.transport.get('kind') == 'managed-codex':
+            if self.transport.get('server_mode', 'separate') not in ('separate', 'shared'):
+                raise ConversationError('validation', 'Choose separate or shared Codex servers')
+            if self.transport.get('server_mode') == 'shared' and not isinstance(self.transport.get('pool_home'), str):
+                raise ConversationError('validation', 'Shared Codex requires a pool storage scope')
             target = self.transport.get('agent_environment_ref')
             if (self.protocol != 'codex-app-server' or self.backend_id != 'codex'
                     or self.adapter_id != 'native-codex' or self.argv

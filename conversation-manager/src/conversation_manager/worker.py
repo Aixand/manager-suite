@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 from .core import Core
-from .models import PreparedLaunch, ConversationError, canonical, decode, receipt
+from .models import PreparedLaunch, ConversationError, canonical, decode, receipt, redact
 from .store import Store
 from .transport import IPC_SCHEMA, LIMIT
 
@@ -38,18 +38,22 @@ async def serve(bootstrap):
         # to be absent, rather than empty, to use its sibling .claude.json.
         os.environ.pop("CLAUDE_CONFIG_DIR", None)
     ref, operation_id = bootstrap["connection_ref"], bootstrap["operation_id"]
-    services = None
-    if bootstrap.get("service_factory"):
-        module, name = bootstrap["service_factory"].split(":", 1)
-        services = getattr(importlib.import_module(module), name)(
-            bootstrap.get("service_options", {})
-        )
-    core = Core(store, prepared, ref, services=services)
     endpoint = Path(ref["transport"]["endpoint"])
-    server = None
+    server = core = None
+    phase = "services"
+    started = asyncio.get_running_loop().time()
     try:
+        services = None
+        if bootstrap.get("service_factory"):
+            module, name = bootstrap["service_factory"].split(":", 1)
+            services = getattr(importlib.import_module(module), name)(
+                bootstrap.get("service_options", {})
+            )
+        core = Core(store, prepared, ref, services=services)
+        phase = "adapter"
         async with asyncio.timeout(15):
             await core.adapter.start()
+        phase = "listener"
         store.put(
             "connection",
             ref["connection_id"],
@@ -105,20 +109,48 @@ async def serve(bootstrap):
                 recovery={"connection_ref": ref, "runtime_ref": ref["runtime_ref"]},
             )
         )
-        loop = asyncio.get_running_loop()
+        phase = "ready"
         install_signals(core.shutdown.set)
         await core.shutdown.wait()
     except Exception as exc:
-        core.finish_error(operation_id, core.error(exc, operation_id, dispatched=True))
+        if phase == "ready":
+            core.finish_error(operation_id, core.error(exc, operation_id, dispatched=True))
+        else:
+            # Before opening the listener, no session-create request can be admitted.
+            # Retain known provider errors; never persist arbitrary exception text
+            # because bootstrap and provider exceptions can contain credentials.
+            secrets = [value for key, value in prepared.env.items()
+                       if any(word in key.lower() for word in ("key", "token", "secret", "password"))]
+            if isinstance(exc, ConversationError):
+                code, message, uncertain = exc.code, redact(exc.message, secrets), exc.uncertain
+                recovery = redact(exc.recovery, secrets)
+            elif isinstance(exc, TimeoutError) and phase == "adapter":
+                code, message, uncertain = "startup_timeout", "Worker initialization timed out after 15 seconds; no conversation was created.", False
+                recovery = {}
+            else:
+                code, uncertain = "startup_failed", phase == "listener"
+                message = (f"Worker initialization failed ({type(exc).__name__}); "
+                           + ("inspect the retained startup." if uncertain else "no conversation was created."))
+                recovery = {}
+            error = ConversationError(code, message, uncertain=uncertain, operation_id=operation_id,
+                recovery={**recovery, "connection_ref": ref, "runtime_ref": ref["runtime_ref"],
+                          "startup": {"phase": phase, "exception_type": type(exc).__name__,
+                                      "elapsed_ms": round((asyncio.get_running_loop().time() - started) * 1000)}},
+            )
+            store.finish(receipt(operation_id,
+                "uncertain" if error.uncertain else "unsupported" if error.code == "unsupported" else "failed",
+                error=error.to_dict(), recovery=error.recovery))
     finally:
-        core.transport_lost("Worker stopped")
+        if core is not None:
+            core.transport_lost("Worker stopped")
         if server:
             server.close()
             await server.wait_closed()
-        await core.adapter.close()
-        for task in list(core.tasks):
-            task.cancel()
-        await asyncio.gather(*core.tasks, return_exceptions=True)
+        if core is not None:
+            await core.adapter.close()
+            for task in list(core.tasks):
+                task.cancel()
+            await asyncio.gather(*core.tasks, return_exceptions=True)
         endpoint.unlink(missing_ok=True)
 
 

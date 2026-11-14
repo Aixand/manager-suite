@@ -112,7 +112,7 @@ def ready_store(home):
         if connection is not None: connection.close()
 
 
-def _writer_owner(path):
+def writer_pid(path):
     """Best-effort Linux diagnostics; the native flock remains authoritative."""
     try:
         info = path.stat()
@@ -122,10 +122,15 @@ def _writer_owner(path):
                 continue
             major, minor, inode = fields[5].split(':')
             if (int(major, 16), int(minor, 16), int(inode)) == (os.major(info.st_dev), os.minor(info.st_dev), info.st_ino):
-                return ' (writer PID ' + str(int(fields[4])) + ')'
+                return int(fields[4])
     except (OSError, ValueError):
         pass
-    return ''
+    return None
+
+
+def _writer_owner(path):
+    pid = writer_pid(path)
+    return ' (writer PID ' + str(pid) + ')' if pid is not None else ''
 
 
 def _idle(source, thread_id, *, timeout=2):
@@ -151,7 +156,7 @@ def _idle(source, thread_id, *, timeout=2):
                 fcntl.flock(writer, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
         raise Error("The selected conversation is still open in another Codex process"
-            + _writer_owner(path) + "; close it and retry") from None
+            + _writer_owner(path) + "; close it and retry, or run: agent codex stop " + thread_id) from None
     except OSError:
         raise Error("Could not inspect the original Codex conversation writer locks") from None
 

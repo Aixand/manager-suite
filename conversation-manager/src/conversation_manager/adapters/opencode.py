@@ -121,6 +121,7 @@ class OpenCodeAdapter:
             "access_delivery",
             "set_config",
             "close_session",
+            "stop_background_process",
         }
         if self.adapter_version == "2.2.5":
             supported.add("execute_command")
@@ -1074,6 +1075,9 @@ class OpenCodeAdapter:
             )
 
     async def optional(self, method, session, params):
+        if method == "stop_background_process":
+            from ..background import stop_process
+            return await stop_process(self, session, params["process_id"])
         if method == "set_config":
             self.validate_config(session, params["config_id"], params["value"])
             return await self.controls.set_config(

@@ -34,6 +34,7 @@ agent codex run main
 agent codex start
 agent codex sessions
 agent codex continue SESSION_REFERENCE --profile main
+agent codex stop SESSION_REFERENCE
 ```
 
 Other capabilities include profile aliases, connecting existing homes, environment
@@ -52,6 +53,12 @@ Use `--help` after each command for supported options. Direct native execution i
 the default. Optional `runtime = "undercurrent"` uses Undercurrent for managed CLI
 execution and terminal attachment. Install `aixand-agent-manager[undercurrent]` and provide
 the Undercurrent binaries and daemon for that mode.
+
+On Linux, `agent codex stop SESSION_REFERENCE` (or a native session UUID) sends
+SIGTERM to the verified Codex writer and waits up to ten seconds for its writer
+lock to release. Conversation history is preserved. Already closed sessions are
+left alone; lock files are never deleted. Stop the existing session before using
+Continue to move it to another profile.
 
 ## Python SDK
 

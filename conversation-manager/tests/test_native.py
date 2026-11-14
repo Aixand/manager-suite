@@ -103,7 +103,10 @@ class NativeTests(unittest.IsolatedAsyncioTestCase):
                       "permissions": "item/permissions/requestApproval", "file-approval": "item/fileChange/requestApproval",
                       "legacy-approval": "execCommandApproval"}[text]
             await socket.send(json.dumps({"id": identifier, "method": method,
-                "params": {"threadId": session, "turnId": turn, "itemId": "native-tool"}}))
+                "params": {"threadId": session, "turnId": turn, "itemId": "native-tool",
+                           **({"questions": [{"id": "q", "header": "Choice", "question": "Choose an option",
+                                              "isOther": False, "isSecret": False, "options": None}]}
+                              if text == "question" else {})}}))
             await self.responses[identifier]
         await socket.send(json.dumps({"method": "item/agentMessage/delta", "params": {
             "threadId": session, "turnId": turn, "itemId": "native-message", "delta": text}}))
@@ -294,6 +297,10 @@ class NativeTests(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(rows[0]["native_request_id"].startswith("native-request:"))
             bad = await self.connection.respond(rows[0]["request_id"], {"outcome": "cancelled"}, operation_id=key+"-bad")
             self.assertEqual(bad["error"]["code"], "validation")
+            if kind == "user_input":
+                empty = await self.connection.respond(rows[0]["request_id"],
+                    {"native_result": {"answers": {"q": {"answers": [" "]}}}}, operation_id=key+"-empty")
+                self.assertEqual(empty["error"]["code"], "validation")
             good = await self.connection.respond(rows[0]["request_id"], {"native_result": answer}, operation_id=key+"-reply")
             self.assertEqual(good["status"], "completed")
             self.assertEqual((await self.done(key))["status"], "completed")

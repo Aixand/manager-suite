@@ -86,13 +86,18 @@ class StandaloneLauncher:
         deadline = asyncio.get_running_loop().time() + self.timeout
         while asyncio.get_running_loop().time() < deadline:
             row = self.store.operation(operation_id)
-            if row["status"] in ("completed", "failed", "unsupported"):
+            if row["status"] in ("completed", "failed", "unsupported") or row.get("recovery", {}).get("startup"):
                 return dict(schema="conversation-manager/launch-receipt-1", operation_id=operation_id,
                     status=row["status"], runtime_ref=runtime, connection_ref=ref,
                     error=row["error"], recovery=row["recovery"])
             if process.poll() is not None:
                 break
             await asyncio.sleep(.03)
+        row = self.store.operation(operation_id)
+        if row["status"] in ("completed", "failed", "unsupported") or row.get("recovery", {}).get("startup"):
+            return dict(schema="conversation-manager/launch-receipt-1", operation_id=operation_id,
+                status=row["status"], runtime_ref=runtime, connection_ref=ref,
+                error=row["error"], recovery=row["recovery"])
         return dict(schema="conversation-manager/launch-receipt-1", operation_id=operation_id,
             status="uncertain", runtime_ref=runtime, connection_ref=ref,
             error=ConversationError("uncertain", "Worker readiness unconfirmed; do not launch a replacement",

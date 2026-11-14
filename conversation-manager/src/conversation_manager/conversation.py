@@ -28,11 +28,32 @@ class Conversation:
     async def send(self, content, *, operation_id):
         return await self.connection.send(self.reference, content, operation_id=operation_id)
 
+    async def background_activity(self):
+        """Inspect provider-owned background work without starting a turn."""
+        return await self.connection.background_activity(self.reference)
+
+    async def background_agent(self, agent_id):
+        """Read a verified descendant's saved conversation without resuming it."""
+        return await self.connection.background_agent(self.reference, agent_id)
+
+    async def stop_background_process(self, process_id, *, operation_id):
+        return await self.connection.stop_background_process(self.reference, process_id, operation_id=operation_id)
+
+    async def background_process(self, process_id):
+        """Read bounded output for a process verified to belong to this conversation."""
+        return await self.connection.background_process(self.reference, process_id)
+
     async def state(self):
         return await self.connection.session_state(self.reference)
 
     async def history(self, *, cursor=0, limit=100):
         return await self.connection.history_page(self.reference, cursor=cursor, limit=limit)
+
+    async def transcript(self):
+        """Read provider-owned messages without replaying or resuming a turn."""
+        from .transcript import read_transcript
+
+        return await read_transcript(self)
 
     def events(self, *, after_sequence=None):
         return self.connection.events(self.reference, after_sequence=after_sequence)

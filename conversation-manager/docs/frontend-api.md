@@ -38,6 +38,16 @@ creation. An observed completed creation can be recovered after a cancelled wait
 or an interrupted parent checkpoint. A concurrent startup reports busy, allowing
 the caller to inspect/retry later.
 
+Worker initialization failures retain the provider's error when available. Generic
+initialization errors and the 15-second adapter initialization timeout report
+`startup_failed` or `startup_timeout`. Failures before the worker opens its listener
+cannot have admitted a conversation-creation request. Explicitly uncertain provider
+errors remain uncertain. Launch recovery includes `startup.phase`, `elapsed_ms`,
+and `exception_type`; arbitrary exception text is omitted to avoid retaining secrets.
+Service-factory import failures are recorded too. A launcher timeout cannot overwrite
+a worker's recorded readiness or startup error. Retrying the same launch operation
+only returns its retained receipt; a fresh attempt requires a new operation ID.
+
 Successful startup receipts stay completed even if their worker later stops.
 Retrying then reports that the original conversation is unavailable and never
 starts a replacement. Explicit restoration onto a replacement runtime remains an
@@ -112,6 +122,23 @@ for its initial user message. A turn completing cannot confirm an uncertain
 steering delivery. Stream cursors and history cursors are separate; preserve sequence
 order when mixing manual and queued inputs. Retained history is manager-observed,
 not a promise of complete native history.
+
+For a rebuildable display transcript, `await conversation.transcript()` reads
+Codex's saved thread through the retained connection without sending or resuming
+work. It returns `{source: "provider", provider: "codex", complete: true, items}`
+with normalized message/activity items and native identifiers. Known native turns
+retain their manager turn IDs so tool and supervision anchors survive reconnects.
+Other adapters currently return `None`; their event history contract is unchanged.
+The in-memory view merges newer provider message events into the saved baseline
+by item ID, so a lagging history snapshot cannot erase a live input. Native reads
+are coalesced to at most once per two seconds during streaming; turn transitions
+also reconcile immediately. The result includes `reconcile_pending` and
+`retry_after_ms` so callers can finish reconciliation after activity stops.
+An unavailable native read retains the cached baseline and observed messages with
+`complete: false`; retries back off to thirty seconds. Consumers should display
+that partial view with an unavailable indicator rather than claiming the event
+journal is complete. Transcript reads do not rewrite the delivery journal or
+create a second durable transcript.
 
 Persist operation IDs before mutations and reuse the same ID with the same intent
 on a retry. Unknown delivery must remain visible; do not retry with a new ID,

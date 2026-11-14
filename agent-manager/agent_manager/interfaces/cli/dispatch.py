@@ -45,6 +45,13 @@ def execute(argv=None, *, progress=None):
     if args.verb == 'update' and forwarded:
         raise Error('Installation commands do not accept provider arguments')
     manager = Manager(args.provider, args.config, args.home)
+    if args.verb == 'stop':
+        if forwarded: raise Error('stop does not accept provider arguments')
+        from agent_manager.runtime.native.session_stop import stop
+        result = stop(manager, args.session)
+        if args.json: print(json.dumps(result, indent=2))
+        else: print(('Stopped' if result['status'] == 'stopped' else 'Already closed') + ' conversation ' + result['native_id'])
+        return 0
     if args.verb == 'target':
         if forwarded: raise Error('target does not accept provider arguments')
         result = manager.agent_targets() if args.target_action == 'list' else manager.resolve_agent_target(args.environment_id)

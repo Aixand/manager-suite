@@ -20,6 +20,13 @@ async def main():
 
     async def turn(socket, thread, identifier, text):
         await asyncio.sleep(.2)
+        saved_turn = next(t for t in sessions[thread]['turns'] if t['id'] == identifier)
+        pending_user = saved_turn.pop('_pending_user', None)
+        if pending_user:
+            saved_turn['items'].insert(0, pending_user)
+        saved_turn['items'].append(dict(id='reply', type='agentMessage', text='fixture:' + text))
+        saved_turn['status'] = 'completed'
+        database.write_text(json.dumps(sessions))
         await socket.send(json.dumps(dict(method='item/agentMessage/delta', params=dict(
             threadId=thread, turnId=identifier, itemId='reply', delta='fixture:' + text))))
         await socket.send(json.dumps(dict(method='turn/completed', params=dict(
@@ -47,7 +54,7 @@ async def main():
                     continue
                 if (home / 'slow-create').exists():
                     await asyncio.sleep(.3)
-                thread = dict(id=str(uuid.uuid4()), **params)
+                thread = dict(id=str(uuid.uuid4()), turns=[], **params)
                 sessions[thread['id']] = thread
                 database.write_text(json.dumps(sessions))
                 result = dict(thread=thread)
@@ -57,6 +64,17 @@ async def main():
                 with (home / 'turns.jsonl').open('a') as log:
                     log.write(json.dumps(params) + '\n')
                 identifier = str(uuid.uuid4())
+                item = dict(id='user-' + identifier, type='userMessage', content=params['input'])
+                sessions[params['threadId']].setdefault('turns', []).append(
+                    dict(id=identifier, status='inProgress', items=[item]))
+                if (home / 'lag-user-history').exists():
+                    saved_turn = sessions[params['threadId']]['turns'][-1]
+                    saved_turn['items'] = []
+                    saved_turn['_pending_user'] = item
+                database.write_text(json.dumps(sessions))
+                for event in ('item/started', 'item/completed'):
+                    await socket.send(json.dumps(dict(method=event, params=dict(
+                        threadId=params['threadId'], turnId=identifier, item=item))))
                 result = dict(turn=dict(id=identifier, status='inProgress'))
                 task = asyncio.create_task(turn(socket, params['threadId'], identifier,
                     ''.join(part['text'] for part in params['input'])))

@@ -67,6 +67,8 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
         self.connection = await self.client.connect(self.ref)
         conversation = await self.connection.create_conversation(operation_id='create')
         sent = await conversation.send('hello', operation_id='send')
+        initial_transcript = await conversation.transcript()
+        initial_user_id = next(i['id'] for i in initial_transcript['items'] if i['type'] == 'userMessage')
         await self.connection.disconnect()
         self.connection = await Client(self.client.home).connect(self.ref)
         attached = await self.connection.attach_conversation(conversation.reference)
@@ -77,6 +79,13 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
         result = await attached.turn_result(sent['result']['turn_id'])
         self.assertEqual(result['status'], 'completed')
         self.assertEqual(result['final_text'], 'fixture:hello')
+        transcript = await attached.transcript()
+        self.assertEqual([i['text'] for i in transcript['items']], ['hello', 'fixture:hello'])
+        self.assertEqual(transcript['items'][0]['id'], initial_user_id)
+        self.assertEqual(transcript['items'], (await attached.transcript())['items'])
+        history = await attached.history()
+        self.assertTrue(any(e['kind'] == 'message.completed' and e['payload'].get('role') == 'user'
+                            for e in history['entries']))
         self.assertEqual(attached.reference, conversation.reference)
         self.assertEqual(await self.launch(), launched)
         launches = [json.loads(line) for line in (self.native / 'launches.jsonl').read_text().splitlines()]
@@ -93,6 +102,30 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(stopped['status'], 'completed')
         with locks(self.manager.lock_root, 'environment-' + self.identifier):
             pass
+
+    async def test_two_readers_see_live_input_before_saved_history_catches_up(self):
+        (self.native / 'lag-user-history').touch()
+        await self.launch()
+        self.connection = await self.client.connect(self.ref)
+        first = await self.connection.create_conversation(operation_id='create')
+        other = await self.client.connect(self.ref)
+        try:
+            second = await other.attach_conversation(first.reference)
+            sent = await first.send('Shared live input', operation_id='send')
+            for reader in (first, second):
+                transcript = await reader.transcript()
+                self.assertEqual([i['text'] for i in transcript['items'] if i['type'] == 'userMessage'], ['Shared live input'])
+            async with asyncio.timeout(5):
+                async for event in first.events():
+                    if event['kind'] == 'turn.completed':
+                        break
+            for reader in (first, second):
+                # Completion forces reconciliation even within the read throttle.
+                await asyncio.sleep(.25)
+                transcript = await reader.transcript()
+                self.assertEqual([i['text'] for i in transcript['items'] if i['type'] == 'userMessage'], ['Shared live input'])
+        finally:
+            await other.disconnect()
 
     async def test_signed_out_home_fails_and_cleans_up(self):
         (self.native / 'signed-out').touch()

@@ -127,12 +127,16 @@ def incomplete(client, operation_id, child, recovery):
 
 
 async def start_conversation(
-    client, *, agent, cwd, settings, operation_id, process=None
+    client, *, agent, cwd, settings, operation_id, process=None, codex_server_mode="separate"
 ):
     from .config import process_defaults
     from .runtime import process_options
     from .support import native_startup_support
 
+    if codex_server_mode not in ("separate", "shared"):
+        raise ConversationError("validation", "Choose separate or shared Codex servers")
+    if agent.get("provider") != "codex" and codex_server_mode != "separate":
+        raise ConversationError("unsupported", "Server sharing applies to Codex only")
     requested_process = process_options(process)
     process = process_defaults(client, process, operation_id)
     operation_key(operation_id)
@@ -152,6 +156,8 @@ async def start_conversation(
     )
     if client.runtime["kind"] != "standalone" or process:
         intent.update(runtime=deepcopy(client.runtime), process=process)
+    if codex_server_mode != "separate":
+        intent["codex_server_mode"] = codex_server_mode
     reject_credentials(intent)
     canonical(intent)
     suffix = digest(operation_id)[7:]
@@ -222,6 +228,7 @@ async def start_conversation(
                 else:
                     launched = await client.launch_codex(
                         agent["environment_id"],
+                        **({"server_mode": codex_server_mode} if codex_server_mode == "shared" else {}),
                         cwd=intent["cwd"],
                         agents=environments,
                         settings=intent["settings"],

@@ -47,7 +47,7 @@ class Client:
         return await available_agents(self, providers)
 
     async def start_conversation(
-        self, *, agent, cwd, settings=None, operation_id, process=None
+        self, *, agent, cwd, settings=None, operation_id, process=None, codex_server_mode="separate"
     ):
         """Prepare, launch, connect, and create under one durable startup operation."""
         from .frontend import start_conversation
@@ -56,6 +56,7 @@ class Client:
             self,
             agent=agent,
             cwd=cwd,
+            codex_server_mode=codex_server_mode,
             settings=settings,
             operation_id=operation_id,
             process=process,
@@ -317,7 +318,7 @@ class Client:
                     self.store.put(
                         "connection", connection_id, {**prior, "connection_ref": ref}
                     )
-                return self.store.finish(
+                return self.store.finish_launch(
                     receipt(
                         operation_id,
                         launched["status"],
@@ -340,7 +341,7 @@ class Client:
                         uncertain=True,
                     )
                 )
-                return self.store.finish(
+                return self.store.finish_launch(
                     receipt(
                         operation_id,
                         "unsupported"
@@ -370,6 +371,7 @@ class Client:
         settings=None,
         operation_id,
         process=None,
+        server_mode="separate",
     ):
         """Launch local Codex using a guarded public Agent Manager environment."""
         return await self._launch_native_environment(
@@ -380,6 +382,7 @@ class Client:
             settings=settings,
             operation_id=operation_id,
             process=process,
+            codex_server_mode=server_mode,
         )
 
     async def launch_opencode(
@@ -413,11 +416,16 @@ class Client:
         settings,
         operation_id,
         process=None,
+        codex_server_mode="separate",
     ):
         from pathlib import Path
         from .agents import AgentEnvironments
         from .models import digest, reject_credentials, canonical
 
+        if codex_server_mode not in ("separate", "shared"):
+            raise ConversationError("validation", "Choose separate or shared Codex servers")
+        if provider != "codex" and codex_server_mode != "separate":
+            raise ConversationError("unsupported", "Server sharing applies to Codex only")
         agents = agents or AgentEnvironments(provider)
         operation_key(operation_id)
         if settings is not None and not isinstance(settings, dict):
@@ -431,6 +439,8 @@ class Client:
             settings=deepcopy(settings or {}),
             agents=agents.identity,
         )
+        if codex_server_mode != "separate":
+            intent["codex_server_mode"] = codex_server_mode
         reject_credentials(intent)
         canonical(intent)
         preparation_id = provider + "-prepare:" + digest(operation_id)[7:]
@@ -462,6 +472,8 @@ class Client:
                     transport={
                         "kind": "managed-codex" if codex else "opencode-http",
                         "agent_environment_ref": descriptor,
+                        **({"server_mode": "shared", "pool_home": str(self.home)}
+                           if codex and codex_server_mode == "shared" else {}),
                     },
                 )
                 row = self.store.finish(
@@ -728,6 +740,19 @@ class Connection:
 
     async def pending_requests(self, session_ref=None):
         return await self._call("pending_requests", {"session_ref": session_ref})
+
+    async def background_activity(self, session_ref):
+        return await self._call("background_activity", {"session_ref": session_ref})
+
+    async def background_agent(self, session_ref, agent_id):
+        return await self._call("background_agent", {"session_ref": session_ref, "agent_id": agent_id})
+
+    async def background_process(self, session_ref, process_id):
+        return await self._call("background_process", {"session_ref": session_ref, "process_id": process_id})
+
+    async def stop_background_process(self, session_ref, process_id, *, operation_id):
+        return OperationReceipt(await self._call("stop_background_process", {
+            "session_ref": session_ref, "process_id": process_id, "operation_id": operation_id}))
 
     async def session_state(self, session_ref):
         return await self._call("session_state", {"session_ref": session_ref})

@@ -109,7 +109,11 @@ class CodexAdapter:
         if managed:
             from ..codex_runtime import CodexRuntime
 
-            self.runtime = CodexRuntime()
+            if self.prepared.transport.get("server_mode", "separate") == "shared":
+                from ..shared_codex import SharedCodexRuntime
+                self.runtime = SharedCodexRuntime(self.prepared.transport["pool_home"])
+            else:
+                self.runtime = CodexRuntime()
             transport = await self.runtime.start(
                 self.prepared.transport["agent_environment_ref"], self.prepared.cwd
             )
@@ -177,6 +181,7 @@ class CodexAdapter:
             "skills_delivery",
         }
         supported.add("execute_command")
+        supported.add("stop_background_process")
         supported.update(("session_state", "turn_result", "steer"))
         if self.controls.supported:
             supported.add("set_config")
@@ -484,6 +489,16 @@ class CodexAdapter:
                 "dynamicToolCall",
             ):
                 output.tool()
+        if method == "serverRequest/resolved":
+            for request_id, live in list(self.core.requests.items()):
+                record = live["record"]
+                target = ((record.get("native") or {}).get("params") or {}).get("threadId", record["native_session_id"])
+                if target == session_id and record["native_request_id"] == params.get("requestId") and record["state"] == "pending":
+                    record["state"] = "stale"
+                    self.core.store.put("request", request_id, record)
+                    self.core.emit("request.resolved", {"request_id": request_id, "state": "stale"}, record["native_session_id"])
+                    live["future"].cancel()
+                    self.core.requests.pop(request_id, None)
         if method == "thread/settings/updated":
             self.controls.capture(session_id, params["threadSettings"])
             self.retain_settings(session_id)
@@ -531,6 +546,14 @@ class CodexAdapter:
                 },
                 session_id,
                 native=params,
+            )
+        elif method in ("item/started", "item/completed") and params.get("item", {}).get("type") == "userMessage":
+            item = params["item"]
+            self.core.emit(
+                "message.completed",
+                {"role": "user", "item_id": item["id"], "text": "\n".join(
+                    part.get("text", "") for part in item.get("content", []) if part.get("type") == "text")},
+                session_id, native=params,
             )
         elif method in ("item/started", "item/completed") and params.get(
             "item", {}
@@ -597,6 +620,9 @@ class CodexAdapter:
             )
 
     async def optional(self, method, session, params):
+        if method == "stop_background_process":
+            from ..background import stop_process
+            return await stop_process(self, session, params["process_id"])
         if method == "execute_command":
             value = await self.controls.command(
                 session["native_session_id"],
@@ -636,9 +662,19 @@ class CodexAdapter:
             if method.endswith("requestUserInput")
             else "native"
         )
+        # Surface verified native child questions on their retained root chat.
+        # Preserve the original native request for validation and wire delivery.
+        owner = params["threadId"]
+        if kind == "user_input" and not any(row["native_session_id"] == owner for row in self.core.sessions.values()):
+            from ..background import codex_agents
+            for session in self.core.sessions.values():
+                root = session["native_session_id"]
+                if any(row["id"] == owner for row in await codex_agents(self, root)):
+                    owner = root
+                    break
         # Native Codex decisions are explicit native_result, never ACP option IDs.
         response = await self.core.request(
-            params["threadId"],
+            owner,
             kind,
             method,
             message["id"],
@@ -653,6 +689,13 @@ class CodexAdapter:
         from ..native_requests import validate_response
 
         validate_response(record, value)
+        if record["native_method"] == "item/tool/requestUserInput":
+            questions = record["native"]["params"]["questions"]
+            answers = value.get("answers", {})
+            if set(answers) != {question["id"] for question in questions} or any(
+                not row.get("answers") or any(not answer.strip() for answer in row["answers"]) for row in answers.values()
+            ):
+                raise ConversationError("validation", "Answer every question using its exact ID")
 
     async def close(self):
         try:

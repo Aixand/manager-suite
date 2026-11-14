@@ -18,6 +18,7 @@ def now():
 HISTORY_KINDS = {
     "queue.updated",
     "message.delta",
+    "message.completed",
     "message.input",
     "tool.start",
     "tool.update",
@@ -148,6 +149,23 @@ class Store:
                 "not_found", "Operation not found", operation_id=operation_id
             )
         return decode(row[0])
+
+    def finish_launch(self, row):
+        # Worker readiness/errors are authoritative. A launcher timing out at
+        # the same instant must not replace that evidence with a generic result.
+        with self.db(True) as db:
+            prior = db.execute("SELECT receipt FROM operations WHERE id=?",
+                               (row["operation_id"],)).fetchone()
+            if prior:
+                observed = decode(prior[0])
+                if (observed["status"] in ("completed", "failed", "unsupported")
+                        or observed.get("recovery", {}).get("startup")):
+                    row = {**observed,
+                           "result": observed["result"] if observed["result"] is not None else row["result"],
+                           "recovery": {**row["recovery"], **observed["recovery"]}}
+            db.execute("UPDATE operations SET receipt=? WHERE id=?",
+                       (canonical(row).decode(), row["operation_id"]))
+        return row
 
     def finish(self, row):
         with self.db(True) as db:

@@ -209,7 +209,7 @@ class WorkerLauncher:
             deadline = asyncio.get_running_loop().time() + self.timeout
             while asyncio.get_running_loop().time() < deadline:
                 row = self.store.operation(operation_id)
-                if row["status"] in ("completed", "failed", "unsupported"):
+                if row["status"] in ("completed", "failed", "unsupported") or row.get("recovery", {}).get("startup"):
                     return dict(
                         schema="conversation-manager/launch-receipt-1",
                         operation_id=operation_id,
@@ -239,7 +239,8 @@ class WorkerLauncher:
                 observed = self.store.operation(operation_id)
                 if (
                     ref is not None
-                    and observed["status"] in ("completed", "failed", "unsupported")
+                    and (observed["status"] in ("completed", "failed", "unsupported")
+                         or observed.get("recovery", {}).get("startup"))
                     and observed.get("recovery", {}).get("connection_ref") == ref
                 ):
                     return dict(

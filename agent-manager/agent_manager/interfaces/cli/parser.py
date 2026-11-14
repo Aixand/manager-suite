@@ -68,6 +68,9 @@ def parser():
     selection = commands.add_parser("continue", help="Choose a native session and execution profile")
     selection.add_argument("session", nargs="?", help="Native session ID or full Manager session reference")
     selection.add_argument("--profile", help="Execution profile; otherwise choose interactively")
+    stop = commands.add_parser('stop', help='Close a running native Codex conversation (Linux)')
+    stop.add_argument('session', help='Native session ID or full Manager session reference')
+    stop.add_argument('--json', action='store_true')
     for item in (run, automatic, selection):
         item.add_argument("--model")
         item.add_argument("--label", action="append", default=[])

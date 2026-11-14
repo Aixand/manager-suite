@@ -12,8 +12,9 @@ from .models import ConversationError
 class CodexRuntime:
     def __init__(self):
         self.process = self.guard = None
+        self._socket_listener = False
 
-    async def start(self, descriptor, cwd):
+    async def start(self, descriptor, cwd, *, endpoint=None):
         agents = AgentEnvironments('codex', config=descriptor['config'], root=descriptor['root'])
         self.guard = agents.lease_codex(descriptor)
         try:
@@ -30,7 +31,9 @@ class CodexRuntime:
                 raise ConversationError('conflict', 'The selected Codex environment changed')
         from .native_codex import MAX_MESSAGE_BYTES
         from .stdio import StdioTransport
-        command = [descriptor['executable'], 'app-server', '--listen', 'stdio://']
+        self._socket_listener = endpoint is not None
+        command = [descriptor['executable'], 'app-server', '--listen',
+                   'unix://' + endpoint if endpoint else 'stdio://']
         from aixand_local_runtime import process_start
         identity = process_start(os.getpid())
         if identity is None:
@@ -42,10 +45,11 @@ class CodexRuntime:
             with lease.subprocess_options() as options:
                 self.process = await asyncio.create_subprocess_exec(
                     *command, cwd=cwd, env=lease.env,
-                    stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE,
+                    stdin=asyncio.subprocess.PIPE,
+                    stdout=asyncio.subprocess.DEVNULL if endpoint else asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.DEVNULL, limit=MAX_MESSAGE_BYTES + 1,
                     **options, **({'creationflags': subprocess.CREATE_NO_WINDOW} if os.name == 'nt' else {}))
-            return StdioTransport(self.process, max_message_bytes=MAX_MESSAGE_BYTES)
+            return None if endpoint else StdioTransport(self.process, max_message_bytes=MAX_MESSAGE_BYTES)
         except BaseException:
             await self.close()
             raise
@@ -53,10 +57,17 @@ class CodexRuntime:
     async def close(self):
         if self.process is not None:
             self.process.stdin.close()
+            if self._socket_listener and self.process.returncode is None:
+                # A socket listener does not exit on stdin EOF. Signal its
+                # verified process guard; it owns native descendant cleanup.
+                try:
+                    self.process.terminate()
+                except ProcessLookupError:
+                    pass
             # Drain output so a full pipe cannot hold process.wait() open.
             async def drain():
                 try:
-                    while await self.process.stdout.read(65536):
+                    while self.process.stdout is not None and await self.process.stdout.read(65536):
                         pass
                 except (OSError, ConnectionError):
                     pass
