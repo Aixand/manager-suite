@@ -167,9 +167,9 @@ class Manager:
         from agent_manager.profiles.operations import rename_profile
         return rename_profile(self, profile, new_name, expected_revision=expected_revision)
 
-    def login(self, profile=None, login_args=None, *, expected_revision=None):
+    def login(self, profile=None, login_args=None, *, expected_revision=None, progress=None):
         from agent_manager.environments.login import login
-        return login(self, self.resolve_profile(profile), login_args, expected_revision=expected_revision)
+        return login(self, self.resolve_profile(profile), login_args, expected_revision=expected_revision, progress=progress)
 
     def login_status(self, profile=None):
         from agent_manager.environments.login import status
@@ -251,13 +251,22 @@ class Manager:
                 arguments = plan.history_view.command(self, arguments)
         return arguments
 
-    def _invoke_native(self, home, args, *, extra_env=None):
+    def _invoke_native(self, home, args, *, extra_env=None, on_start=None):
         private_dir(home)
         directory = self.working_directory().resolve()
         variables = self.launch_environment(home, cwd=directory, base=os.environ | (extra_env or {}))
         from agent_manager.runtime.native.launch import terminal_launch
         args, variables = terminal_launch(self, args, variables)
         command = self.launch_command(home, [self.config["executable"], *args])
+        if on_start is not None:
+            with subprocess.Popen(command, cwd=directory, env=variables) as process:
+                try:
+                    on_start()
+                    return process.wait()
+                except BaseException:
+                    process.kill()
+                    process.wait()
+                    raise
         return subprocess.call(command, cwd=directory, env=variables)
 
     @staticmethod

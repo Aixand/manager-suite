@@ -22,10 +22,12 @@ def _idle(manager, profile):
     if manager.active_runs(state, profile): raise Error("Stop this profile's managed runs before changing its native login")
 
 
-def login(manager, profile, args=None, *, expected_revision=None):
+def login(manager, profile, args=None, *, expected_revision=None, progress=None):
     profile = manager.resolve_profile(profile)
     identifier = profile.environment_id
-    with locks(manager.lock_root, "environment-" + identifier, wait=True):
+    # Retained conversation workers hold reader leases even between turns.
+    # Never leave an interactive login terminal silently waiting on those leases.
+    with locks(manager.lock_root, "environment-" + identifier):
         check_revision(manager, profile, expected_revision); _idle(manager, profile)
         from agent_manager.budgets.service import invalidate
         invalidate(manager, identifier)
@@ -33,8 +35,11 @@ def login(manager, profile, args=None, *, expected_revision=None):
         invalidate_models(manager, identifier)
         from agent_manager.integrations.service import invalidate as invalidate_integrations
         invalidate_integrations(manager, identifier)
-        code = manager._invoke_native(manager.home(profile), [*manager.provider_spec.login.args, *(args or ())])
+        options = dict(on_start=lambda: progress(dict(phase="awaiting-user", message="Follow the native sign-in instructions in its terminal."))) if progress else {}
+        code = manager._invoke_native(manager.home(profile), [*manager.provider_spec.login.args, *(args or ())], **options)
         if code == 0:
+            if progress:
+                progress(dict(phase="verifying", message="Checking native sign-in…"))
             _record(manager, profile, dict(state="unknown", verification="native-command-completed", checked_at=time.time()))
             if manager.provider_spec.login.status_args:
                 _status(manager, profile)

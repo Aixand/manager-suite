@@ -112,7 +112,7 @@ build = [["{python}", "-B", "{root}/scripts/product_payload.py", "dependencies",
 [products."manager-suite/conversation-manager"]
 release-tag = "aixand-conversation-manager/v{version}"
 adapter = "python"
-version = "0.1.1-beta"
+version = "0.1.2-beta"
 components = ["conversation-manager", "conversation-manager-dependencies"]
 dependencies = []
 python = "3.12.14"
@@ -133,7 +133,7 @@ build = [["{python}", "-B", "{root}/scripts/product_payload.py", "dependencies",
 [products."manager-suite/agent-manager"]
 release-tag = "aixand-agent-manager/v{version}"
 adapter = "python"
-version = "0.1.1-beta"
+version = "0.1.2-beta"
 components = ["agent-manager", "agent-manager-dependencies"]
 dependencies = []
 python = "3.12.14"

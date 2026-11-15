@@ -36,9 +36,12 @@ def perform(spec, *, progress=lambda value: None):
         from agent_manager.profiles.identities import for_environment
         target = for_environment(manager.state(), spec['environment_id'], profile_id=spec.get('profile_id'), display=spec.get('profile'))
     if kind == "profile-login":
-        code = manager.login(target, ["--device-auth"] if spec.get("method") == "device" else [], expected_revision=spec.get("expectedRevision"))
+        progress(dict(phase="preparing", message="Preparing native sign-in…"))
+        code = manager.login(target, ["--device-auth"] if spec.get("method") == "device" else [], expected_revision=spec.get("expectedRevision"), progress=progress)
         if code: raise Error(f"Native login exited with status {code}")
         observed = manager.state().get("login_status", {}).get(target.environment_id, {})
+        if observed.get("state") == "signed-out":
+            raise Error("Native login completed but this profile is still signed out")
         return {"verification": observed.get("verification", "native-command-completed"),
                 "state": observed.get("state", "unknown"), "profile": str(target),
                 "environment_id": target.environment_id, "profile_id": target.profile_id}

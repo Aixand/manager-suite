@@ -139,6 +139,7 @@ class Core:
             "queue_modes": self.message_queue.modes(),
             "queue_revision": 1,
             "background_activity_version": 1,
+            "signin_handover_version": 1,
             "resource_policy_version": "conversation-manager/resource-policy-1",
         }
 
@@ -1197,6 +1198,17 @@ class Core:
         )
 
     async def dispatch(self, method, params):
+        if method == 'signin_activity':
+            from . import signin
+            return await signin.activity(self)
+        if method in ('prepare_signin_stop', 'cancel_signin_stop'):
+            from . import signin
+            if not hasattr(self, 'signin_lock'):
+                self.signin_lock = asyncio.Lock()
+            async with self.signin_lock:
+                if method == 'cancel_signin_stop':
+                    return signin.cancel(self, params['operation_id'])
+                return await signin.prepare(self, params['operation_id'])
         if method == "assess_resources":
             from .resource_finalization import assess
 

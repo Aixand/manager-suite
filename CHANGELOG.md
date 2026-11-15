@@ -1,5 +1,10 @@
 # Changelog
 
+## Agent Manager and Conversation Manager 0.1.2-beta
+
+- **Agent Manager:** report native sign-in progress, reject busy environments promptly, and detect sign-in commands that leave a profile signed out.
+- **Conversation Manager:** add idle-worker sign-in handover checks that preserve active turns, approvals, queued messages, and background work.
+
 ## Agent Manager and Conversation Manager 0.1.1-beta
 
 - **Agent Manager:** stop verified native Codex sessions on Linux and improve busy-session diagnostics.

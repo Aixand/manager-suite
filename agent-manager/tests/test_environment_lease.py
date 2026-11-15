@@ -70,6 +70,37 @@ with patch('agent_manager.environments.login.subprocess.run') as probe:
                                     capture_output=True, text=True, timeout=10)
             self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_interactive_login_fails_promptly_while_retained_chat_holds_lease(self):
+        code = """
+import sys
+from unittest.mock import Mock, patch
+from agent_manager import Manager
+from agent_manager.errors import BusyError
+manager = Manager('codex', config=sys.argv[1], root=sys.argv[2])
+progress = Mock()
+with patch.object(manager, '_invoke_native') as launch:
+    try:
+        manager.login('work', progress=progress)
+    except BusyError:
+        pass
+    else:
+        raise AssertionError('Login must report busy before launching')
+    launch.assert_not_called()
+    progress.assert_not_called()
+"""
+        with self.manager.lease_native_environment(self.identifier):
+            result = subprocess.run([sys.executable, '-B', '-c', code, str(self.config),
+                                     str(self.root / 'agents')], capture_output=True, text=True, timeout=5)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_failed_native_launch_never_announces_interactive_readiness(self):
+        from unittest.mock import Mock
+        self.manager.config['executable'] = str(self.root / 'not-installed')
+        progress = Mock()
+        with self.assertRaises((OSError, Error)):
+            self.manager.login('work', progress=progress)
+        progress.assert_not_called()
+
     def test_revision_guard_and_ambient_credential_isolation(self):
         with patch.dict(os.environ, {'OPENAI_API_KEY': 'ambient-secret', 'CODEX_HOME': '/wrong'}):
             with self.manager.lease_native_environment(self.identifier) as lease:

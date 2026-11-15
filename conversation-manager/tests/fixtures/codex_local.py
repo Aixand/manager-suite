@@ -26,6 +26,7 @@ async def main():
             saved_turn['items'].insert(0, pending_user)
         saved_turn['items'].append(dict(id='reply', type='agentMessage', text='fixture:' + text))
         saved_turn['status'] = 'completed'
+        sessions[thread]['status'] = dict(type='idle')
         database.write_text(json.dumps(sessions))
         await socket.send(json.dumps(dict(method='item/agentMessage/delta', params=dict(
             threadId=thread, turnId=identifier, itemId='reply', delta='fixture:' + text))))
@@ -43,6 +44,14 @@ async def main():
                 result = {'serverInfo': {'version': '0.166.0'}}
             elif method == 'account/read':
                 result = dict(account=None if (home / 'signed-out').exists() else {'type': 'chatgpt'}, requiresOpenaiAuth=True)
+            elif method == 'remoteControl/status/read':
+                result = dict(status='disabled')
+            elif method == 'thread/loaded/list':
+                result = dict(data=list(sessions), nextCursor=None)
+            elif method in ('thread/backgroundTerminals/list', 'thread/queue/list'):
+                result = dict(data=[dict(processId='fixture-background')] if method == 'thread/backgroundTerminals/list' and (home / 'background-work').exists() else [], nextCursor=None)
+            elif method == 'thread/goal/get':
+                result = dict(goal=None)
             elif method == 'thread/start':
                 with (home / 'creations.jsonl').open('a') as log:
                     log.write(json.dumps({'id': request['id']}) + '\n')
@@ -54,13 +63,14 @@ async def main():
                     continue
                 if (home / 'slow-create').exists():
                     await asyncio.sleep(.3)
-                thread = dict(id=str(uuid.uuid4()), turns=[], **params)
+                thread = dict(id=str(uuid.uuid4()), turns=[], status=dict(type='idle'), **params)
                 sessions[thread['id']] = thread
                 database.write_text(json.dumps(sessions))
                 result = dict(thread=thread)
             elif method in ('thread/resume', 'thread/read'):
                 result = dict(thread=sessions[params['threadId']])
             elif method == 'turn/start':
+                sessions[params['threadId']]['status'] = dict(type='active')
                 with (home / 'turns.jsonl').open('a') as log:
                     log.write(json.dumps(params) + '\n')
                 identifier = str(uuid.uuid4())
@@ -117,5 +127,13 @@ async def main():
 
 if '--version' in sys.argv:
     print('codex-cli 0.166.0')
+elif sys.argv[1:3] == ['login', 'status']:
+    if (Path(os.environ['CODEX_HOME']) / 'signed-out').exists():
+        print('Not logged in')
+        sys.exit(1)
+    print('Logged in (offline fixture)')
+elif sys.argv[1:2] == ['login']:
+    (Path(os.environ['CODEX_HOME']) / 'signed-out').unlink(missing_ok=True)
+    print('Signed in (offline fixture)')
 else:
     asyncio.run(main())

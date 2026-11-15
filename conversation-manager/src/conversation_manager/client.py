@@ -800,6 +800,18 @@ class Connection:
             await self._call("begin_drain", {"operation_id": operation_id})
         )
 
+    async def prepare_signin_stop(self, *, operation_id):
+        """Seal only a worker whose native and queued activity is confirmed idle."""
+        return await self._call('prepare_signin_stop', {'operation_id': operation_id})
+
+    async def signin_activity(self):
+        """Observe sign-in blockers without restricting existing work."""
+        return await self._call('signin_activity', {})
+
+    async def cancel_signin_stop(self, *, operation_id):
+        """Reopen admission only for the sign-in that owns this worker's seal."""
+        return await self._call('cancel_signin_stop', {'operation_id': operation_id})
+
     async def drain_status(self):
         return await self._call("drain_status", {})
 
