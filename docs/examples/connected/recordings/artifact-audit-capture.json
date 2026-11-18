@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "scope": "Actual local SDK/services and deterministic fixtures; no provider/model calls",
+  "workflow": "artifact-audit",
+  "recordedAt": "2026-11-17T17:51:36Z",
+  "sourceFiles": {
+    "artifact_audit.py": "e1f5fbdc9986d04d80309f35d863e61dc70aace6cadd28b19b35fd7d17abf1c5",
+    "artifact_worker.py": "96e7ca97571caf8b5c319ebad95c9fce2a4f23c84030ff47c3a44304c6d3b3ac",
+    "connected_runtime.py": "bb5476e4220383941597a52c7aa849bb3acc0cafedb72123bf64735dc2123a6d"
+  },
+  "tapeSha256": "5eab7a92ad34dae55b3530cdbb81be10f9faddc80a4c1d8e73462857aee5eacf",
+  "media": {
+    "codec_name": "h264",
+    "width": 1280,
+    "height": 800,
+    "duration": "17.100000"
+  },
+  "cleanup": {
+    "daemon_exited": true,
+    "failures": [],
+    "owned_sessions_stopped": true
+  },
+  "method": "VHS executes a byte-identical short-path source copy; output is real, never preprinted or simulated",
+  "runtimeBin": "/tmp/a3n-linux-shared-api/application/bin",
+  "evidence": "/tmp/mc-vhs-2sjpdibo/demo"
+}

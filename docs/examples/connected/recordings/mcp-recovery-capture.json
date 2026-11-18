@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "scope": "Actual local SDK/services and deterministic fixtures; no provider/model calls",
+  "workflow": "mcp-recovery",
+  "recordedAt": "2026-11-17T17:52:36Z",
+  "sourceFiles": {
+    "mcp_job.py": "9b6b5590cfb3cf73230a1dec0353b46e84260b457b2c19ad12d709703a5b2351",
+    "mcp_worker.py": "ccdea1ca4c0e8141b458e4254fed35e4b3a5ae7a8ad61c6ad3bc00ea08f72566",
+    "tool_server.py": "9d8d4e40b288570d58e80798ef74c84d4a04065b1ec7e97823eb2f6bbafcf8d2",
+    "connected_runtime.py": "bb5476e4220383941597a52c7aa849bb3acc0cafedb72123bf64735dc2123a6d"
+  },
+  "tapeSha256": "5505991152af09674a34a8f7297ae114a7fb5249d1c0d88a08c2081868c0e937",
+  "media": {
+    "codec_name": "h264",
+    "width": 1280,
+    "height": 800,
+    "duration": "17.950000"
+  },
+  "cleanup": {
+    "daemon_exited": true,
+    "failures": [],
+    "owned_sessions_stopped": true
+  },
+  "method": "VHS executes a byte-identical short-path source copy; output is real, never preprinted or simulated",
+  "runtimeBin": "/tmp/a3n-linux-shared-api/application/bin",
+  "evidence": "/tmp/mc-vhs-97ag1waq/demo"
+}

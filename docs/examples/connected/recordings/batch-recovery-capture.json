@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "scope": "Actual local SDK/services and deterministic fixtures; no provider/model calls",
+  "workflow": "batch-recovery",
+  "recordedAt": "2026-11-17T17:52:05Z",
+  "sourceFiles": {
+    "batch_pipeline.py": "c9e87502374591143182132cd520e84a42b48655ae97a491ddc92c5c850ba6fd",
+    "batch_worker.py": "601d8ae069a6038d25cd8be8099cecdbcff1f0c669943b9a78903a580b39fedc",
+    "connected_runtime.py": "bb5476e4220383941597a52c7aa849bb3acc0cafedb72123bf64735dc2123a6d"
+  },
+  "tapeSha256": "b9ec59c8d0e023b96defc2acf0454426a2ef1681d2673daae4477438668132bb",
+  "media": {
+    "codec_name": "h264",
+    "width": 1280,
+    "height": 800,
+    "duration": "17.450000"
+  },
+  "cleanup": {
+    "daemon_exited": true,
+    "failures": [],
+    "owned_sessions_stopped": true
+  },
+  "method": "VHS executes a byte-identical short-path source copy; output is real, never preprinted or simulated",
+  "runtimeBin": "/tmp/a3n-linux-shared-api/application/bin",
+  "evidence": "/tmp/mc-vhs-8u7mgg3j/demo"
+}
