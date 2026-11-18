@@ -1,8 +1,25 @@
 # Owned MCP definitions
 
-MCP Manager 0.1.2 owns immutable configurations and publisher reconciliation.
-Agent Manager 0.1.2 attaches them without importing, updating, installing, preparing,
-or reconciling at launch. These APIs work without Suite, Agent Manager or a backend.
+This development branch owns immutable configurations and publisher reconciliation.
+Applications select accepted definitions and deliver them through their own MCP
+clients or native configuration adapters. These APIs work without Suite, Agent
+Manager, or a backend; Agent Manager does not attach resources at launch.
+
+## Review publisher changes
+
+This is the acceptance boundary; installation and running connections remain separate.
+
+```mermaid
+flowchart TD
+    accTitle: Accept a publisher update
+    accDescr: An ordered update activates an uncustomized copy. A customized copy keeps its accepted definition until guarded review accepts a valid proposal. Immutable history retains prior states.
+    Incoming[Register publisher definition] --> Changed{Local edits?}
+    Changed -->|No, newer ordered update| Accept[Activate accepted definition]
+    Changed -->|Yes| Pending[Retain incoming proposal]
+    Pending --> Review[Preview and resolve conflicts]
+    Review -->|Valid and revision matches| Accept
+    Accept --> History[Retain immutable history]
+```
 
 ```python
 from mcp_manager import Manager
@@ -65,38 +82,24 @@ mcp-manager managed prepare sonar default --project /project --background
 mcp-manager managed refresh sonar default --project /project --settings '{"resolve":true}'
 ```
 
-`agent codex mcp managed ...` delegates to the same lifecycle using that Agent
-Manager's sibling MCP store. Agent resource attachment uses the existing shared CLI:
+## Deliver accepted definitions from an application
 
-```json
-{
-  "schema": "agent-manager/resource-request-2",
-  "mcp": {"add": [{"target": {"kind": "managed", "publisher_id": "docs", "server_id": "default"}, "required": false}]}
-}
-```
+Choose the MCP store with `Manager(home=...)`. Use
+`resolve_managed(publisher, server_id, revision=...)` to read an accepted definition
+or retained historical state. Use `inspect_managed(publisher, server_id, cwd,
+revision=...)` to resolve executable/preparation readiness for that managed target.
+These operations do not launch or attach a server. A pending publisher update does
+not block reading a usable accepted copy.
 
-```sh
-agent codex backend preview --profile work --resources @request.json
-agent codex run work --resources @request.json
-```
+Your application owns selection policy, required/optional handling, captured client
+configuration, and delivery to its runtime. It must enforce readiness and authorization
+before starting a client. Retaining a configuration does not establish a live connection.
 
-Managed MCP targets support `store` (an absolute execution-machine directory) and
-`revision` (a historical state token). Omitted stores resolve on the execution
-machine. String targets and request-1 remain supported. Structured MCPs use
-request-2 and binding-3; stored snapshots remain readable. Exclusions/overrides match
-identity rather than revision. A launch captures accepted definitions, managed
-status, and prepared generations before creation. Resume uses that captured content
-even after stores/defaults change. A pending update does not block a usable accepted
-copy. Configuration delivery is distinct from an observed live connection.
-
-Suite exposes the shared managed editor, bounded comparisons, conflict choices,
-history/restore, tracking, publisher registration, and preparation for registered
-projects. Resource pickers and launch reports show pending updates. Registration
-and saved edits emit catalog refresh events; external CLI changes appear on focus
-and lightweight periodic library refresh. Connect advertises request-2 and resolves
-on the device. Unsupported explicit optional managed MCPs can be omitted for a
-request-1 companion with a retained report; required ones fail before dispatch.
-Unknown capabilities never authorize silently replacing a required selection.
+The former `agent codex mcp managed` delegation, resource-request-2 launch flags,
+and binding-3 delivery claims are retired Agent integration, not current MCP APIs.
+Do not use those commands. See the current
+[Agent resource boundary](../../agent-manager/docs/resource-separation.md) and
+[historical notes](DISCUSSION.md#retired-managed-consumer-notes) for migration context.
 
 ## Adoption and preparation
 
@@ -107,7 +110,7 @@ baseline. There are no bundled Sonar/Lore definitions or initialization command.
 Users install server software themselves and register definitions explicitly with
 `managed ensure` or adopt their saved definitions with `managed adopt`.
 `bootstrap_defaults()` is a no-op. Managed targets
-are selected explicitly; existing profile assignments are not rewritten. Local
+are selected explicitly by the consuming application. Local
 configuration commands cannot edit managed
 state; managed edits always require the observed revision.
 
@@ -117,9 +120,18 @@ requested revisions. The index fingerprint excludes startup/tool timeouts and cw
 timeout-only edits reuse compatible generations. Manifests without the
 index fingerprint keep their conservative full-definition comparison. Failed refresh
 preserves the previous published generation. Reconnect preserves a running session's
-selected configuration; live attach/detach is available only with backend support.
+selected configuration. This connector API does not expose live attach/detach;
+a consumer needs its own supported backend mechanism for such changes.
 Preparation supports stdio servers; install executable dependencies separately.
 
 
 Direct creation, public GitHub sources and retained import jobs are documented in
-[Resource imports](../../docs/resource-imports.md).
+[source imports](sources.md).
+
+## Owning implementation
+
+See [library service](../src/mcp_manager/library/service.py),
+[reconciliation](../src/mcp_manager/library/reconciliation.py), and
+[managed lifecycle tests](../tests/test_managed.py). These tests cover ordered and
+unordered updates, atomic array conflicts, paused tracking, history, adoption,
+and competing saves.

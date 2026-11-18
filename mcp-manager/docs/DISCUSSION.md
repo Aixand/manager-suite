@@ -1,11 +1,22 @@
 # MCP Manager: Role, Current Features, and Future Direction
 
-Status: Product discussion and proposed roadmap
+Status: Historical product discussion and proposed roadmap; superseded integration boundary
 
-This document records the intended role of MCP Manager, the features present in
-the current source checkout, and proposed improvements. The roadmap is a
-discussion baseline; proposed features are not implemented guarantees or an
-approved delivery schedule.
+This retained discussion describes an earlier integration design. All sections
+below, including headings that say "current" or "existing," are a historical
+snapshot or proposals, not current behavior guarantees. In particular, Agent-owned
+MCP assignments, delegated MCP commands, sibling-store selection, resource-request
+launch flags, and native resource delivery described here have been retired.
+The old `resource-sources` service attribution is also historical: source and
+installation services now live in MCP Manager.
+
+For current behavior, use [MCP architecture](architecture.md),
+[owned definitions](MANAGED.md), and the
+[Agent resource boundary](../../agent-manager/docs/resource-separation.md).
+Applications own resource selection, captured configuration, and delivery through
+their own clients/adapters. Agent Manager exposes native target discovery; it does
+not attach MCP resources or compose them at launch. Historical attribution to Agent
+Manager in the design principles below must not be used as a current requirement.
 
 ## Main purpose
 
@@ -128,6 +139,9 @@ captured selection; it does not refresh indexes or change profile assignments.
 
 ## Existing Agent Manager integration
 
+Historical and retired. The following inventory does not describe the current
+Agent API or CLI; no delivery support is established by this archived list.
+
 The following features form part of the complete user experience, with their
 assignment and session state owned by Agent Manager:
 
@@ -235,3 +249,44 @@ described in the [MCP Registry documentation](https://modelcontextprotocol.io/re
 - [Shared source/import/installation documentation](../../docs/resource-imports.md)
 - [Owned source API](../src/mcp_manager/sources/service.py)
 - [Installation implementation](../src/mcp_manager/installations/service.py)
+
+## Retired managed consumer notes
+
+The following text is preserved from the former managed-definition guide as
+historical evidence only. These commands and cross-product delivery claims are
+retired or unverified in the current standalone products. Do not execute them as
+setup instructions. They do not establish current Suite/Connect behavior either.
+Use the application-owned boundary above and the current MCP lifecycle instead.
+
+`agent codex mcp managed ...` delegates to the same lifecycle using that Agent
+Manager's sibling MCP store. Agent resource attachment uses the existing shared CLI:
+
+```text
+{
+  "schema": "agent-manager/resource-request-2",
+  "mcp": {"add": [{"target": {"kind": "managed", "publisher_id": "docs", "server_id": "default"}, "required": false}]}
+}
+```
+
+```text
+agent codex backend preview --profile work --resources @request.json
+agent codex run work --resources @request.json
+```
+
+Managed MCP targets support `store` (an absolute execution-machine directory) and
+`revision` (a historical state token). Omitted stores resolve on the execution
+machine. String targets and request-1 remain supported. Structured MCPs use
+request-2 and binding-3; stored snapshots remain readable. Exclusions/overrides match
+identity rather than revision. A launch captures accepted definitions, managed
+status, and prepared generations before creation. Resume uses that captured content
+even after stores/defaults change. A pending update does not block a usable accepted
+copy. Configuration delivery is distinct from an observed live connection.
+
+Suite exposes the shared managed editor, bounded comparisons, conflict choices,
+history/restore, tracking, publisher registration, and preparation for registered
+projects. Resource pickers and launch reports show pending updates. Registration
+and saved edits emit catalog refresh events; external CLI changes appear on focus
+and lightweight periodic library refresh. Connect advertises request-2 and resolves
+on the device. Unsupported explicit optional managed MCPs can be omitted for a
+request-1 companion with a retained report; required ones fail before dispatch.
+Unknown capabilities never authorize silently replacing a required selection.

@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "project": "manager-suite",
+  "component": "mcp-manager",
+  "pages": [
+    {
+      "file": "README.md",
+      "slug": "mcp-manager",
+      "section": "Getting started",
+      "order": 0
+    },
+    {
+      "file": "getting-started.md",
+      "slug": "mcp-manager/getting-started",
+      "section": "Getting started",
+      "order": 1
+    },
+    {
+      "file": "architecture.md",
+      "slug": "mcp-manager/architecture",
+      "section": "Architecture",
+      "order": 2
+    },
+    {
+      "file": "resolution.md",
+      "slug": "mcp-manager/resolution",
+      "section": "Reference",
+      "order": 3
+    },
+    {
+      "file": "MANAGED.md",
+      "slug": "mcp-manager/managed",
+      "section": "Lifecycles",
+      "order": 4
+    },
+    {
+      "file": "sources.md",
+      "slug": "mcp-manager/sources",
+      "section": "Lifecycles",
+      "order": 5
+    },
+    {
+      "file": "preparation.md",
+      "slug": "mcp-manager/preparation",
+      "section": "Lifecycles",
+      "order": 6
+    },
+    {
+      "file": "connectors.md",
+      "slug": "mcp-manager/connectors",
+      "section": "Integrations",
+      "order": 7
+    },
+    {
+      "file": "operations.md",
+      "slug": "mcp-manager/operations",
+      "section": "Integrations",
+      "order": 8
+    },
+    {
+      "file": "security-and-limits.md",
+      "slug": "mcp-manager/security-and-limits",
+      "section": "Reference",
+      "order": 9
+    },
+    {
+      "file": "development.md",
+      "slug": "mcp-manager/development",
+      "section": "Development",
+      "order": 10
+    },
+    {
+      "file": "examples/resolve-without-launch.md",
+      "slug": "mcp-manager/resolve-without-launch",
+      "section": "Getting started",
+      "order": 0,
+      "collection": "examples",
+      "downloads": [
+        "/manager-suite/examples/mcp-manager/resolve_without_launch.py"
+      ]
+    },
+    {
+      "file": "examples/local-operations.md",
+      "slug": "mcp-manager/local-operations",
+      "section": "Integrations",
+      "order": 1,
+      "collection": "examples",
+      "downloads": [
+        "/manager-suite/examples/mcp-manager/local_operations.py"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "file": "mcp-manager/examples/resolve_without_launch.py",
+      "target": "public/manager-suite/examples/mcp-manager/resolve_without_launch.py"
+    },
+    {
+      "file": "mcp-manager/examples/local_operations.py",
+      "target": "public/manager-suite/examples/mcp-manager/local_operations.py"
+    }
+  ]
+}

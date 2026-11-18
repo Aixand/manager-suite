@@ -82,3 +82,47 @@ consumer environment. Local commands do not publish packages, register MCP
 servers, or modify provider profiles.
 
 [Package overview](../README.md) · [Developer command implementation](../dev.py)
+
+## Verification and exclusions
+
+```sh
+python -m unittest discover -s tests -v
+```
+
+Fixtures use temporary stores, local stdio servers and injected connectors, without
+provider credentials/model calls. Tests cover colliding projects/worktrees, stale
+revisions, captured-job reuse, failed refresh, unavailable probes, detached jobs,
+explicit scope, selection/generation preservation and uncertain reconnect delivery.
+
+Remote HTTP/OAuth, automatic generation deletion,
+marketplaces, remote sharing, cloud hosting and plugin-manager work remain deferred.
+Resource composition, delivery, and captured client configurations belong to the
+consuming application; native backend calls belong to supplied adapters. The package imports none of Agent Manager,
+Suite, Pathspec, Runner or Carrier.
+
+`Manager.inspect(servers, cwd, project=...)` inspects independent MCP selections
+without starting servers or preparing indexes. An unknown name or missing
+executable is reported per item; other selections remain available. Integrity and
+permission errors still propagate. This is preparation/configuration evidence,
+separate from the live inventory APIs and connection status.
+
+
+## Verify documentation changes
+
+From the suite root, run the source checker. It validates links, headings, fenced
+code, and diagram accessibility fields; it does not execute examples.
+
+```sh
+python3 scripts/checks/check-docs.py --root .
+python mcp-manager/examples/resolve_without_launch.py
+python mcp-manager/examples/local_operations.py
+```
+
+The connected example additionally needs the `mcp` Python SDK in the example
+interpreter. It is not a base MCP Manager dependency. It starts only its local
+fixture subprocess. Both examples remove temporary stores on exit.
+
+Render and inspect changed Mermaid diagrams in light/dark themes and the actual
+site at desktop article width and mobile. Structural checks alone do not establish
+visual readability. Keep [publication.json](publication.json) aligned with these
+source pages and downloadable Python files.
