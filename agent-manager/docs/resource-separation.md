@@ -48,3 +48,20 @@ are separate work outside this product.
 
 Independent resource tools use target discovery and native configuration through
 the public APIs above.
+
+
+## Legacy records and current public identifiers
+
+Historical instruction/MCP/skill binding keys can remain in a registry as ignored
+data. Agent Manager does not export or consume those assignments and does not
+create a current resource-snapshot schema. Do not use old binding records as a
+launch contract. Independent resource delivery remains the caller's responsibility.
+
+The exported `ResourceError` name remains an alias of `OperationError` for structured
+administrative and observation failures. Its name does not restore resource
+assignment APIs. Native `mcp_servers` settings supplied through qualified Codex
+`native_config` are explicit native configuration, not a managed resource binding.
+
+See [public exports](../agent_manager/__init__.py), [error definitions](../agent_manager/errors.py),
+[native settings validation](../agent_manager/runtime/native/configuration.py), and
+[standalone boundary tests](../tests/test_standalone_boundary.py).

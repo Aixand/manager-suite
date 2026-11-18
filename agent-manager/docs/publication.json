@@ -1,0 +1,139 @@
+{
+  "schema": 1,
+  "project": "manager-suite",
+  "component": "agent-manager",
+  "pages": [
+    {
+      "file": "README.md",
+      "slug": "agent-manager",
+      "section": "Getting started",
+      "order": 0
+    },
+    {
+      "file": "getting-started.md",
+      "slug": "agent-manager/getting-started",
+      "section": "Getting started",
+      "order": 1
+    },
+    {
+      "file": "architecture.md",
+      "slug": "agent-manager/architecture",
+      "section": "Architecture",
+      "order": 2
+    },
+    {
+      "file": "profiles-and-environments.md",
+      "slug": "agent-manager/profiles-and-environments",
+      "section": "Architecture",
+      "order": 3
+    },
+    {
+      "file": "storage.md",
+      "slug": "agent-manager/storage",
+      "section": "Reference",
+      "order": 4
+    },
+    {
+      "file": "native-configuration.md",
+      "slug": "agent-manager/native-configuration",
+      "section": "Reference",
+      "order": 5
+    },
+    {
+      "file": "provider-policy.md",
+      "slug": "agent-manager/provider-policy",
+      "section": "Reference",
+      "order": 6
+    },
+    {
+      "file": "selection.md",
+      "slug": "agent-manager/selection",
+      "section": "Lifecycles",
+      "order": 7
+    },
+    {
+      "file": "execution-recovery.md",
+      "slug": "agent-manager/execution-recovery",
+      "section": "Lifecycles",
+      "order": 8
+    },
+    {
+      "file": "file-session-continuation.md",
+      "slug": "agent-manager/file-session-continuation",
+      "section": "Lifecycles",
+      "order": 9
+    },
+    {
+      "file": "opencode-continuation.md",
+      "slug": "agent-manager/opencode-continuation",
+      "section": "Lifecycles",
+      "order": 10
+    },
+    {
+      "file": "launch-context.md",
+      "slug": "agent-manager/launch-context",
+      "section": "Integrations",
+      "order": 11
+    },
+    {
+      "file": "native-environment-lease.md",
+      "slug": "agent-manager/native-environment-lease",
+      "section": "Integrations",
+      "order": 12
+    },
+    {
+      "file": "profile-management-mcp.md",
+      "slug": "agent-manager/profile-management-mcp",
+      "section": "Integrations",
+      "order": 13
+    },
+    {
+      "file": "sdk-execution.md",
+      "slug": "agent-manager/sdk-execution",
+      "section": "Reference",
+      "order": 14
+    },
+    {
+      "file": "resource-separation.md",
+      "slug": "agent-manager/resource-separation",
+      "section": "Architecture",
+      "order": 15
+    },
+    {
+      "file": "development.md",
+      "slug": "agent-manager/development",
+      "section": "Development",
+      "order": 16
+    },
+    {
+      "file": "examples/profile-identity.md",
+      "slug": "agent-manager/profile-identity",
+      "section": "Getting started",
+      "order": 0,
+      "collection": "examples",
+      "downloads": [
+        "/manager-suite/examples/agent-manager/profile_identity.py"
+      ]
+    },
+    {
+      "file": "examples/policy-snapshot.md",
+      "slug": "agent-manager/policy-snapshot",
+      "section": "Reference",
+      "order": 1,
+      "collection": "examples",
+      "downloads": [
+        "/manager-suite/examples/agent-manager/policy_snapshot.py"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "file": "agent-manager/examples/profile_identity.py",
+      "target": "public/manager-suite/examples/agent-manager/profile_identity.py"
+    },
+    {
+      "file": "agent-manager/examples/policy_snapshot.py",
+      "target": "public/manager-suite/examples/agent-manager/policy_snapshot.py"
+    }
+  ]
+}

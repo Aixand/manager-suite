@@ -84,8 +84,8 @@ lock for the resumed child's lifetime, including termination cleanup. It validat
 the source reference, route, link, version and final native arguments again before
 execution. Forking, replacement sessions and home/workspace redirection are rejected.
 
-Fresh Manager terminal launches receive an explicit native session UUID, allowing
-their captured resources to be retained for later continuation. Native picker
+Fresh Manager terminal launches receive an explicit native session UUID for
+native identity tracking and later history continuation. Native picker
 launches remain available; newly chosen native IDs are discoverable from history.
 
 ## Registry and launch records
@@ -94,7 +94,7 @@ The optional registry mapping
 `session_routes[environment_uuid][native_uuid] = original_session_reference`
 preserves the canonical origin when resuming from a destination environment.
 Raw managed `--resume UUID` calls resolve this route, restore the source workspace
-and use its captured resources. A routed destination cannot rebind that UUID to
+and retain its original native history identity. A routed destination cannot rebind that UUID to
 another original store.
 
 Immutable launch plans under `native-continuations/` contain only public environment

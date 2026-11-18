@@ -50,7 +50,8 @@ including detached terminal launches. Login, budget/model probes and app-server
 configuration remain separate. They do not rewrite native profile settings.
 Cross-profile continuation uses the execution environment's arguments and native
 configuration; existing continuation argument restrictions still apply. The
-conversation supplies its original history and captured resources.
+conversation supplies its original native history and saved workspace. Agent Manager
+does not capture or restore prompt, skill, or MCP resource assignments.
 
 ## Native instruction editing
 
@@ -82,8 +83,8 @@ profile through an actionable error rather than creating shared guidance.
 
 `agent PROVIDER config show --profile NAME --effective --json` returns
 `agent-manager/configuration-1`: argument layers and their combined order, explicit
-model selection, instruction source paths/revisions, and normalized profile resource
-defaults. Contents of native instruction files are available separately with
+model selection, instruction source paths/revisions, and the selected environment
+identity. It contains no profile resource defaults. Contents of native instruction files are available separately with
 `config instructions show`. Vendor-owned project/global configuration is not expanded;
 `native_defaults_resolved` is false. A null native model means its default is unknown,
 not that the provider has no model.
@@ -251,8 +252,8 @@ reasoning support stays unknown because the catalog has no corresponding flag.
 Context pricing thresholds retain the native tier size.
 
 OpenCode terminal launches use the full-screen entry point and `--standalone`.
-The selected model is merged into `OPENCODE_CONFIG_CONTENT` after managed MCP and
-instruction overlays; native profile and project files are not rewritten. The
+The selected model is merged into an inherited `OPENCODE_CONFIG_CONTENT` object,
+preserving its other keys. This does not resolve managed MCP or instruction assignments; native profile and project files are not rewritten. The
 root model default accepts `provider/model`, while `#variant` needs an in-app
 selection or an explicit Mini launch. Full-screen resume keeps the saved session
 model; an explicit resume model override is rejected instead of being ignored.
@@ -288,11 +289,10 @@ inspection; account-budget inspection does not query models. `--cached` never st
 native probe. Explicit `run PROFILE` and `continue SESSION --profile NAME` do not
 refresh these catalogs. Cache files are atomic private JSON, limited to 4 MiB;
 per-context leases coalesce queries, with at most 64 project files per environment.
-Backend catalogs consume the same snapshot and reject expired model snapshots;
-Codex dependent setting choices use its preserved native model variants. SDK
-pre-session catalogs retain built-in commands, model selection, tool approval and
-Claude mode choices. Session-dependent SDK metadata is inspected after opening a
-session rather than launching a throwaway conversation for discovery.
+These snapshots describe native model observations. Agent Manager does not expose
+conversation backend catalogs, pre-session chat metadata, or conversation approval
+interfaces. Programmatic chat and its model-setting choices belong to
+[Conversation Manager](../../conversation-manager/README.md).
 
 ## OpenCode integrations
 
@@ -555,11 +555,12 @@ currency minor units. These structured command formats are version-gated.
 ## Automatic startup
 
 `agent PROVIDER start` selects an execution environment once, then follows the same
-native launch, resource and run-lease path as `agent PROVIDER run PROFILE`. It prints
+native launch and run-lease path as `agent PROVIDER run PROFILE`. It prints
 the chosen profile and score to stderr. It never changes the configured default,
 changes a native login or moves an already running conversation to another home.
-`run PROFILE` and SDK launches retain their explicit/default selection rules and do
-not query budgets to choose another environment. CLI continuation uses budgets to
+`run PROFILE` and explicit SDK `spawn(profile=...)` do not query budgets to choose
+another environment. SDK `start()` uses automatic selection; see the
+[SDK guide](python-sdk.md#automatic-profile-selection). CLI continuation uses budgets to
 order manual profile choices, as described below.
 
 Bundled Codex, Claude, Copilot and Antigravity definitions use
@@ -867,7 +868,8 @@ exercised by that check; the development sandbox blocks Unix socket connections.
 An unexpected native configuration, identity or lock result fails before a terminal
 can start a turn. Other providers retain their same-home behavior.
 
-Resources and launch context are documented in [launch resources](resource-separation.md)
+The retired resource-assignment boundary and current launch context are documented
+in [standalone resource boundary](resource-separation.md)
 and [launch context](launch-context.md). Carrier launch configuration is owned by
 its optional adapter; see [SDK integration contracts](python-sdk.md#managed-execution).
 
@@ -876,3 +878,13 @@ its optional adapter; see [SDK integration contracts](python-sdk.md#managed-exec
 Install `aixand-agent-manager[undercurrent]` in the CLI environment and provide the
 Undercurrent binaries and daemon to use `runtime = "undercurrent"`. Direct native execution remains the default.
 The SDK uses the same optional Undercurrent dependency.
+
+
+## Current contract sources
+
+[Configuration inspection](../agent_manager/providers/configuration.py) defines the
+`agent-manager/configuration-1` envelope. [OpenCode terminal model selection](../agent_manager/providers/opencode.py)
+updates only the model key in inherited inline configuration. [Native launch settings](../agent_manager/runtime/native/configuration.py)
+accept explicit provider-qualified values without resource resolution or persistence.
+[Standalone boundary tests](../tests/test_standalone_boundary.py) verify that retired
+resource APIs and selectors are absent and legacy assignment keys remain ignored.

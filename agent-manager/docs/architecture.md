@@ -4,6 +4,18 @@ Agent Manager owns native provider profiles, environments, installation,
 configuration, account/model observations, and native execution. Undercurrent is
 an optional execution runtime.
 
+```mermaid
+flowchart TD
+    accTitle: Agent Manager integration boundaries
+    accDescr: CLI and SDK share Agent Manager profile and environment ownership. Direct CLI launches native terminals; SDK launches through Undercurrent. Providers retain native homes and authentication.
+    C[CLI administration and terminal] --> M[Agent Manager profiles and environments]
+    S[Public SDK and management MCP] --> M
+    M --> D[Direct CLI execution]
+    M --> U[Undercurrent SDK execution]
+    D --> N[Provider native home and login]
+    U --> N
+```
+
 ## Layout
 
 | Module | Responsibility |
@@ -57,7 +69,8 @@ and origin environment identity. Cross-provider continuation is unsupported.
 Codex uses the original SQLite/transcript store and writer-lock directory in an
 isolated Linux mount namespace while retaining the destination's native login.
 Its private `codex_wire.py` verifies the native handoff.
-Claude/Copilot use their qualified original-history adapters; OpenCode uses native
+Claude/Copilot use original-history adapters with offline-only resume/write-back
+qualification; authenticated model turns remain unverified. OpenCode uses native
 transcript copies with its own recoverable copy journal. Qualification and platform
 limits remain provider-specific. See [native history](file-session-continuation.md)
 and [OpenCode continuation](opencode-continuation.md).
@@ -95,3 +108,8 @@ execution guards. Keyed retries recover the original run rather than reranking.
 Execution handles revalidate registry, runtime home and exact session identity;
 input receipts, raw output offsets, event gaps and watch resynchronization retain
 Undercurrent semantics. This adds terminal control, not a conversation backend.
+
+
+## Owning definitions
+
+Read the [Manager facade](../agent_manager/manager.py), [public SDK](../agent_manager/interfaces/sdk.py), [native lease](../agent_manager/environments/lease.py), and [boundary tests](../tests/test_native_sdk_boundary.py) before extending execution ownership. See [execution recovery](execution-recovery.md) for operational consequences.

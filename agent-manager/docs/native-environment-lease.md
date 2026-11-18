@@ -2,13 +2,15 @@
 
 `Manager.lease_native_environment(environment_id, expected_revision=None)` returns
 a synchronous context manager for independently owned local native processes.
-It supports local Codex and OpenCode and requires POSIX and an immutable environment UUID; it does not launch a process,
+It supports local Codex and OpenCode and requires an immutable environment UUID; it does not launch a process,
 start a runtime, authenticate, or depend on another manager.
 
 ```python
 with manager.lease_native_environment(environment_id) as lease:
     descriptor = lease.descriptor
-    # Process owners use lease.env and pass_fds=lease.pass_fds with subprocess.
+    with lease.subprocess_options() as child_options:
+        # Pass env=lease.env and **child_options when creating the child.
+        pass
 ```
 
 `descriptor` uses schema `agent-manager/native-environment-1`. It contains provider,
@@ -21,7 +23,8 @@ are local references, not portable credentials or proof of account entitlement.
 `CODEX_HOME` is set to the selected native home. OpenCode receives its selected
 XDG/config/database paths with competing ambient credentials, inline configuration,
 and endpoint overrides removed. No authentication file is read or
-copied. Never serialize the lease or its environment. `pass_fds` lets a POSIX child
+copied. Never serialize the lease or its environment. `subprocess_options()` supplies POSIX `pass_fds` or Windows inherited-handle options.
+These let a child
 retain the shared environment guard after its owner's handle closes. A process
 owner must keep the lease for its native child's lifetime and stop/reap the child
 before releasing it normally. A child that closes inherited guard descriptors no
@@ -41,3 +44,6 @@ exclusive ownership wait or report busy according to their existing policy.
 Holding a lease can therefore delay login, environment edits, and retirement until
 the owning process stops. It is not a native-conversation writer lock, a provider
 quota reservation, or an execution reference managed by Undercurrent.
+
+
+Owning sources: [lease implementation](../agent_manager/environments/lease.py) and [lease tests](../tests/test_environment_lease.py). Windows support in source is not native Windows qualification.

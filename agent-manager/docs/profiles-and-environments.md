@@ -24,7 +24,7 @@ an existing directory, reusing the registered environment for its canonical path
 environment and copies Manager preferences only; native credentials, settings and
 history are not copied. Profile creation never selects an implicit default.
 
-All aliases share the environment's model/resource preferences, saved launch arguments, native login and
+All aliases share the environment's saved model preference, saved launch arguments, native login and
 active-run guards. The explicit default is an alias UUID: rename preserves it,
 deleting another alias leaves it alone, and deleting the selected alias clears it.
 Deleting the default does not assign a replacement. CLI `start` can independently
@@ -64,10 +64,9 @@ retargets an active environment.
 
 Two revisions have separate meanings. Profile `revision` guards alias edits and
 default selection. `environment_revision` guards native login/logout and SDK launch
-preferences. Renaming an alias changes only its alias revision. Model/resource
+preferences. Renaming an alias changes only its alias revision. Saved model and launch-argument
 changes affect the environment revision shared by all aliases. Environment inspection
-returns that revision as `revision`. Resource bindings also retain their own existing
-revision/digest contracts. CLI and direct SDK callers may supply expected revisions;
+returns that revision as `revision`. CLI and direct SDK callers may supply expected revisions;
 MCP mutations require them where declared. Status observations do not change
 preference revisions. `status` accepts no mutation revision.
 
@@ -99,7 +98,7 @@ state.json                              schema 3
   environments[environment_uuid]        home, ownership, created_at
   profiles[name]                        id, environment_id, created_at
   default_profile_id                    alias UUID or null
-  models/resource bindings/login_status keyed by environment UUID
+  models, launch_args, login_status       keyed by environment UUID
   runs                                  captured environment and alias IDs
   sessions                              origin_environment_id and native history
   session_routes                        optional destination UUID/native ID -> source ref
@@ -126,8 +125,15 @@ A factory reset removes the complete Agent Manager context. A specific provider
 reset can independently restore that provider's bundled Manager configuration;
 native default homes and provider CLI software retain their own confirmations.
 
-Registry and provider manifest version 3 replace previous formats. Resource snapshots
-use `agent-manager/resource-snapshot-5` with explicit environment identity. Older
+Registry and provider manifest version 3 replace previous formats. Older
 registries, manifests and identity records fail clearly; there is no migration or
 compatibility reader. Manager never silently rewrites or relocates old native files.
 Keep a copy of older state and connect preserved homes to a fresh registry explicitly.
+
+## Current serialization boundary
+
+Environment preferences are `models` and `launch_args`. Native login status is an observation, not a credential record or resource assignment. Profile inspection exposes the saved model, environment revision, capabilities, native-home scopes, and public login status. Session records retain native identity, original history home, workspace, and origin environment.
+
+Retired instruction/MCP/skill bindings can remain as opaque legacy keys in an existing registry. Current launches ignore them; they do not participate in preference revisions, duplication, or resource delivery. There is no current public resource-snapshot or resource-assignment export API. Native instruction editing and explicit native launch settings remain separate supported operations.
+
+Owning definitions: [registry identities](../agent_manager/profiles/identities.py), [profile inspection and duplication](../agent_manager/profiles/operations.py), [environment preferences and revision](../agent_manager/environments/operations.py), [saved session fields](../agent_manager/interfaces/contracts.py), and [retired-surface tests](../tests/test_standalone_boundary.py).
