@@ -12,6 +12,14 @@ revisions. Integrating applications own workflow scheduling and delivery.
 | Skill Manager | Owned skills, validation, export | [Python SDK](../skill-manager/docs/python-sdk.md) |
 | MCP Manager | Definitions, imports, installation, connector operations | [Runtime connectors](../mcp-manager/docs/connectors.md) |
 
+```mermaid
+flowchart TB
+  accTitle: Resource selection has an application owner
+  accDescr: Resource managers own accepted content and immutable revisions. An application captures the selected revisions before dispatch and retains the resulting operation identity for recovery.
+  Managers[Resource managers] --> Capture[Application captures content]
+  Capture --> Dispatch[Dispatch with retained identity]
+```
+
 ## Prepare application resources
 
 Applications compose resource managers with Agent Manager environment targets.
@@ -24,6 +32,16 @@ Keep resource identity separate from execution-account routing. Capture immutabl
 content for work that must survive retries, and reuse the retained request rather
 than resolving mutable defaults again. Resource managers own content capture;
 the external workflow host owns submission and retry policy.
+
+```mermaid
+flowchart TB
+  accTitle: Readiness and completion are different observations
+  accDescr: A request has a retained receipt. The application inspects its exact operation and then verifies the resulting work. An uncertain receipt returns to inspection without creating replacement work.
+  Request[Saved request and operation ID] --> Inspect[Inspect exact operation]
+  Inspect -->|Confirmed outcome| Verify[Verify work]
+  Inspect -->|Uncertain| Recover[Reconcile same identity]
+  Recover --> Inspect
+```
 
 ## Retain conversations
 

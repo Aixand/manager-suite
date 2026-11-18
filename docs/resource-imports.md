@@ -13,6 +13,17 @@ Prompt Manager's package lifecycle SDK supplies owned-content reconciliation for
 Skill Manager. The filesystem and GitHub utilities supply locking and acquisition;
 manager services own native formats, source policy, and job execution.
 
+```mermaid
+flowchart TB
+  accTitle: Import acceptance and delivery are separate decisions
+  accDescr: A local or remote source is acquired into owned storage. Publisher updates require reconciliation before acceptance. An application separately captures accepted content and chooses delivery.
+  Source[Local or remote source] --> Owned[Owned copy]
+  Publisher[Publisher update] --> Review[Review reconciliation]
+  Review --> Owned
+  Owned --> Capture[Capture accepted content]
+  Capture --> Delivery[Application delivery]
+```
+
 ## Local creation and import
 
 Local creation stores content under publisher `local`. Local import copies content

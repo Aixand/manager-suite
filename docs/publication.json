@@ -1,0 +1,484 @@
+{
+  "schema": 1,
+  "project": "manager-suite",
+  "pages": [
+    {
+      "file": "concepts.md",
+      "slug": "concepts",
+      "section": "Concepts",
+      "order": 10
+    },
+    {
+      "file": "getting-started/installation.md",
+      "slug": "installation",
+      "section": "Getting started",
+      "order": 1
+    },
+    {
+      "file": "getting-started/quickstart.md",
+      "slug": "quickstart",
+      "section": "Getting started",
+      "order": 2
+    },
+    {
+      "file": "reference/cli.md",
+      "slug": "reference/cli",
+      "section": "Reference",
+      "order": 40
+    },
+    {
+      "file": "reference/python.md",
+      "slug": "reference/python",
+      "section": "Reference",
+      "order": 41
+    },
+    {
+      "file": "troubleshooting.md",
+      "slug": "troubleshooting",
+      "section": "Troubleshooting",
+      "order": 60
+    },
+    {
+      "file": "examples/audit-to-inbox.md",
+      "slug": "audit-to-inbox",
+      "section": "Connected workflows",
+      "order": 5,
+      "collection": "examples",
+      "downloads": [
+        "/manager-suite/examples/audit-to-inbox.py",
+        "/manager-suite/examples/audit-inbox.py"
+      ],
+      "tags": [
+        "Python",
+        "Integration"
+      ]
+    },
+    {
+      "file": "examples/connect-skill.md",
+      "slug": "connect-skill",
+      "section": "Local workflows",
+      "order": 2,
+      "collection": "examples",
+      "downloads": [
+        "/manager-suite/examples/connect-skill.py"
+      ],
+      "tags": [
+        "Python"
+      ]
+    },
+    {
+      "file": "examples/parallel-reviews.md",
+      "slug": "parallel-reviews",
+      "section": "Agent workflows",
+      "order": 8,
+      "collection": "examples",
+      "downloads": [
+        "/manager-suite/examples/managed_agent.py"
+      ],
+      "tags": [
+        "Python",
+        "Agents"
+      ]
+    },
+    {
+      "file": "examples/persistent-agents.md",
+      "slug": "persistent-agents",
+      "section": "Agent workflows",
+      "order": 8,
+      "collection": "examples",
+      "downloads": [
+        "/manager-suite/examples/managed_agent.py"
+      ],
+      "tags": [
+        "Python",
+        "Agents"
+      ]
+    },
+    {
+      "file": "examples/render-prompt.md",
+      "slug": "render-prompt",
+      "section": "Local workflows",
+      "order": 1,
+      "collection": "examples",
+      "downloads": [
+        "/manager-suite/examples/render-prompt.py"
+      ],
+      "tags": [
+        "Python"
+      ]
+    },
+    {
+      "file": "examples/resolve-mcp.md",
+      "slug": "resolve-mcp",
+      "section": "Local workflows",
+      "order": 3,
+      "collection": "examples",
+      "downloads": [
+        "/manager-suite/examples/resolve-mcp.py"
+      ],
+      "tags": [
+        "Python"
+      ]
+    },
+    {
+      "file": "examples/retained-conversation.md",
+      "slug": "retained-conversation",
+      "section": "Local workflows",
+      "order": 4,
+      "collection": "examples",
+      "downloads": [
+        "/manager-suite/examples/retained-conversation.py"
+      ],
+      "tags": [
+        "Python"
+      ]
+    },
+    {
+      "file": "integration-architecture.md",
+      "slug": "integrations",
+      "section": "Architecture",
+      "order": 11
+    },
+    {
+      "file": "application-resources.md",
+      "slug": "application-resources",
+      "section": "Integrations",
+      "order": 12
+    },
+    {
+      "file": "resource-imports.md",
+      "slug": "resource-imports",
+      "section": "Integrations",
+      "order": 13
+    },
+    {
+      "file": "DEVELOPMENT.md",
+      "slug": "development",
+      "section": "Development",
+      "order": 70
+    },
+    {
+      "file": "examples/connected/index.md",
+      "slug": "connected",
+      "section": "Connected SDK workflows",
+      "order": -100,
+      "collection": "examples",
+      "tags": [
+        "SDKs",
+        "Carrier",
+        "Undercurrent"
+      ]
+    },
+    {
+      "file": "examples/connected/prompt-worker.md",
+      "slug": "connected/prompt-worker",
+      "section": "Connected SDK workflows",
+      "order": -99,
+      "collection": "examples",
+      "tags": [
+        "SDKs",
+        "Carrier",
+        "Undercurrent"
+      ]
+    },
+    {
+      "file": "examples/connected/frozen-prompt.md",
+      "slug": "connected/frozen-prompt",
+      "section": "Connected SDK workflows",
+      "order": -98,
+      "collection": "examples",
+      "tags": [
+        "SDKs",
+        "Carrier",
+        "Undercurrent"
+      ]
+    },
+    {
+      "file": "examples/connected/artifact-audit.md",
+      "slug": "connected/artifact-audit",
+      "section": "Connected SDK workflows",
+      "order": -97,
+      "collection": "examples",
+      "tags": [
+        "SDKs",
+        "Carrier",
+        "Undercurrent"
+      ],
+      "recording": "artifact-audit",
+      "recordingCaption": "Actual local SDK and service execution with checked results; deterministic fixtures, no model calls.",
+      "transcript": [
+        "Render a prompt and export a Skill Manager audit.",
+        "Queue the audit through Carrier before starting the worker.",
+        "Run the exported audit through Undercurrent; check CSV rows and artifact digest.",
+        "Replay the original message; confirm the auditor did not run again.",
+        "Verify owned sessions and the private daemon stopped."
+      ]
+    },
+    {
+      "file": "examples/connected/skill-rollout.md",
+      "slug": "connected/skill-rollout",
+      "section": "Connected SDK workflows",
+      "order": -96,
+      "collection": "examples",
+      "tags": [
+        "SDKs",
+        "Carrier",
+        "Undercurrent"
+      ]
+    },
+    {
+      "file": "examples/connected/batch-pipeline.md",
+      "slug": "connected/batch-pipeline",
+      "section": "Connected SDK workflows",
+      "order": -95,
+      "collection": "examples",
+      "tags": [
+        "SDKs",
+        "Carrier",
+        "Undercurrent"
+      ],
+      "recording": "batch-recovery",
+      "recordingCaption": "Actual local SDK and service execution with checked results; deterministic fixtures, no model calls.",
+      "transcript": [
+        "Deliver three distinct jobs to three worker inboxes.",
+        "Observe one worker exit 23 after retaining its result.",
+        "Restart that worker and accept the saved result for the original request.",
+        "Verify three jobs, six lines and no duplicate requests.",
+        "Verify owned processes stopped."
+      ]
+    },
+    {
+      "file": "examples/connected/mcp-job.md",
+      "slug": "connected/mcp-job",
+      "section": "Connected SDK workflows",
+      "order": -94,
+      "collection": "examples",
+      "tags": [
+        "SDKs",
+        "Carrier",
+        "Undercurrent"
+      ],
+      "recording": "mcp-recovery",
+      "recordingCaption": "Actual local SDK and service execution with checked results; deterministic fixtures, no model calls.",
+      "transcript": [
+        "Resolve an MCP definition and launch a real worker.",
+        "Allocate three units through the actual MCP SDK and SQLite fixture.",
+        "Stop before replying; start a replacement and replay the original job.",
+        "Verify one allocation, two workers and a correlated result.",
+        "Verify owned processes stopped."
+      ]
+    },
+    {
+      "file": "examples/connected/conversation-jobs.md",
+      "slug": "connected/conversation-jobs",
+      "section": "Connected SDK workflows",
+      "order": -93,
+      "collection": "examples",
+      "tags": [
+        "SDKs",
+        "Carrier",
+        "Undercurrent"
+      ]
+    },
+    {
+      "file": "examples/connected/agent-mailbox.md",
+      "slug": "connected/agent-mailbox",
+      "section": "Connected SDK workflows",
+      "order": -92,
+      "collection": "examples",
+      "tags": [
+        "SDKs",
+        "Carrier",
+        "Undercurrent"
+      ]
+    },
+    {
+      "file": "examples/connected/parallel-gate.md",
+      "slug": "connected/parallel-gate",
+      "section": "Connected SDK workflows",
+      "order": -91,
+      "collection": "examples",
+      "tags": [
+        "SDKs",
+        "Carrier",
+        "Undercurrent"
+      ]
+    },
+    {
+      "file": "examples/connected/live-review.md",
+      "slug": "connected/live-review",
+      "section": "Connected SDK workflows",
+      "order": -90,
+      "collection": "examples",
+      "tags": [
+        "SDKs",
+        "Carrier",
+        "Undercurrent"
+      ]
+    },
+    {
+      "file": "examples/connected/connected-setup.md",
+      "slug": "guides/connected-examples",
+      "section": "Guides",
+      "order": 20
+    }
+  ],
+  "assets": [
+    {
+      "file": "docs/examples/scripts/render-prompt.py",
+      "target": "public/manager-suite/examples/render-prompt.py"
+    },
+    {
+      "file": "docs/examples/scripts/connect-skill.py",
+      "target": "public/manager-suite/examples/connect-skill.py"
+    },
+    {
+      "file": "docs/examples/scripts/resolve-mcp.py",
+      "target": "public/manager-suite/examples/resolve-mcp.py"
+    },
+    {
+      "file": "docs/examples/scripts/retained-conversation.py",
+      "target": "public/manager-suite/examples/retained-conversation.py"
+    },
+    {
+      "file": "docs/examples/scripts/audit-to-inbox.py",
+      "target": "public/manager-suite/examples/audit-to-inbox.py"
+    },
+    {
+      "file": "docs/examples/scripts/audit-inbox.py",
+      "target": "public/manager-suite/examples/audit-inbox.py"
+    },
+    {
+      "file": "docs/examples/scripts/managed_agent.py",
+      "target": "public/manager-suite/examples/managed_agent.py"
+    },
+    {
+      "file": "docs/examples/connected/agent_mailbox.py",
+      "target": "public/manager-suite/examples/connected/agent_mailbox.py"
+    },
+    {
+      "file": "docs/examples/connected/artifact_audit.py",
+      "target": "public/manager-suite/examples/connected/artifact_audit.py"
+    },
+    {
+      "file": "docs/examples/connected/artifact_worker.py",
+      "target": "public/manager-suite/examples/connected/artifact_worker.py"
+    },
+    {
+      "file": "docs/examples/connected/batch_pipeline.py",
+      "target": "public/manager-suite/examples/connected/batch_pipeline.py"
+    },
+    {
+      "file": "docs/examples/connected/batch_worker.py",
+      "target": "public/manager-suite/examples/connected/batch_worker.py"
+    },
+    {
+      "file": "docs/examples/connected/connected_runtime.py",
+      "target": "public/manager-suite/examples/connected/connected_runtime.py"
+    },
+    {
+      "file": "docs/examples/connected/conversation_jobs.py",
+      "target": "public/manager-suite/examples/connected/conversation_jobs.py"
+    },
+    {
+      "file": "docs/examples/connected/frozen_prompt.py",
+      "target": "public/manager-suite/examples/connected/frozen_prompt.py"
+    },
+    {
+      "file": "docs/examples/connected/live_review.py",
+      "target": "public/manager-suite/examples/connected/live_review.py"
+    },
+    {
+      "file": "docs/examples/connected/mcp_job.py",
+      "target": "public/manager-suite/examples/connected/mcp_job.py"
+    },
+    {
+      "file": "docs/examples/connected/mcp_worker.py",
+      "target": "public/manager-suite/examples/connected/mcp_worker.py"
+    },
+    {
+      "file": "docs/examples/connected/native_fixture.py",
+      "target": "public/manager-suite/examples/connected/native_fixture.py"
+    },
+    {
+      "file": "docs/examples/connected/parallel_gate.py",
+      "target": "public/manager-suite/examples/connected/parallel_gate.py"
+    },
+    {
+      "file": "docs/examples/connected/prompt_worker.py",
+      "target": "public/manager-suite/examples/connected/prompt_worker.py"
+    },
+    {
+      "file": "docs/examples/connected/resource_worker.py",
+      "target": "public/manager-suite/examples/connected/resource_worker.py"
+    },
+    {
+      "file": "docs/examples/connected/skill_rollout.py",
+      "target": "public/manager-suite/examples/connected/skill_rollout.py"
+    },
+    {
+      "file": "docs/examples/connected/tool_server.py",
+      "target": "public/manager-suite/examples/connected/tool_server.py"
+    },
+    {
+      "file": "docs/examples/connected/verify.py",
+      "target": "public/manager-suite/examples/connected/verify.py"
+    },
+    {
+      "file": "docs/examples/connected/recordings/artifact-audit.mp4",
+      "target": "public/demos/manager-suite/artifact-audit.mp4"
+    },
+    {
+      "file": "docs/examples/connected/recordings/artifact-audit-poster.png",
+      "target": "public/demos/manager-suite/artifact-audit-poster.png"
+    },
+    {
+      "file": "docs/examples/connected/recordings/artifact-audit.tape",
+      "target": "public/demos/manager-suite/artifact-audit.tape"
+    },
+    {
+      "file": "docs/examples/connected/recordings/artifact-audit-capture.json",
+      "target": "public/demos/manager-suite/artifact-audit-capture.json"
+    },
+    {
+      "file": "docs/examples/connected/recordings/batch-recovery.mp4",
+      "target": "public/demos/manager-suite/batch-recovery.mp4"
+    },
+    {
+      "file": "docs/examples/connected/recordings/batch-recovery-poster.png",
+      "target": "public/demos/manager-suite/batch-recovery-poster.png"
+    },
+    {
+      "file": "docs/examples/connected/recordings/batch-recovery.tape",
+      "target": "public/demos/manager-suite/batch-recovery.tape"
+    },
+    {
+      "file": "docs/examples/connected/recordings/batch-recovery-capture.json",
+      "target": "public/demos/manager-suite/batch-recovery-capture.json"
+    },
+    {
+      "file": "docs/examples/connected/recordings/mcp-recovery.mp4",
+      "target": "public/demos/manager-suite/mcp-recovery.mp4"
+    },
+    {
+      "file": "docs/examples/connected/recordings/mcp-recovery-poster.png",
+      "target": "public/demos/manager-suite/mcp-recovery-poster.png"
+    },
+    {
+      "file": "docs/examples/connected/recordings/mcp-recovery.tape",
+      "target": "public/demos/manager-suite/mcp-recovery.tape"
+    },
+    {
+      "file": "docs/examples/connected/recordings/mcp-recovery-capture.json",
+      "target": "public/demos/manager-suite/mcp-recovery-capture.json"
+    },
+    {
+      "file": "docs/examples/connected/recordings/record.py",
+      "target": "public/manager-suite/examples/connected/recordings/record.py"
+    },
+    {
+      "file": "docs/examples/connected/check_snippets.py",
+      "target": "public/manager-suite/examples/connected/check_snippets.py"
+    }
+  ]
+}

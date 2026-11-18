@@ -1,34 +1,45 @@
 # Manager Suite documentation
 
-This documentation describes the development branch and follows documentation standard 0.1.0.
+Use General for shared setup and integration. Choose a product to understand its
+architecture, lifecycles and public contracts. These docs describe the current
+source checkout; installation and qualification guides identify narrower release
+or platform scope. Documentation standard: 0.1.0.
 
-Start with the [package overview](../README.md) for setup and first use.
+## General
 
-## Guides and references
+| Reader goal | Start here |
+| --- | --- |
+| Install independent commands or the SDK environment | [Installation](getting-started/installation.md) |
+| Verify local operation without a model | [Quick start](getting-started/quickstart.md) |
+| Choose an owner for each concern | [Concepts](concepts.md) · [Integration architecture](integration-architecture.md) |
+| Prepare content for an application | [Resource capture](application-resources.md) · [Imports](resource-imports.md) |
+| Find exact interfaces | [Python map](reference/python.md) · [CLI map](reference/cli.md) |
+| Recover a conflict or uncertain operation | [Troubleshooting](troubleshooting.md) |
+| Change a manager | [Package development](DEVELOPMENT.md) |
 
-- [Dependency and notice inventory](DEPENDENCIES.md)
-- [Develop a package independently](DEVELOPMENT.md)
-- [Install a release: hosted scripts or archives](release-installation.md)
-- [Beta candidate notes](beta-release-notes.md)
-- [Beta support and limits](beta-support.md)
-- [Product installation](INSTALLATION.md)
-- [Compose application resources](application-resources.md)
-- [Validate installer artifacts](installer-validation.md)
-- [Application and workflow integration](integration-architecture.md)
-- [Provider version policy](provider-versions.md)
-- [Owned creation and source imports](resource-imports.md)
-- [Provider SDK integration](sdk-backends.md)
+## Product documentation
 
-- [Selective CI and independent releases](releases.md)
+| Product | Owns | Documentation |
+| --- | --- | --- |
+| Agent Manager | Native environments, authentication profiles and execution | [Agent Manager](../agent-manager/docs/README.md) |
+| Conversation Manager | Retained turns, approvals, queues and attachment | [Conversation Manager](../conversation-manager/docs/README.md) |
+| MCP Manager | Definitions, preparation, resolution and connectors | [MCP Manager](../mcp-manager/docs/README.md) |
+| Prompt Manager | Owned prompts, composition, snapshots and reconciliation | [Prompt Manager](../prompt-manager/docs/README.md) |
+| Skill Manager | Accepted skill files, exports and project connections | [Skill Manager](../skill-manager/docs/README.md) |
 
-## Managers
+The [project site](https://projects.aixand.org/manager-suite/docs/) offers the same
+product categories through its documentation selector.
 
-- [Agent Manager](../agent-manager/docs/README.md)
-- [Conversation Manager](../conversation-manager/docs/README.md)
-- [MCP Manager](../mcp-manager/docs/README.md)
-- [Prompt Manager](../prompt-manager/docs/README.md)
-- [Skill Manager](../skill-manager/docs/README.md)
+## Maintainer and evidence references
 
-The [application integration guide](integration-architecture.md) describes shared
-ownership. Each manager's guides own its current API and storage contracts.
-See [package development](DEVELOPMENT.md) for checks, tests, and builds.
+[Release installation](release-installation.md), [installer builds](INSTALLATION.md),
+[qualification](installer-validation.md), [release policy](releases.md),
+[beta scope](beta-support.md), [provider policy](provider-versions.md),
+[SDK backends](sdk-backends.md), [dependency notices](DEPENDENCIES.md), and
+[publication](publication.md) remain source-owned references.
+Detailed product specifications, historical decisions, fixtures and live
+qualification records remain in each product even when not selected for the site.
+
+## Connected applications
+
+[Build complete SDK workflows](examples/connected/index.md) with Carrier and Undercurrent: requests, workers, checked artifacts, restart recovery and a live worker/reviewer. Start with [the isolated setup](examples/connected/connected-setup.md). Examples show SDK code, Mermaid diagrams and observed results; three include real terminal recordings on the project site.

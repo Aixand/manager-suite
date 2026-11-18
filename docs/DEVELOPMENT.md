@@ -81,6 +81,9 @@ The checker covers suite documentation, manager guides, requirements, and the
 reference chat README. It checks local links, anchors, Markdown structure, and
 template placeholders. It does not execute examples or verify external URLs.
 
+See [source publication](publication.md) for selected site pages, product ownership
+and pinned example downloads.
+
 ## Published dependency inputs
 
 Normal CI and root development use published libraries and Carrier, with the

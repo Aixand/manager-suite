@@ -103,6 +103,17 @@ separate ownership. See [selective CI and independent releases](docs/releases.md
 for candidate builds and product versioning. Prompt/skill content releases are
 local application features, separate from software publishing.
 
+## Documentation
+
+[General documentation](docs/README.md) covers shared setup and integration.
+Choose [Agent](agent-manager/docs/README.md),
+[Conversation](conversation-manager/docs/README.md),
+[MCP](mcp-manager/docs/README.md), [Prompt](prompt-manager/docs/README.md), or
+[Skill](skill-manager/docs/README.md) for its architecture, lifecycles and examples.
+The [project site](https://projects.aixand.org/manager-suite/docs/) has a product
+selector. Source guides own the content; [publication](docs/publication.md)
+explains how to refresh the site from a committed revision.
+
 ## AI-assisted development
 
 We use AI tools to generate and revise code and documentation during development
@@ -144,3 +155,7 @@ boundaries, optional installations, application preparation and workflow resourc
 capture. Use [Agent Manager’s public SDK](agent-manager/docs/python-sdk.md) for
 native environments and execution; applications compose resource libraries separately.
 
+
+## Connected applications
+
+[Build complete SDK workflows](docs/examples/connected/index.md) with Carrier and Undercurrent: requests, workers, checked artifacts, restart recovery and a live worker/reviewer. Start with [the isolated setup](docs/examples/connected/connected-setup.md). Examples show SDK code, Mermaid diagrams and observed results; three include real terminal recordings on the project site.
