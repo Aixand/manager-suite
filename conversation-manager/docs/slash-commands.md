@@ -92,3 +92,9 @@ changing models, settings, or provider configuration; no command-list subscripti
 is provided yet.
 
 Native endpoint reference: [OpenCode V2 command API](https://dev.opencode.ai/v2/docs/api).
+
+## Owning definitions
+
+[Normalized catalog](../src/conversation_manager/slash_commands.py),
+[native inventory](../src/conversation_manager/native_command_catalog.py), and
+[discovery tests](../tests/test_slash_commands.py) own this contract.

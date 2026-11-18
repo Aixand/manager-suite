@@ -4,6 +4,16 @@ Queues belong to Conversation Manager's retained worker and SQLite store, not a
 browser tab. They survive frontend disconnection. Stopping/replacing a worker
 never automatically replays its retained queue on another native session.
 
+```mermaid
+flowchart TD
+    accTitle: After-turn queue delivery
+    accDescr: A queued message waits for successful completion, then records dispatch intent before provider handoff. Unknown delivery pauses the queue and requires inspection without replay.
+    Queue[Queued message] -->|Successful prior turn| Intent[Persist dispatch intent]
+    Intent --> Handoff[Provider handoff]
+    Handoff -->|Confirmed| Turn[Observe new turn result]
+    Handoff -->|Unknown| Pause[Pause and inspect without replay]
+```
+
 `await conversation.queue_state()` returns `items`, `paused`, `reason` and
 `modes`. Session state includes the same queue snapshot. Each mode reports
 `supported` and, where unsupported, a reason. Older running workers do not have
@@ -111,3 +121,9 @@ Queue items include a `revision` starting at 1. When capabilities advertise
 `remove_queued`; the worker rejects stale edits atomically before changing the
 queue. The argument is optional for existing clients. Do not assume older
 retained workers enforce revisions without checking their capabilities.
+
+## Owning definitions
+
+[Queue implementation](../src/conversation_manager/message_queue.py),
+[queue tests](../tests/test_message_queue.py), and
+[tool completion tests](../tests/test_tool_queue.py) cover admission and recovery.

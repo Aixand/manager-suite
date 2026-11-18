@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "sourceRevision": "6cfeee1281f64c20745d2c43e7a84eeeb3c96329",
+  "scope": "Conversation Manager reference_chat app with built-in injected offline SDK fixture; no provider credentials or inference",
+  "viewport": {
+    "width": 1440,
+    "height": 1000,
+    "deviceScaleFactor": 1
+  },
+  "steps": [
+    "Start app.py on loopback with a new --state directory and --stop-workers-on-exit",
+    "Choose Offline SDK demo and Create conversation",
+    "Send Explain who owns this conversation.; observe exact turn completed",
+    "Capture completed-turn.png",
+    "Choose Ask for approval, send, and observe Permission requested",
+    "Capture approval.png",
+    "Deny the request, observe denial, then Stop backend and stop the bridge"
+  ],
+  "images": [
+    {
+      "file": "completed-turn.png",
+      "sha256": "3dcd78af72338c79338060198ebc3a108b5758c17a10c6dbe703328644728c6c"
+    },
+    {
+      "file": "approval.png",
+      "sha256": "2539a56d1458132b41700d608937383e51d6208899b68d957baacb5284e116ce"
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "project": "manager-suite",
+  "component": "conversation-manager",
+  "pages": [
+    {
+      "file": "README.md",
+      "slug": "conversation-manager",
+      "section": "Getting started",
+      "order": 0
+    },
+    {
+      "file": "getting-started.md",
+      "slug": "conversation-manager/getting-started",
+      "section": "Getting started",
+      "order": 1
+    },
+    {
+      "file": "architecture.md",
+      "slug": "conversation-manager/architecture",
+      "section": "Architecture",
+      "order": 2
+    },
+    {
+      "file": "frontend-startup.md",
+      "slug": "conversation-manager/frontend-startup",
+      "section": "Lifecycles",
+      "order": 3
+    },
+    {
+      "file": "recovery.md",
+      "slug": "conversation-manager/recovery",
+      "section": "Lifecycles",
+      "order": 4
+    },
+    {
+      "file": "turns.md",
+      "slug": "conversation-manager/turns",
+      "section": "Lifecycles",
+      "order": 5
+    },
+    {
+      "file": "approvals.md",
+      "slug": "conversation-manager/approvals",
+      "section": "Lifecycles",
+      "order": 6
+    },
+    {
+      "file": "message-queues.md",
+      "slug": "conversation-manager/message-queues",
+      "section": "Lifecycles",
+      "order": 7
+    },
+    {
+      "file": "runtime.md",
+      "slug": "conversation-manager/runtime",
+      "section": "Architecture",
+      "order": 8
+    },
+    {
+      "file": "integrations.md",
+      "slug": "conversation-manager/integrations",
+      "section": "Integrations",
+      "order": 9
+    },
+    {
+      "file": "native-sharing.md",
+      "slug": "conversation-manager/native-sharing",
+      "section": "Integrations",
+      "order": 10
+    },
+    {
+      "file": "configuration.md",
+      "slug": "conversation-manager/configuration",
+      "section": "Reference",
+      "order": 11
+    },
+    {
+      "file": "settings.md",
+      "slug": "conversation-manager/settings",
+      "section": "Reference",
+      "order": 12
+    },
+    {
+      "file": "slash-commands.md",
+      "slug": "conversation-manager/slash-commands",
+      "section": "Reference",
+      "order": 13
+    },
+    {
+      "file": "development.md",
+      "slug": "conversation-manager/development",
+      "section": "Development",
+      "order": 14
+    },
+    {
+      "file": "examples/offline-lifecycle.md",
+      "slug": "conversation-manager/offline-lifecycle",
+      "section": "Getting started",
+      "order": 0,
+      "collection": "examples",
+      "downloads": [
+        "/manager-suite/examples/conversation-manager/offline_lifecycle.py"
+      ]
+    },
+    {
+      "file": "examples/offline-controls.md",
+      "slug": "conversation-manager/offline-controls",
+      "section": "Getting started",
+      "order": 1,
+      "collection": "examples",
+      "downloads": [
+        "/manager-suite/examples/conversation-manager/offline_controls.py"
+      ]
+    },
+    {
+      "file": "examples/reference-chat.md",
+      "slug": "conversation-manager/reference-chat",
+      "section": "Getting started",
+      "order": 2,
+      "collection": "examples"
+    }
+  ],
+  "assets": [
+    {
+      "file": "conversation-manager/examples/offline_lifecycle.py",
+      "target": "public/manager-suite/examples/conversation-manager/offline_lifecycle.py"
+    },
+    {
+      "file": "conversation-manager/examples/offline_controls.py",
+      "target": "public/manager-suite/examples/conversation-manager/offline_controls.py"
+    }
+  ]
+}

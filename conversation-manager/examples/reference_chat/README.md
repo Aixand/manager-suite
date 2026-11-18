@@ -6,11 +6,11 @@ history, detach/reconnect, advertised settings/slash choices, queues and recover
 The Python HTTP bridge uses the SDK; the browser does not call provider APIs.
 
 Run from the Conversation Manager checkout on Python 3.11+ and a supported local
-POSIX system. Install the SDK and platform sibling from source if needed:
+POSIX system. Install the package and its declared dependencies if needed:
 
 ```sh
 python -m venv .venv
-.venv/bin/python -m pip install -e ../../aixand-libraries/filesystem -e ../../aixand-libraries/local-runtime -e .
+.venv/bin/python -m pip install -e .
 .venv/bin/python examples/reference_chat/app.py --port 8847
 ```
 
@@ -105,3 +105,10 @@ Individual scripts accept `REFERENCE_CHAT_URL` and `REFERENCE_CHAT_ARTIFACTS`.
 Those scripts create demo conversations in the supplied running app; the isolated
 runner is the default for repeatable checks. SDK tests, including interrupted
 queue dispatch/reconciliation, run with `python -m unittest discover -s tests`.
+
+## Source ownership
+
+[HTTP bridge](app.py) uses the public SDK; [browser state](static/app.js) renders
+its observations. [Bridge lifecycle tests](tests/test_bridge.py) verify worker
+retention across shutdown. For protocol semantics use [frontend API](../../docs/frontend-api.md),
+[approvals](../../docs/approvals.md), and [queues](../../docs/message-queues.md).

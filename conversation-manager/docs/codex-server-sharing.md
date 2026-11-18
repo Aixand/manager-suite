@@ -60,7 +60,7 @@ direct chats, delegated tasks, and workflow conversations using the same
 execution service inherit it. Explicit `codex_server_mode` overrides the default.
 Existing executions and operation retries retain their original selection.
 
-## Five-conversation benchmark
+## Recorded five-conversation benchmark
 
 Measured on Linux on 2026-11-13, three runs per mode, alternating order. Each
 conversation used `gpt-6.1-sol`, read-only access, the same disposable workspace,
@@ -106,7 +106,7 @@ The benchmark makes small inference requests and stops only its own test
 processes. `--idle-only` avoids inference. The saved native test threads remain
 in the selected environment's history; no existing user threads are removed.
 
-## Validation
+## Recorded validation
 
 The focused checks cover five concurrent workers sharing one native server,
 per-thread outputs and mixed policies, approval ownership, stopping one worker,
@@ -128,3 +128,11 @@ The live idle-owner check also confirmed automatic shutdown after the final
 worker disconnected and the 60-second inactivity period elapsed. These live
 checks were run on Linux; Windows shared mode remains disabled and macOS
 qualification remains outstanding.
+
+## Evidence scope and ownership
+
+The benchmark and validation above are retained historical Linux evidence, not
+checks rerun for this documentation change. They do not qualify other workloads
+or platforms. [Shared owner](../src/conversation_manager/shared_codex.py),
+[gateway](../src/conversation_manager/native_gateway.py), and
+[sharing tests](../tests/test_codex_sharing.py) own the implementation.

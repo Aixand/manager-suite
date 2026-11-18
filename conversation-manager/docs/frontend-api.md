@@ -14,7 +14,7 @@ coordinate preparation, launch, connection, and creation itself.
 | `stop_startup(startup_operation_id, operation_id=...)` | Explicitly terminate the startup's runtime, including failed startups that never returned a conversation. |
 
 All operations in this table are asynchronous. Automatic startup currently supports
-local POSIX Codex and OpenCode; these are the default discovery pair. Other provider
+local Codex and OpenCode on Linux, macOS and Windows; these are the default discovery pair. Other provider
 targets may be explicitly discovered, but report unsupported
 automatic startup. `supported=True` means an implemented startup path, not verified
 credentials, account entitlement, deployment permission, or live-provider acceptance.
@@ -50,8 +50,8 @@ only returns its retained receipt; a fresh attempt requires a new operation ID.
 
 Successful startup receipts stay completed even if their worker later stops.
 Retrying then reports that the original conversation is unavailable and never
-starts a replacement. Explicit restoration onto a replacement runtime remains an
-advanced operation outside this frontend startup API.
+starts a replacement. Use explicit `resume_conversation` for supported saved native sessions; see
+[recovery](recovery.md). Retrying startup itself never replaces a worker.
 
 Failed creation retains the runtime and child operation IDs for inspection or
 explicit `stop_startup`. Cleanup can recover a runtime from its launch receipt if
@@ -75,7 +75,7 @@ command names/descriptions, argument hints, execution and setting mappings,
 unavailable reasons, and catalog provenance. Use `available_only=True` for supported
 actions and the `executable` flag for actual command invocations. OpenCode discovery
 currently covers registered native callbacks only, not its full TUI/template
-inventory. Registered `/review` is executable on qualified OpenCode `2.2.5`;
+inventory. Registered `/review` and `/init` are executable on qualified OpenCode `2.2.5`;
 other callbacks remain unqualified. See [slash-command SDK](slash-commands.md).
 
 The frontend can separately use Agent Manager for administration, authentication,
@@ -150,3 +150,96 @@ reconciliation requires the original worker to be available.
 
 The maintained [reference chat example](../examples/reference_chat/README.md) exercises
 these operations with isolated offline fixtures or explicitly selected live agents.
+
+## Owning definitions
+
+[Frontend orchestration](../src/conversation_manager/frontend.py),
+[conversation methods](../src/conversation_manager/conversation.py), and
+[platform support](../src/conversation_manager/support.py) define this API.
+Use [turns](turns.md), [approvals](approvals.md), and [recovery](recovery.md)
+for focused frontend tasks.
+
+## Python interface
+
+
+Install `.[agents,native-codex]` in the consumer environment for Agent Manager
+and native Codex integration. Configure and sign in to the chosen native provider
+through Agent Manager first. The following is an async integration excerpt;
+choose absolute paths and persist operation IDs before calling mutations.
+
+
+```python
+from conversation_manager import ConversationClient
+
+client = ConversationClient(agent_config='/path/to/providers.toml', agent_root='/path/to/agent-state')
+agents = await client.available_agents()
+selected = next(item for item in agents if item['conversation']['supported'])
+conversation = await client.start_conversation(
+    agent=selected['reference'], cwd='/path/to/project', operation_id='start-chat-1',
+)
+try:
+    receipt = await conversation.send("Hello", operation_id="send-1")
+    async for event in conversation.events():
+        if event["kind"] == "turn.completed":
+            break
+    history = await conversation.history()
+    commands = await conversation.list_slash_commands()
+finally:
+    await conversation.disconnect()
+```
+
+`ConversationClient` and `Client` are names for the same implementation. The normal
+frontend calls `available_agents`, `start_conversation`, and `attach_conversation`;
+it need not construct Agent Manager helpers, launch descriptors, or connections.
+Discovery reports implemented startup support, not account entitlement or verified
+sign-in. The initial frontend providers are local Codex and OpenCode;
+`available_agents()` discovers those two by default.
+
+`native_startup_support(provider)` reports the implemented platform and transport.
+It does not check installation, sign-in, or model access. Suite uses this report
+to select chat support instead of making its own operating system check.
+
+`start_conversation` prepares the selected environment, launches the native provider, connects,
+and creates a conversation under one operation ID. The returned conversation has
+a durable `startup_receipt`. Retry the exact reference, working directory, settings,
+and operation ID to recover that startup. Changing intent is a conflict; an unknown
+creation outcome is never resent. Failures raise `ConversationError` with the
+startup operation ID and recovery information. Inspect `client.operation(id)`;
+`client.stop_startup(id, operation_id='cleanup-1')` explicitly terminates a retained
+startup runtime even if conversation creation failed. A stopped startup is never
+silently replaced.
+Cleanup stops that runtime and all work on it. OpenCode chats in the same
+environment and store share a runtime, so cleanup stops all of those chats.
+Use conversation closure to close an individual chat. Normal frontend
+disconnection leaves the runtime running.
+
+Sending returns a receipt: acceptance does not establish turn completion. Inspect
+the exact turn result or completion events. Conversation closure, cancellation,
+frontend disconnection, and worker termination are distinct operations.
+
+`Client.conversations()` lists locally recorded references, including closed or
+unavailable conversations; it does not discover all provider-native history.
+Pass `detailed=True` to include observed availability; this probes retained workers
+and never starts replacements. Availability describes worker reachability; inspect
+session state and capabilities before submitting work. `Conversation.reference` is serializable and
+retains native identity. `await client.attach_conversation(saved_reference)` binds
+it even while work is running. `await conversation.reconnect()` reattaches an
+existing frontend handle. Lower-level `connection.load_conversation` invokes the
+backend's load operation and may require an idle conversation.
+
+Frontend CLI commands use the same API:
+
+```sh
+conversation-manager agents --agent-config /path/to/providers.toml --agent-root /path/to/agent-state --json
+# Save the selected entry's reference object as agent-reference.json.
+conversation-manager conversation start --agent @agent-reference.json --cwd /path/to/project --operation-id start-chat-1 --json
+conversation-manager conversation list --detailed --json
+conversation-manager conversation stop-startup --startup-operation-id start-chat-1 --operation-id stop-chat-1 --json
+```
+
+Advanced integrations can use `PreparedLaunch`, `StandaloneLauncher`,
+`WorkerLauncher`, and the lower-level connection/session APIs. Launch descriptors
+use explicit protocol, transport, argv, working directory, settings, and transient
+environment inputs. Supported paths are Codex App Server, native OpenCode, and
+Claude, Copilot, and Antigravity SDKs. Optional dependency groups install SDKs;
+their presence alone does not establish authenticated provider acceptance.
