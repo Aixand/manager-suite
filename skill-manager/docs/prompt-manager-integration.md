@@ -63,5 +63,10 @@ small independent package. The `.locks/store.lock` location and native lock
 protocol coordinate all writers sharing the store.
 The optional `github` extra adds
 the standalone GitHub source client. PyYAML still parses native metadata.
-Repository development helpers still use Manager Suite's
-parent scripts; installed operation does not require that checkout.
+Each package vendors its development helper. Managed release operations still
+require suite tooling; installed operation does not require that checkout.
+
+## Implementation and evidence
+
+See [owning implementation](../src/skill_manager/managed.py) and
+[behavior tests](../tests/test_prompt_integration.py). Return to the [documentation index](README.md).

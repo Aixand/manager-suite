@@ -32,6 +32,22 @@ Explicit refresh failures raise. Rendering does not execute skill scripts.
 
 ## Update and reconciliation contract
 
+The accepted copy stays usable while a customized update waits for review.
+This diagram summarizes ordered publisher updates; guards and validation still apply.
+
+```mermaid
+flowchart TD
+    accTitle: Publisher update decisions
+    accDescr: A newer ordered publisher update advances untouched content. Customized content stays accepted until an explicit validated reconciliation.
+    Update[Newer ordered update] --> Check{Customized or held?}
+    Check -->|No| Advance[Accept validated publisher content]
+    Check -->|Yes| Pending[Keep accepted copy and expose review]
+    Pending --> Review[Preview and resolve conflicts]
+    Review --> Guard[Validate and check state revision]
+    Guard --> Accept[Accept reconciliation]
+```
+
+
 The [Prompt Manager integration contract](prompt-manager-integration.md)
 describes the shared lifecycle. Skill Manager delegates accepted-state policy to
 Prompt Manager's public `PackageLifecycle` SDK through a native skill backend.
@@ -89,10 +105,10 @@ a `managed` list without replacing its local entries.
 
 `resolve_managed`, `read_managed_file`, and `export_managed` accept
 `revision=STATE_TOKEN` to pin historical accepted content. To supply an existing
-Agent Manager release binding, use `release_managed(publisher, skill_id, version,
+application release binding, use `release_managed(publisher, skill_id, version,
 revision=None)`. It publishes the selected owned snapshot in a deterministic managed
 source namespace and returns the existing `source/name@version` release contract.
-Existing release labels remain immutable; publishing does not advance profile bindings.
+Existing release labels remain immutable; publishing does not advance consumer selections.
 
 Suite exposes a managed skill library with file editing, binary upload/download,
 executable flags, update comparison and per-conflict choices. History/restore,
@@ -106,7 +122,7 @@ bytes before switching a consumer. When no original publisher baseline is known,
 `baseline_known=False` requires explicit choices for differences between imported and
 publisher content. Successful reconciliation establishes the publisher baseline.
 Stale reviews cannot apply, and newer updates retain the user's browser choices
-until a fresh preview is validated. Existing Agent Manager bindings continue to
+until a fresh preview is validated. Existing application release references continue to
 select explicit immutable releases.
 
 ## CLI
@@ -132,3 +148,8 @@ structured CLI errors and exit-code conventions apply.
 Direct creation, public GitHub sources and retained import jobs are documented in
 [GitHub sources](github-sources.md). GitHub acquisition is an optional extra;
 local creation/import and existing managed content do not need it.
+
+## Implementation and evidence
+
+See [owning implementation](../src/skill_manager/managed.py) and
+[behavior tests](../tests/test_managed.py). Return to the [documentation index](README.md).

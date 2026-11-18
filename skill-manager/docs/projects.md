@@ -228,3 +228,8 @@ automatically garbage-collected. Keep pending recovery data intact. Full power-l
 durability and hostile-writer exclusion are not claimed; cooperating writers use
 the store lock and project lock, and noncooperating changes are rechecked before
 publication wherever observable. Windows-specific qualification remains separate.
+
+## Implementation and evidence
+
+See [owning implementation](../src/skill_manager/projects.py) and
+[behavior tests](../tests/test_projects.py). Return to the [documentation index](README.md).

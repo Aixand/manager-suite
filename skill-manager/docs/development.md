@@ -82,3 +82,29 @@ consumer environment. Local commands do not publish packages, register MCP
 servers, or modify provider profiles.
 
 [Package overview](../README.md) · [Developer command implementation](../dev.py)
+
+## Verify documentation changes
+
+From the suite root, run the offline source checker:
+
+```sh
+python3 scripts/checks/check-docs.py --root .
+```
+
+From this package directory, execute the two provider-free examples:
+
+```sh
+python -B examples/sdk_application.py
+python -B examples/project_connection.py
+```
+
+For lifecycle changes, focus on `test_sdk.py`, `test_managed.py`, and
+`test_prompt_integration.py`. For project delivery changes, include
+`test_projects.py`, which exercises stale plans, interrupted updates, resume, and rollback.
+The checker verifies Markdown and local links; it does not execute examples.
+Render Mermaid in the destination site and inspect desktop and mobile readability.
+
+## Implementation and evidence
+
+See [owning implementation](../src/skill_manager/manager.py) and
+[behavior tests](../tests/test_sdk.py). Return to the [documentation index](README.md).

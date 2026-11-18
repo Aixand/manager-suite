@@ -1,8 +1,8 @@
 # Optional GitHub sources
 
 Install `aixand-skill-manager[github]` for GitHub acquisition. The extra adds
-`aixand-lib-github-source>=0.1.0b0,<0.2`, located in the repository at
-`../aixand-libraries/github-source`. It is independently installable and has no runtime
+`aixand-lib-github-source>=0.1.0b0,<0.2`, maintained in the separate
+[GitHub source library repository](https://github.com/Aixand/aixand-libraries/tree/main/github-source). It is independently installable and has no runtime
 dependencies. Neither local Skill Manager operations nor Prompt Manager require it.
 
 ```sh
@@ -57,3 +57,8 @@ and execution/installation of downloaded dependencies are not included.
 
 `aixand-lib-filesystem` supplies store locking and Windows pinned-path protection.
 Store operations use the filesystem utility directly.
+
+## Implementation and evidence
+
+See [owning implementation](../src/skill_manager/sources.py) and
+[behavior tests](../tests/test_sources.py). Return to the [documentation index](README.md).

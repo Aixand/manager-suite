@@ -56,6 +56,11 @@ executing instructions or scripts. `skill-manager/export-1` contains `reference`
 have `code`, `message`, `uncertain`, `operation_id`, and `recovery`.
 
 A fake consumer fixture resolves an explicit reference, exports to its own parent,
-and retains the reference, digest, and export receipt. Later Agent Manager integration
-can use the same operations for immutable launch snapshots; activation must use a
+and retains the reference, digest, and export receipt. A consuming application
+can use the same operations for immutable dispatch snapshots; activation must use a
 verified native skill mechanism. This package makes no backend activation claims.
+
+## Implementation and evidence
+
+See [owning implementation](../src/skill_manager/store.py) and
+[behavior tests](../tests/test_manager.py). Return to the [documentation index](README.md).

@@ -185,3 +185,8 @@ integrations should prefer explicit per-skill handles and registration calls.
 The runnable [application example](../examples/sdk_application.py) demonstrates
 publisher registration, a user customization, pending update, explicit acceptance,
 and export of the resulting complete package.
+
+## Implementation and evidence
+
+See [owning implementation](../src/skill_manager/sdk.py) and
+[behavior tests](../tests/test_sdk.py). Return to the [documentation index](README.md).
