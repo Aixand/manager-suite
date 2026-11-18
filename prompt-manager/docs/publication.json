@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "project": "manager-suite",
+  "component": "prompt-manager",
+  "pages": [
+    {
+      "file": "README.md",
+      "slug": "prompt-manager",
+      "section": "Getting started",
+      "order": 0
+    },
+    {
+      "file": "getting-started.md",
+      "slug": "prompt-manager/getting-started",
+      "section": "Getting started",
+      "order": 1
+    },
+    {
+      "file": "architecture-guide.md",
+      "slug": "prompt-manager/architecture",
+      "section": "Architecture",
+      "order": 2
+    },
+    {
+      "file": "owned-prompts.md",
+      "slug": "prompt-manager/owned-prompts",
+      "section": "Lifecycles",
+      "order": 3
+    },
+    {
+      "file": "rendering.md",
+      "slug": "prompt-manager/rendering",
+      "section": "Lifecycles",
+      "order": 4
+    },
+    {
+      "file": "imports.md",
+      "slug": "prompt-manager/imports",
+      "section": "Lifecycles",
+      "order": 5
+    },
+    {
+      "file": "library-management.md",
+      "slug": "prompt-manager/library-management",
+      "section": "Lifecycles",
+      "order": 6
+    },
+    {
+      "file": "search.md",
+      "slug": "prompt-manager/search",
+      "section": "Reference",
+      "order": 7
+    },
+    {
+      "file": "integrations.md",
+      "slug": "prompt-manager/integrations",
+      "section": "Integrations",
+      "order": 8
+    },
+    {
+      "file": "native-packages.md",
+      "slug": "prompt-manager/package-lifecycle",
+      "section": "Integrations",
+      "order": 9
+    },
+    {
+      "file": "sdk-reference.md",
+      "slug": "prompt-manager/python-sdk",
+      "section": "Reference",
+      "order": 10
+    },
+    {
+      "file": "storage-reliability.md",
+      "slug": "prompt-manager/storage-reliability",
+      "section": "Reference",
+      "order": 11
+    },
+    {
+      "file": "backup-restore.md",
+      "slug": "prompt-manager/backup-restore",
+      "section": "Lifecycles",
+      "order": 12
+    },
+    {
+      "file": "development.md",
+      "slug": "prompt-manager/development",
+      "section": "Development",
+      "order": 13
+    },
+    {
+      "file": "examples/owned-workflow.md",
+      "slug": "prompt-manager/owned-workflow",
+      "collection": "examples",
+      "section": "Getting started",
+      "order": 0,
+      "description": "Verify the difference between portable accepted content and full-store recovery.",
+      "downloads": [
+        "/manager-suite/examples/prompt-manager/owned_workflow.py"
+      ]
+    },
+    {
+      "file": "examples/publisher-review.md",
+      "slug": "prompt-manager/publisher-review",
+      "collection": "examples",
+      "section": "Getting started",
+      "order": 1,
+      "description": "Keep user edits active, reject a stale write, reconcile explicitly, and retain content after failed ingestion.",
+      "downloads": [
+        "/manager-suite/examples/prompt-manager/publisher_review.py"
+      ]
+    },
+    {
+      "file": "examples/compose-pack.md",
+      "slug": "prompt-manager/compose-pack",
+      "collection": "examples",
+      "section": "Getting started",
+      "order": 2,
+      "description": "Check exact messages, literal documents, single-pass substitution, and immutable release rendering after source removal.",
+      "downloads": [
+        "/manager-suite/examples/prompt-manager/compose_pack.py"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "file": "prompt-manager/examples/owned_workflow.py",
+      "target": "public/manager-suite/examples/prompt-manager/owned_workflow.py"
+    },
+    {
+      "file": "prompt-manager/examples/publisher_review.py",
+      "target": "public/manager-suite/examples/prompt-manager/publisher_review.py"
+    },
+    {
+      "file": "prompt-manager/examples/compose_pack.py",
+      "target": "public/manager-suite/examples/prompt-manager/compose_pack.py"
+    }
+  ]
+}

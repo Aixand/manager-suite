@@ -79,7 +79,7 @@ agent's instructions. The user should not have to paste it into every new
 conversation. Preview should show the instructions that will be included.
 
 Prompt Manager resolves the selected content and its version. An integration
-such as Agent Manager owns its profile assignments and delivers that content
+owns its explicit resource selections and delivers that content
 through the agent's supported instruction mechanism. Selected instructions remain
 distinguishable from individual task messages and supporting reference material.
 

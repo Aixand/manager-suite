@@ -82,3 +82,22 @@ consumer environment. Local commands do not publish packages, register MCP
 servers, or modify provider profiles.
 
 [Package overview](../README.md) · [Developer command implementation](../dev.py)
+
+## Check documentation and examples
+
+From the repository root, run the source Markdown checker:
+
+```sh
+python3 scripts/checks/check-docs.py --root .
+```
+
+It checks links, anchors, Markdown structure, and placeholders; it does not run
+examples or verify external URLs. The [example pages](examples/owned-workflow.md)
+link runnable Python files. Run each with the package installed in an isolated
+environment. They use temporary stores, assert behavior, and clean up on exit.
+
+`publication.json` selects source pages for the project site. Retain normative
+[FORMAT.md](FORMAT.md), [MANAGED.md](MANAGED.md), and [SDK_INVENTORY.md](SDK_INVENTORY.md)
+as source references. A publication change needs site import/link validation and
+light/dark diagram review at desktop article width and mobile width. Markdown
+parsing alone does not establish diagram readability.
