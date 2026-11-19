@@ -49,7 +49,7 @@ Package operations normalize filesystem failures to `PromptError(code="io")`;
 domain error codes survive. Other Manager methods retain their documented boundary
 behavior. Do not assume every exception means a mutation did not happen.
 
-The legacy `application(..., bundled_pack=...)` constructor refreshes defaults.
+The `application(..., bundled_pack=...)` constructor refreshes defaults.
 Use `application_descriptor(id)` for a logical descriptor lookup and explicit
 package handles for new ownership integrations.
 

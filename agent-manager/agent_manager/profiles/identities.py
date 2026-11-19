@@ -49,7 +49,7 @@ def include_native_default(state, provider, home, *, shared):
         if alias['environment_id'] == identifier:
             profiles['default'] = alias
             return state
-        # Preserve the legacy profile's identity and its references.
+        # Preserve the existing profile's identity and its references.
         used = {key.casefold() for key in profiles}
         replacement = 'default-previous'
         suffix = 2

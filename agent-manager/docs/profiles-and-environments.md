@@ -12,7 +12,7 @@ names can share one environment without creating directories or copying files.
 `default` is the built-in profile for each provider's native home. It is
 available for discovery without a manual connection and is reserved against
 creation, rename, or deletion. Connecting the same native home under another
-name shares its environment. A legacy profile named `default` that points to
+name shares its environment. An existing profile named `default` that points to
 another home keeps its identity under an available `default-previous` name.
 
 ```sh
@@ -142,6 +142,6 @@ Keep a copy of older state and connect preserved homes to a fresh registry expli
 
 Environment preferences are `models` and `launch_args`. Native login status is an observation, not a credential record or resource assignment. Profile inspection exposes the saved model, environment revision, capabilities, native-home scopes, and public login status. Session records retain native identity, original history home, workspace, and origin environment.
 
-Retired instruction/MCP/skill bindings can remain as opaque legacy keys in an existing registry. Current launches ignore them; they do not participate in preference revisions, duplication, or resource delivery. There is no current public resource-snapshot or resource-assignment export API. Native instruction editing and explicit native launch settings remain separate supported operations.
+Retired instruction/MCP/skill bindings can remain as opaque keys in an existing registry. Current launches ignore them; they do not participate in preference revisions, duplication, or resource delivery. There is no current public resource-snapshot or resource-assignment export API. Native instruction editing and explicit native launch settings remain separate supported operations.
 
 Owning definitions: [registry identities](../agent_manager/profiles/identities.py), [profile inspection and duplication](../agent_manager/profiles/operations.py), [environment preferences and revision](../agent_manager/environments/operations.py), [saved session fields](../agent_manager/interfaces/contracts.py), and [retired-surface tests](../tests/test_standalone_boundary.py).

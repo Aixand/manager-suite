@@ -1,9 +1,9 @@
 # Changelog
 
-## Agent Manager 0.1.3-beta
+## Agent Manager 0.1.3-beta.1
 
 - Add a built-in `default` profile for each provider's native home, including automatic startup selection and session discovery.
-- Preserve legacy profiles named `default` under an available `default-previous` name.
+- Preserve existing profiles named `default` under an available `default-previous` name.
 
 ## Agent Manager and Conversation Manager 0.1.2-beta
 

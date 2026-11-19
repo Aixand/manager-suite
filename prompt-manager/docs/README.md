@@ -33,7 +33,7 @@ provider-free examples:
 ## Retained source contracts
 
 [FORMAT.md](FORMAT.md) owns exact pack schemas, template rules, output, and digest
-contracts. [MANAGED.md](MANAGED.md) retains lifecycle and legacy migration details.
+contracts. [MANAGED.md](MANAGED.md) retains lifecycle and migration details.
 [SDK_INVENTORY.md](SDK_INVENTORY.md) records API coverage and remaining work.
 [PRODUCT_DISCUSSION.md](PRODUCT_DISCUSSION.md) retains product rationale and scope.
 These source references are intentionally not selected for full site publication.

@@ -50,7 +50,7 @@ First registration imports and activates. Identical content is idempotent. Older
 ordered revisions are ignored; reused revisions with different content conflict.
 An ordered stream must keep supplying ordered revisions. Tracking disabled means
 registration retains the accepted copy without ingesting the source.
-The complete rules, including equality cases and legacy adoption, remain in
+The complete rules, including equality cases and adoption of existing records, remain in
 [the managed contract](MANAGED.md#update-policy) and
 [updates.py](../src/prompt_manager/managed/updates.py).
 

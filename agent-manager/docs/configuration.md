@@ -887,4 +887,4 @@ The SDK uses the same optional Undercurrent dependency.
 updates only the model key in inherited inline configuration. [Native launch settings](../agent_manager/runtime/native/configuration.py)
 accept explicit provider-qualified values without resource resolution or persistence.
 [Standalone boundary tests](../tests/test_standalone_boundary.py) verify that retired
-resource APIs and selectors are absent and legacy assignment keys remain ignored.
+resource APIs and selectors are absent and stored assignment keys remain ignored.

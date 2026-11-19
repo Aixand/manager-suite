@@ -50,7 +50,7 @@ Independent resource tools use target discovery and native configuration through
 the public APIs above.
 
 
-## Legacy records and current public identifiers
+## Stored records and public identifiers
 
 Historical instruction/MCP/skill binding keys can remain in a registry as ignored
 data. Agent Manager does not export or consume those assignments and does not

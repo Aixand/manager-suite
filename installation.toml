@@ -133,7 +133,7 @@ build = [["{python}", "-B", "{root}/scripts/product_payload.py", "dependencies",
 [products."manager-suite/agent-manager"]
 release-tag = "aixand-agent-manager/v{version}"
 adapter = "python"
-version = "0.1.3-beta"
+version = "0.1.3-beta.1"
 components = ["agent-manager", "agent-manager-dependencies"]
 dependencies = []
 python = "3.12.14"

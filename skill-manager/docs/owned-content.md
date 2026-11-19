@@ -75,7 +75,7 @@ validate, and stale reviews fail.
 Use `history()` and guarded `rollback()` to restore accepted content. Rollback holds
 that content against automatic publisher advancement. Tracking can be paused without
 losing the owned copy. See the [complete lifecycle reference](managed.md) for CLI,
-legacy adoption, conflict pointers, and immutable release consumers.
+adoption of existing records, conflict pointers, and immutable release consumers.
 
 Run the [publisher update example](examples/publisher-update.md) for verified working
 files and export outcomes. Ownership lives in the [native backend](../src/skill_manager/managed.py)

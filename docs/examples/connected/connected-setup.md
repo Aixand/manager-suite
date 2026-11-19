@@ -19,7 +19,7 @@ python -c 'import agent_manager, conversation_manager, prompt_manager, skill_man
 Use [package development](../../DEVELOPMENT.md) for Python, uv, PowerShell and
 source-versus-published dependency details. These walkthroughs target matching
 current sources; native commands' private environments do not supply Python
-imports to your application. Carrier's legacy optional Agent extra is not needed
+imports to your application. Carrier's optional Agent extra is not needed
 by root development; current Agent Manager is already installed here.
 
 Supply a matching Undercurrent daemon and Python bridge pair. Set this directory

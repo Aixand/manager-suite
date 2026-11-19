@@ -49,7 +49,7 @@ source = manager.register_source("authoring", [Path("/absolute/path/to/pack")],
 ```
 
 Explicit `None` is create-only. For updates, use the observed descriptor revision.
-`UNSET` retains legacy unguarded source upserts; prefer guarded writes.
+`UNSET` retains unguarded source upserts; prefer guarded writes.
 `source_descriptor(id)` returns a normalized read-only lookup; `sources()` isolates
 broken entries with string errors and structured diagnostics.
 

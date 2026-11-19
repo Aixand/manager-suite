@@ -53,7 +53,7 @@ and organization. This does not make an external backend store a prompt store:
 
 Remote repository discovery/synchronization, background imports, provider setup,
 application startup, and tool-specific migration policy belong outside this core.
-Inert source provenance does not initiate network checks. Legacy
+Inert source provenance does not initiate network checks. Existing
 `application(..., bundled_pack=...)` construction refreshes defaults; prefer explicit
 package handles for new code. Existing descriptor registrations are not silently
 migrated to owned content.
