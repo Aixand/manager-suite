@@ -52,10 +52,11 @@ class AliasTests(ProfileFixture, unittest.TestCase):
         connected = self.manager.connect_profile('second', original['home'])
         self.assertEqual(connected['environment_id'], original['environment_id'])
         delete_profile(self.manager, 'work'); delete_profile(self.manager, 'second')
-        self.assertEqual(self.manager.environments()[0]['profiles'], [])
+        self.assertEqual(next(row for row in self.manager.environments()
+                              if row['environment_id'] == original['environment_id'])['profiles'], [])
         reattached = self.manager.alias_profile('back', environment_id=original['environment_id'])
         self.assertEqual(reattached['home'], original['home'])
-        self.assertEqual(len(self.manager.state()['environments']), 1)
+        self.assertEqual(len(self.manager.state()['environments']), 2)
 
     def test_default_uses_alias_uuid_and_clears_only_when_selected_alias_is_deleted(self):
         self.manager.alias_profile('w', 'work'); self.manager.set_default('work')
@@ -190,7 +191,7 @@ class ManagedAliasTests(ManagedFixture, unittest.IsolatedAsyncioTestCase):
         result = await LocalBackend(config=self.config, home=self.base / 'homes').execute('alias_profile',
             dict(provider='test', name='company', environmentId=alias['environment_id']), str(uuid.uuid4()))
         self.assertEqual(result['profile']['environment_id'], alias['environment_id'])
-        self.assertEqual(len(await client.environments()), 1)
+        self.assertEqual(len(await client.environments()), 2)
         self.assertEqual(len((await client.get_environment(alias['environment_id']))['profiles']), 3)
         with self.assertRaises(Error): await client.manage_profiles('rename_profile', {'profile': 'work', 'newName': 'missingRevision'})
         await client.delete_profile('w')

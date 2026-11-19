@@ -18,7 +18,8 @@ class ProviderCatalogTests(ProfileFixture, unittest.TestCase):
             result = catalog(config=self.config, home=self.base / 'homes')
         custom = next(row for row in result['providers'] if row['provider'] == 'test')
         self.assertEqual(result['schema'], 'agent-manager/provider-catalog-1')
-        self.assertFalse(result['configured']); self.assertTrue(result['inventoryComplete'])
+        self.assertTrue(result['configured']); self.assertTrue(result['inventoryComplete'])
+        self.assertEqual([row['profile'] for row in custom['profiles']], ['default'])
         self.assertEqual(custom['capabilities']['loginMethods'], ['terminal'])
         self.assertFalse(self.manager.state_path.exists())
 

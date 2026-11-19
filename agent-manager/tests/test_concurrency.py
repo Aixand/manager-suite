@@ -22,7 +22,7 @@ class ConcurrencyTests(ProfileFixture, unittest.TestCase):
         with ThreadPoolExecutor(max_workers=2) as pool:
             results = list(pool.map(lambda _: create(), range(2)))
         self.assertEqual(sum(result is not None for result in results), 1)
-        self.assertEqual(list(self.manager.state()['profiles']), ['work'])
+        self.assertEqual(set(self.manager.state()['profiles']), {'default', 'work'})
         self.assertEqual(len(list(self.manager.managed_homes.iterdir())), 1)
 
     def test_running_profile_blocks_its_login_but_allows_unrelated_profile_work(self):

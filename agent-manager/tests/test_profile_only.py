@@ -22,22 +22,47 @@ class ProfileOnlyTests(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         self.base = Path(temporary.name)
         self.config = self.base / 'providers.toml'
-        self.config.write_text('')
+        self.config.write_text('[providers.codex]\nnative_home = ' + json.dumps(str(self.base / 'native')) + '\n')
         self.manager = Manager('codex', config=self.config, root=self.base / 'state')
 
-    def test_profiles_have_independent_homes_and_no_implicit_default(self):
+    def test_profiles_have_independent_homes_and_use_native_default_without_preference(self):
         work = self.manager.new_profile('work')
         backup = self.manager.new_profile('backup')
         self.assertNotEqual(work['profile_id'], backup['profile_id'])
         self.assertNotEqual(work['home'], backup['home'])
         self.assertNotEqual(Path(work['home']), self.manager.native)
         self.assertIsNone(self.manager.state()['default_profile_id'])
-        with self.assertRaises(Error): self.manager.resolve_profile()
+        self.assertEqual(self.manager.resolve_profile(), 'default')
         self.manager.set_default('work')
         self.assertEqual(self.manager.resolve_profile(), 'work')
         self.assertNotIn('auths', self.manager.state())
         self.assertFalse(hasattr(self.manager, 'read_auth'))
         self.assertFalse(hasattr(self.manager, 'switch'))
+
+    def test_continue_discovers_native_default_without_connecting_it(self):
+        target = self.manager.resolve_profile('default')
+        home = self.manager.home(target)
+        self.assertFalse(home.exists())
+        self.assertFalse(self.manager.state_path.exists())
+        self.assertEqual(list(self.manager.state()['profiles']), ['default'])
+        with self.assertRaisesRegex(Error, 'cannot be renamed'):
+            self.manager.rename('default', 'other')
+        with self.assertRaisesRegex(Error, 'cannot be deleted'):
+            delete_profile(self.manager, 'default')
+
+        native_id = str(uuid.uuid4())
+        sessions = home / 'sessions'
+        sessions.mkdir(parents=True)
+        (sessions / 'rollout.jsonl').write_text(json.dumps({'type': 'session_meta',
+            'payload': {'id': native_id, 'cwd': str(self.base)}}) + '\n')
+        remember(self.manager, target, str(uuid.uuid4()), cwd=self.base)
+        saved, = listing(self.manager, cwd=self.base, discovered_only=True)
+        self.assertEqual(saved['native_id'], native_id)
+        self.assertEqual(saved['origin_environment_id'], target.environment_id)
+        with patch.object(self.manager, '_run_native', return_value=0) as launch:
+            self.assertEqual(continue_session(self.manager, saved['ref'], profile='default'), 0)
+        self.assertEqual(launch.call_args.args[0], target)
+        self.assertEqual(self.manager.connect_profile('main', home)['environment_id'], target.environment_id)
 
     def test_rename_keeps_native_paths_and_session_references(self):
         original = self.manager.new_profile('work')
@@ -53,6 +78,20 @@ class ProfileOnlyTests(unittest.TestCase):
         self.assertEqual((home / 'native-marker').read_text(), 'untouched')
         self.assertEqual(self.manager.resolve_profile(), 'renamed')
         self.assertEqual(listing(self.manager, refresh=False)[0], saved)
+
+    def test_legacy_default_name_preserves_its_alias_and_session_identity(self):
+        work = self.manager.new_profile('work')
+        saved = remember(self.manager, 'work', str(uuid.uuid4()), cwd=self.base)
+        state = self.manager.state()
+        state['profiles']['DEFAULT'] = state['profiles'].pop('work')
+        state['profiles'].pop('default')
+        state['default_profile_id'] = work['profile_id']
+        self.manager.save(state)
+
+        self.assertEqual(self.manager.resolve_profile(), 'default-previous')
+        self.assertEqual(self.manager.resolve_profile().profile_id, work['profile_id'])
+        self.assertEqual(self.manager.home('default'), self.manager.native)
+        self.assertEqual(listing(self.manager, refresh=False), [saved])
 
     def test_disconnect_preserves_native_data_and_session_provenance(self):
         profile = self.manager.new_profile('work')
@@ -156,7 +195,7 @@ class ProfileOnlyTests(unittest.TestCase):
         first = management.execute('create_profile', {'name': 'work'}, request_id=identifier)
         second = management.execute('create_profile', {'name': 'work'}, request_id=identifier)
         self.assertEqual(first, second)
-        self.assertEqual(list(self.manager.state()['profiles']), ['work'])
+        self.assertEqual(set(self.manager.state()['profiles']), {'default', 'work'})
         with self.assertRaisesRegex(Error, 'different arguments'):
             management.execute('create_profile', {'name': 'other'}, request_id=identifier)
 

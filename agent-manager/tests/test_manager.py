@@ -47,12 +47,16 @@ class ManagerTests(ProfileFixture, unittest.TestCase):
             manager._run_native('work', ['prompt'], native_config={'model_reasoning_effort': 'low'})
         self.assertEqual(invoke.call_args.args[1], ['--no-daemon', '--yolo', '-c', 'model_reasoning_effort="low"', 'prompt'])
 
-    def test_no_implicit_profile_or_default_is_created_by_run(self):
+    def test_run_uses_built_in_default_and_rejects_unknown_profiles(self):
         before = self.manager.state()
-        for profile in (None, 'missing'):
-            with self.assertRaises(Error): self.manager._run_native(profile, [])
+        with self.assertRaises(Error):
+            self.manager._run_native('missing', [])
         self.assertEqual(self.manager.state(), before)
         self.assertFalse(self.manager.state_path.exists())
+        with patch.object(self.manager, '_invoke_native', return_value=0) as invoke:
+            self.assertEqual(self.manager._run_native(None, []), 0)
+        self.assertEqual(invoke.call_args.args[0], self.manager.native)
+        self.assertEqual(self.manager.state(), before)
 
     def test_native_exit_code_and_profile_files_are_preserved(self):
         self.create()

@@ -53,7 +53,7 @@ with tempfile.TemporaryDirectory() as temporary:
     assert manager._run_native('work', ['--yolo']) == 0
     assert native.read_bytes() == old_config
     assert manager.state()['mcp_bindings'] == state['mcp_bindings']
-    assert manager.agent_targets()[0]['environment_id'] == identifier
+    assert identifier in {row['environment_id'] for row in manager.agent_targets()}
     assert not (manager.root/'resources').exists()
     assert not (manager.root/'native-instructions').exists()
     assert execute(['--config',str(config),'--home',str(root/'state'),'codex','target','list','--json']) == 0

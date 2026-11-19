@@ -133,8 +133,8 @@ class ExecutionHandleTests(ManagedFixture, unittest.IsolatedAsyncioTestCase):
             inventory = await self.client_api.providers()
         self.assertEqual(inventory['schema'], 'agent-manager/provider-catalog-1')
         provider = next(row for row in inventory['providers'] if row['provider'] == 'test')
-        self.assertEqual(provider['profiles'][0]['environment_id'], self.agent.environment_id)
-        self.assertTrue(provider['profiles'][0]['readiness']['terminal']['ready'])
+        profile = next(row for row in provider['profiles'] if row['environment_id'] == self.agent.environment_id)
+        self.assertTrue(profile['readiness']['terminal']['ready'])
         self.assertNotIn('backends', provider)
 
 
@@ -144,7 +144,7 @@ class AutomaticSDKTests(BudgetFixture, unittest.IsolatedAsyncioTestCase):
         self.manager.new_profile('other')
         self.client_api = Client('codex', config=self.config, root=self.root, runtime=FakeRuntime())
         self.client_api.reconcile = AsyncMock(return_value=[])
-        self.values = {'work': 80, 'other': 40}
+        self.values = {'work': 80, 'other': 40, 'default': 0}
         self.directories = []
         def read(manager, home, policy):
             self.directories.append(manager.working_directory())
@@ -187,7 +187,7 @@ class AutomaticSDKTests(BudgetFixture, unittest.IsolatedAsyncioTestCase):
             self.client_api.start(cwd=self.base, idempotency_key=key))
         self.assertEqual(first, second)
         self.worker.assert_called_once()
-        self.assertEqual(self.reader.call_count, 2)  # one observation for each environment
+        self.assertEqual(self.reader.call_count, 3)  # one observation for each environment
 
     async def test_selection_is_revalidated_before_dispatch(self):
         selected = self.client_api._selected_options

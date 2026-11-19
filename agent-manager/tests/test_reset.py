@@ -46,11 +46,11 @@ class ResetTests(unittest.TestCase):
             + "\n"
         )
         self.codex = Manager("codex", self.config, self.root)
-        self.codex.connect_profile("default", self.codex_default)
+        self.codex.connect_profile("native", self.codex_default)
         self.codex.connect_profile("other", self.codex_external)
         self.codex.new_profile("managed")
         self.claude = Manager("claude", self.config, self.root)
-        self.claude.connect_profile("default", self.claude_default)
+        self.claude.connect_profile("native", self.claude_default)
         self.claude.connect_profile("other", self.claude_external)
         cli_inventory = patch.object(reset_cli, "_cli_plans", return_value=[])
         cli_inventory.start()

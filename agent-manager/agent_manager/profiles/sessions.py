@@ -36,19 +36,23 @@ def remember(manager, profile, native_id, *, cwd, history_home=None, title=None,
     return record
 
 
-def listing(manager, *, cwd=None, refresh=True, recursive=False, include_archived=False, include_children=False):
+def listing(manager, *, cwd=None, refresh=True, recursive=False, include_archived=False, include_children=False,
+            discovered_only=False):
     if type(include_archived) is not bool or type(include_children) is not bool:
         raise ValueError("Session history flags must be boolean")
     if not isinstance(recursive, bool): raise ValueError("recursive must be a boolean")
     if recursive and cwd is None: raise ValueError("recursive discovery requires cwd")
     directory = Path(cwd).expanduser().resolve() if cwd is not None else None
+    discovered = set()
     if refresh:
         from agent_manager.runtime.continuation.registry import for_manager
         for profile, item in for_manager(manager).discover(manager, None if recursive else directory,
                 include_archived=include_archived, include_children=include_children):
-            remember(manager, profile, **item)
+            row = remember(manager, profile, **item)
+            discovered.add(row['ref'])
     rows = [row for row in manager.state()["sessions"].values()
-            if (include_archived or not row.get("archived")) and (include_children or not row.get("parent_id"))]
+            if (not discovered_only or row['ref'] in discovered)
+            and (include_archived or not row.get("archived")) and (include_children or not row.get("parent_id"))]
     if directory is not None:
         rows = [row for row in rows if (Path(row["cwd"]).resolve().is_relative_to(directory) if recursive
                 else Path(row["cwd"]).resolve() == directory)]

@@ -67,9 +67,15 @@ class Manager:
         self.state_path = self.root / "state.json"
 
     def state(self):
-        from agent_manager.profiles.identities import empty, validate
-        if not self.state_path.exists(): return empty()
-        try: return validate(read_state(self.state_path))
+        from agent_manager.profiles.identities import empty, include_native_default, validate
+        try:
+            try:
+                state = validate(read_state(self.state_path))
+            except FileNotFoundError:
+                state = empty()
+            with self._configuration_lock:
+                native, shared = self._native, self._provider_spec.home.shared
+            return include_native_default(state, self.provider, native, shared=shared)
         except (ValueError, KeyError, TypeError): raise Error("Invalid profile registry") from None
 
     def save(self, state):

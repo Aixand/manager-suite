@@ -34,6 +34,34 @@ def empty():
     return dict(schema=SCHEMA, environments={}, profiles={}, default_profile_id=None, runs={}, sessions={})
 
 
+def include_native_default(state, provider, home, *, shared):
+    """Register the native home in the snapshot without creating native files."""
+    home = str(home.resolve())
+    environments, profiles = state['environments'], state['profiles']
+    identifier = next((key for key, row in environments.items() if row['home'] == home), None)
+    if identifier is None:
+        identifier = str(uuid.uuid5(uuid.NAMESPACE_URL, f'agent-manager:{provider}:native:{home}'))
+        environments[identifier] = dict(home=home, ownership='shared' if shared else 'external', created_at=0)
+
+    existing = next((key for key in profiles if key.casefold() == 'default'), None)
+    if existing is not None:
+        alias = profiles.pop(existing)
+        if alias['environment_id'] == identifier:
+            profiles['default'] = alias
+            return state
+        # Preserve the legacy profile's identity and its references.
+        used = {key.casefold() for key in profiles}
+        replacement = 'default-previous'
+        suffix = 2
+        while replacement in used:
+            replacement = f'default-previous-{suffix}'
+            suffix += 1
+        profiles[replacement] = alias
+    profiles['default'] = dict(
+        id=str(uuid.uuid5(uuid.UUID(identifier), 'native-default')), environment_id=identifier, created_at=0)
+    return state
+
+
 def _uuid(value):
     try:
         if str(uuid.UUID(value)) != value: raise ValueError()
@@ -109,7 +137,7 @@ def resolve(state, profile=None):
     if isinstance(profile, Target):
         if profile.environment_id not in state['environments']: raise Error('The original environment no longer exists')
         return profile
-    if profile is None: profile = label(state, state.get('default_profile_id'))
+    if profile is None: profile = label(state, state.get('default_profile_id')) or 'default'
     actual = next((key for key in state['profiles'] if isinstance(profile, str) and key.casefold() == profile.casefold()), None)
     if actual is None: raise Error('Choose an existing profile or set an explicit default profile')
     row = state['profiles'][actual]
@@ -151,9 +179,3 @@ def snapshot(manager):
     state = manager.state()
     return dict(schema=SCHEMA, profiles=[dict(profile=key, **row) for key, row in state['profiles'].items()],
         environments=state['environments'], default_profile_id=state['default_profile_id'])
-
-
-def storage_key(root, selector):
-    from agent_manager.storage.registry import read_state
-    state = validate(read_state(Path(root) / 'state.json'))
-    return environment_id(state, selector)

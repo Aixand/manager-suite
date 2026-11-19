@@ -1,2 +1,2 @@
 """Version metadata without importing the public API facade."""
-__version__ = "0.1.2b0"
+__version__ = "0.1.3b0"

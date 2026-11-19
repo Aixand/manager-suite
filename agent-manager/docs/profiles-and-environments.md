@@ -6,8 +6,14 @@ login observations. The provider owns sign-in, credentials, refresh and logout.
 
 A profile is a named alias with an immutable `profile_id` and an `environment_id`.
 Names are unique without regard to case within a provider registry. Every profile
-is equal; aliases point directly to environments, never to other aliases. Several
+points directly to an environment. Several
 names can share one environment without creating directories or copying files.
+
+`default` is the built-in profile for each provider's native home. It is
+available for discovery without a manual connection and is reserved against
+creation, rename, or deletion. Connecting the same native home under another
+name shares its environment. A legacy profile named `default` that points to
+another home keeps its identity under an available `default-previous` name.
 
 ```sh
 agent codex profile new work
@@ -22,15 +28,17 @@ agent codex profile duplicate company backup
 an existing directory, reusing the registered environment for its canonical path.
 `alias NAME EXISTING_PROFILE` adds a name. `duplicate` atomically publishes a fresh
 environment and copies Manager preferences only; native credentials, settings and
-history are not copied. Profile creation never selects an implicit default.
+history are not copied. Profile creation does not set the preferred profile.
 
 All aliases share the environment's saved model preference, saved launch arguments, native login and
-active-run guards. The explicit default is an alias UUID: rename preserves it,
+active-run guards. The preferred profile selected by `profile default NAME` is
+stored by alias UUID: rename preserves it,
 deleting another alias leaves it alone, and deleting the selected alias clears it.
-Deleting the default does not assign a replacement. CLI `start` can independently
+When a command resolves an omitted profile and no preference is set, it uses
+the built-in `default`. CLI `start` can independently
 choose a named environment by remaining allowance where its manifest enables
 [automatic startup](configuration.md#automatic-startup); that choice never writes
-the default. Explicit-default operations still require one to be set.
+the preference.
 
 Rename and alias deletion acquire only a short registry lock. They remain available
 while login, launch preparation or native sessions are running. Accepted work

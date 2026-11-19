@@ -27,7 +27,7 @@ class ManagementTests(ProfileFixture, unittest.TestCase):
         self.assertTrue(result['deleted']); self.assertTrue(result['native_data_preserved'])
         self.assertEqual(marker.read_text(), 'provider-owned')
         self.assertEqual(self.manager.state()['sessions'][saved['ref']], saved)
-        self.assertFalse(self.manager.state()['profiles'])
+        self.assertEqual(set(self.manager.state()['profiles']), {'default'})
 
     def test_registry_failure_preserves_profile_and_native_directory(self):
         before = self.manager.state(); home = self.manager.home('work')
@@ -44,7 +44,7 @@ class ManagementTests(ProfileFixture, unittest.TestCase):
             marker = home / 'native-history'; marker.write_text('keep')
             identifier = manager.resolve_profile('work').environment_id
             delete_profile(manager, 'work')
-            with self.assertRaisesRegex(Error, 'owned'): manager.purge_environment(identifier)
+            with self.assertRaisesRegex(Error, 'profile aliases'): manager.purge_environment(identifier)
             self.assertEqual(marker.read_text(), 'keep')
 
     def test_active_alias_can_be_disconnected_and_environment_remains_locked(self):
@@ -93,7 +93,7 @@ class ManagementTests(ProfileFixture, unittest.TestCase):
             json.dumps({'status': 'submitting', 'signature': signature}).encode())
         with self.assertRaisesRegex(Error, 'completion is unconfirmed'):
             management.execute('create_profile', values, request_id=identifier)
-        self.assertEqual(set(self.manager.state()['profiles']), {'work', 'new'})
+        self.assertEqual(set(self.manager.state()['profiles']), {'default', 'work', 'new'})
 
     def test_contract_rejects_removed_tools_unknown_inputs_and_missing_revision(self):
         for tool, arguments in (('create_profile', {'provider': 'test', 'name': '../escape'}),

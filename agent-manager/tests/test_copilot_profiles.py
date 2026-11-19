@@ -86,7 +86,7 @@ class CopilotProfileTests(unittest.TestCase):
         caps = inspect_profile(self.manager, 'work')['capabilities']
         self.assertTrue(caps['crossEnvironmentResume'])
         self.assertIsNone(caps['crossEnvironmentResumeReason'])
-        self.assertEqual(execution_profiles(self.manager, self.saved), ['backup', 'work'])
+        self.assertEqual(execution_profiles(self.manager, self.saved), ['backup', 'default', 'work'])
         with patch('agent_manager.runtime.native.file_continuation.require_version'), patch.object(self.manager, '_invoke_native', return_value=0) as native:
             self.assertEqual(continue_session(self.manager, self.saved['ref'], profile='backup'), 0)
         self.assertEqual(native.call_args.args[0], self.manager.home('backup'))

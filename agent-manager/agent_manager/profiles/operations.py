@@ -13,6 +13,8 @@ from agent_manager.environments.operations import PREFERENCES
 
 def available_name(manager, value, previous=None, state=None):
     name(value)
+    if value.casefold() == 'default':
+        raise Error("The profile name 'default' is reserved")
     state = manager.state() if state is None else state
     if any(key.casefold() == value.casefold() and key != previous for key in state["profiles"]):
         raise Error("Profile name already exists")
@@ -82,6 +84,7 @@ def rename_profile(manager, profile, new_name, *, expected_revision=None):
         state = manager.state(); check_alias_revision(manager, target, expected_revision, state)
         current = label(state, target.profile_id)
         if current is None: raise Error('The profile alias no longer exists')
+        if current == 'default': raise Error('The built-in default profile cannot be renamed')
         available_name(manager, new_name, previous=current, state=state)
         state['profiles'][new_name] = state['profiles'].pop(current); manager.save(state)
         result = resolve(state, new_name)
@@ -94,6 +97,7 @@ def delete_profile(manager, profile, *, expected_revision=None):
         state = manager.state(); check_alias_revision(manager, target, expected_revision, state)
         current = label(state, target.profile_id)
         if current is None: raise Error('The profile alias no longer exists')
+        if current == 'default': raise Error('The built-in default profile cannot be deleted')
         del state['profiles'][current]
         if state.get('default_profile_id') == target.profile_id: state['default_profile_id'] = None
         manager.save(state)

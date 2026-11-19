@@ -30,7 +30,7 @@ class CodexProfileContinuationTests(unittest.TestCase):
         self.addCleanup(folder.cleanup)
         self.base = Path(folder.name)
         self.config = self.base / 'providers.toml'
-        self.config.write_text('')
+        self.config.write_text('[providers.codex]\nnative_home = ' + json.dumps(str(self.base / 'native')) + '\n')
         self.manager = Manager('codex', config=self.config, root=self.base / 'state')
         self.manager.new_profile('work'); self.manager.new_profile('backup')
         spec = self.manager.provider_spec

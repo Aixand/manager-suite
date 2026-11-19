@@ -87,7 +87,7 @@ class ThreadSpawnTests(unittest.IsolatedAsyncioTestCase):
                         {"idempotency_key": "bad"}):
             with self.subTest(options=options), self.assertRaises((Error, ValueError)):
                 await self.spawn(**options)
-        with self.assertRaisesRegex(Error, "existing profile"):
+        with self.assertRaisesRegex(Error, "saved history"):
             await self.client.spawn(profile=None, thread_id=self.thread_id)
         with patch.object(self.client.manager, "provider", "opencode"), self.assertRaisesRegex(Error, "Codex terminal mode"):
             await self.client.spawn(profile="work", thread_id=self.thread_id)

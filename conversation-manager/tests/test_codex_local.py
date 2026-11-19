@@ -37,7 +37,8 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
             executable.write_text('#!' + sys.executable + '\n' + fixture.read_text())
             executable.chmod(0o700)
         self.config = self.root / 'providers.toml'
-        self.config.write_text('[providers.codex]\nexecutable=' + json.dumps(str(executable)) + '\n')
+        self.config.write_text('[providers.codex]\nexecutable=' + json.dumps(str(executable)) +
+            '\nnative_home=' + json.dumps(str(self.root / 'native-codex')) + '\n')
         self.manager = Manager('codex', config=self.config, root=self.root / 'agents')
         self.manager.new_profile('work')
         self.identifier = self.manager.resolve_profile('work').environment_id
@@ -202,9 +203,13 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotEqual(result['status'], 'completed')
         self.assertFalse((self.native / 'launches.jsonl').exists())
 
+    async def work_agent(self):
+        rows = await self.client.available_agents(providers=('codex',))
+        return next(row['reference'] for row in rows if row['reference']['environment_id'] == self.identifier)
+
     async def frontend_start(self, *, operation_id='start', settings=None, agent=None):
         if agent is None:
-            agent = (await self.client.available_agents(providers=('codex',)))[0]['reference']
+            agent = await self.work_agent()
         try:
             conversation = await self.client.start_conversation(agent=agent, cwd=self.root,
                 settings=settings, operation_id=operation_id)
@@ -236,7 +241,7 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
     async def test_frontend_retry_recovers_without_agent_manager_lookup(self):
         conversation = await self.frontend_start()
         await conversation.disconnect()
-        agent = (await self.client.available_agents(providers=('codex',)))[0]['reference']
+        agent = await self.work_agent()
         with patch('conversation_manager.frontend.AgentEnvironments', side_effect=AssertionError('Must not reselect')):
             again = await self.frontend_start(agent=agent)
         self.assertEqual(again.reference, conversation.reference)
@@ -267,7 +272,7 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_cancelled_wait_can_recover_completed_creation(self):
         (self.native / 'slow-create').touch()
-        agent = (await self.client.available_agents(providers=('codex',)))[0]['reference']
+        agent = await self.work_agent()
         pending = asyncio.create_task(self.client.start_conversation(agent=agent, cwd=self.root, operation_id='start'))
         async with asyncio.timeout(5):
             while not (self.native / 'creations.jsonl').exists():
@@ -290,8 +295,8 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_frontend_discovery_reports_support_without_launching(self):
         self.manager.new_profile('second')
-        entries = await self.client.available_agents()
-        self.assertEqual(len(entries), 2)
+        entries = await self.client.available_agents(providers=('codex',))
+        self.assertEqual(len(entries), 3)
         self.assertTrue(all(item['conversation']['supported'] for item in entries))
         self.assertTrue(all(item['conversation']['verification'] == 'not-verified-with-account' for item in entries))
         self.assertFalse((self.native / 'launches.jsonl').exists())
@@ -305,7 +310,7 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_concurrent_startup_is_serialized(self):
         (self.native / 'slow-create').touch()
-        agent = (await self.client.available_agents(providers=('codex',)))[0]['reference']
+        agent = await self.work_agent()
         pending = asyncio.create_task(self.frontend_start(agent=agent))
         async with asyncio.timeout(5):
             while not (self.native / 'creations.jsonl').exists():
@@ -336,7 +341,8 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
             return json.loads(output)
         agents = await command('agents', '--agent-config', str(self.config), '--agent-root',
             str(self.root / 'agents'), '--provider', 'codex', '--json')
-        started = await command('conversation', 'start', '--agent', json.dumps(agents[0]['reference']),
+        agent = next(row['reference'] for row in agents if row['reference']['environment_id'] == self.identifier)
+        started = await command('conversation', 'start', '--agent', json.dumps(agent),
             '--cwd', str(self.root), '--operation-id', 'cli-start', '--json')
         self.ref = started['startup_receipt']['recovery']['connection_ref']
         attached = await command('conversation', 'attach', '--conversation', json.dumps(started['conversation_ref']), '--json')
@@ -348,7 +354,7 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(listings[0]['availability'], 'unavailable')
 
     async def test_stopped_startup_never_launches_a_replacement(self):
-        agent = (await self.client.available_agents(providers=('codex',)))[0]['reference']
+        agent = await self.work_agent()
         conversation = await self.frontend_start(agent=agent)
         await conversation.disconnect()
         await self.client.stop_startup('start', operation_id='stop-start')
@@ -375,7 +381,7 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_reboot_restore_keeps_native_identity_and_does_not_replay_messages(self):
         original = await self.client.start_conversation(
-            agent=(await self.client.available_agents(providers=('codex',)))[0]['reference'],
+            agent=await self.work_agent(),
             cwd=self.root, operation_id='start-before-reboot')
         self.connection, self.ref = original.connection, original.reference['recovery']['connection_ref']
         sent = await original.send('before reboot', operation_id='send-before-reboot')
@@ -411,7 +417,7 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_resume_keeps_a_live_owner(self):
         original = await self.client.start_conversation(
-            agent=(await self.client.available_agents(providers=('codex',)))[0]['reference'],
+            agent=await self.work_agent(),
             cwd=self.root, operation_id='live-start')
         self.connection, self.ref = original.connection, original.reference['recovery']['connection_ref']
         attached = await self.client.resume_conversation(original.reference, operation_id='live-resume')
@@ -422,7 +428,7 @@ class LocalCodexTests(unittest.IsolatedAsyncioTestCase):
     async def test_unknown_owner_never_starts_a_replacement(self):
         from unittest.mock import AsyncMock
         original = await self.client.start_conversation(
-            agent=(await self.client.available_agents(providers=('codex',)))[0]['reference'],
+            agent=await self.work_agent(),
             cwd=self.root, operation_id='unknown-owner-start')
         self.connection, self.ref = original.connection, original.reference['recovery']['connection_ref']
         observation = {'runtime_ref': self.ref['runtime_ref'], 'state': 'unknown'}

@@ -107,6 +107,7 @@ def registration(manager, state, *, directory=None, model=None, preferences=None
     existing = next((key for key, row in state['environments'].items() if Path(row['home']) == home), None)
     if existing:
         if model is not None or preferences is not None: raise Error('Connecting an existing environment cannot replace its preferences')
+        if directory is None and manager.provider_spec.home.shared: private_dir(home)
         yield existing
         return
     if manager.provider_spec.home.shared and state['environments']: raise Error('This provider supports one native environment')

@@ -36,6 +36,10 @@ with sqlite3.connect(path) as db:
         db.execute("INSERT OR REPLACE INTO credential VALUES (?, ?, ?, ?, NULL, NULL, 1, 1, 1)", ('cred_fake', 'provider', 'default', os.environ.get('LOGIN_VALUE', 'fake-token')))
     if sys.argv[1:3] == ['session', 'list']:
         print('[]')
+    elif sys.argv[1:3] == ['session', 'export']:
+        row = db.execute('SELECT id, directory FROM session_v2 WHERE id=?', (sys.argv[3],)).fetchone()
+        if row is None: raise SystemExit(1)
+        print(json.dumps(dict(info=dict(id=row[0], location=dict(directory=row[1])), messages=[])))
     else:
         path.with_suffix('.observed.json').write_text(json.dumps({'args': sys.argv[1:], 'env': {key: os.environ[key] for key in ('OPENCODE_DB','OPENCODE_CONFIG_DIR','XDG_DATA_HOME','XDG_STATE_HOME','XDG_CACHE_HOME')}, 'config': json.loads(os.environ.get('OPENCODE_CONFIG_CONTENT', '{}'))}))
 '''
@@ -55,8 +59,8 @@ class OpenCodeTests(unittest.TestCase):
                                f'native_home = {json.dumps(str(self.base / "native"))}\n')
         self.root = self.base / 'homes'
         self.manager = Manager('opencode', self.config, self.root)
-        self.manager.new_profile('default')
-        self.manager.set_default('default')
+        self.manager.new_profile('designated')
+        self.manager.set_default('designated')
         self.cli = ['--config', str(self.config), '--home', str(self.root), 'opencode']
 
     def observed(self, profile):
@@ -73,33 +77,33 @@ class OpenCodeTests(unittest.TestCase):
         execute(self.cli + ['run', 'free', '--', 'run', '--model', 'some-provider/future-model', 'hello'])
         self.assertEqual(self.observed('free')['args'], ['run', '--standalone', '--model', 'some-provider/future-model', 'hello'])
         execute(self.cli + ['start'])
-        self.assertEqual(self.observed('default')['args'], ['--standalone'])
+        self.assertEqual(self.observed('designated')['args'], ['--standalone'])
 
     def test_full_screen_model_merges_native_config_without_rewriting_files(self):
         original = dict(model='provider/original', plugins=['user-plugin'], instructions=['user.md'],
             mcp=dict(servers=dict(user=dict(type='local', command=['user-tool']))))
-        config = self.manager.home('default') / 'config/opencode/opencode.json'
+        config = self.manager.home('designated') / 'config/opencode/opencode.json'
         config.parent.mkdir(parents=True)
         content = '{"model":"provider/persisted"}\n'
         config.write_text(content)
         with patch.dict(os.environ, OPENCODE_CONFIG_CONTENT=json.dumps(original)):
-            self.manager._run_native('default', ['--model=provider/selected'])
-        observed = self.observed('default')
+            self.manager._run_native('designated', ['--model=provider/selected'])
+        observed = self.observed('designated')
         self.assertEqual(observed['args'], ['--standalone'])
         self.assertEqual(observed['config'], original | dict(model='provider/selected'))
         self.assertEqual(config.read_text(), content)
 
     def test_mini_and_noninteractive_run_remain_explicit_native_choices(self):
-        self.manager._run_native('default', ['mini'], model='provider/model#high')
-        self.assertEqual(self.observed('default')['args'], ['mini', '--standalone', '--model', 'provider/model#high'])
-        self.manager._run_native('default', ['run', 'hello'], model='provider/model')
-        self.assertEqual(self.observed('default')['args'], ['run', '--standalone', '--model', 'provider/model', 'hello'])
+        self.manager._run_native('designated', ['mini'], model='provider/model#high')
+        self.assertEqual(self.observed('designated')['args'], ['mini', '--standalone', '--model', 'provider/model#high'])
+        self.manager._run_native('designated', ['run', 'hello'], model='provider/model')
+        self.assertEqual(self.observed('designated')['args'], ['run', '--standalone', '--model', 'provider/model', 'hello'])
 
     def test_full_screen_does_not_silently_drop_explicit_variants_or_resume_overrides(self):
         with self.assertRaisesRegex(Error, '#variants'):
-            self.manager._run_native('default', [], model='provider/model#high')
+            self.manager._run_native('designated', [], model='provider/model#high')
         with self.assertRaisesRegex(Error, 'keeps the session model'):
-            self.manager._run_native('default', ['--session', 'ses_existing'], model='provider/override')
+            self.manager._run_native('designated', ['--session', 'ses_existing'], model='provider/override')
         self.assertEqual(self.manager.state()['runs'], {})
 
     def test_full_screen_model_parser_preserves_prompt_values(self):
@@ -121,11 +125,11 @@ class OpenCodeTests(unittest.TestCase):
                 patch('agent_manager.interfaces.sdk.launch_worker', side_effect=lambda manager, run_id:
                     update_run(manager, run_id, session_id='fixture-session', status='running')), \
                 patch.object(terminal.subprocess, 'call', return_value=0):
-            self.manager._run_native('default', [], model='provider/selected')
+            self.manager._run_native('designated', [], model='provider/selected')
         run = next(iter(self.manager.state()['runs'].values()))
         self.assertEqual(run['launch']['command'], [str(self.fake), '--standalone'])
         self.assertEqual(json.loads(run['launch']['env']['OPENCODE_CONFIG_CONTENT'])['model'], 'provider/selected')
-        self.assertEqual(run['launch']['env']['OPENCODE_DB'], str(opencode.database(self.manager, self.manager.home('default'))))
+        self.assertEqual(run['launch']['env']['OPENCODE_DB'], str(opencode.database(self.manager, self.manager.home('designated'))))
 
     def test_profile_environment_isolated_despite_inherited_settings(self):
         self.manager.new_profile('free')
@@ -140,7 +144,7 @@ class OpenCodeTests(unittest.TestCase):
 
     def test_direct_launch_replaces_stale_pwd(self):
         with patch.dict(os.environ, PWD='/stale/orchestrator'), patch('agent_manager.manager.subprocess.call', return_value=0) as call:
-            self.manager._run_native('default', [])
+            self.manager._run_native('designated', [])
         self.assertEqual(call.call_args.kwargs['cwd'], Path.cwd().resolve())
         self.assertEqual(call.call_args.kwargs['env']['PWD'], str(Path.cwd().resolve()))
 
@@ -156,7 +160,7 @@ class OpenCodeTests(unittest.TestCase):
                 patch('agent_manager.providers.opencode.urllib.request.build_opener', return_value=opener), \
                 patch('agent_manager.providers.opencode.time.monotonic', side_effect=[0, 0, 0, 3]), \
                 patch('agent_manager.providers.opencode.time.sleep'):
-            opencode.catalog(self.manager, self.manager.home('default'), {'PWD': '/wrong'}, cwd=target)
+            opencode.catalog(self.manager, self.manager.home('designated'), {'PWD': '/wrong'}, cwd=target)
         self.assertEqual(launch.call_args.kwargs['cwd'], target)
         self.assertEqual(launch.call_args.kwargs['env']['PWD'], str(target))
         query = urllib.parse.parse_qs(urllib.parse.urlparse(opener.open.call_args.args[0].full_url).query)
@@ -186,9 +190,9 @@ class OpenCodeTests(unittest.TestCase):
                         patch('agent_manager.providers.opencode.time.sleep'):
                     if expected:
                         with self.assertRaisesRegex(Error, expected):
-                            opencode.catalog(self.manager, self.manager.home('default'), {}, cwd=self.base, startup_timeout=1)
+                            opencode.catalog(self.manager, self.manager.home('designated'), {}, cwd=self.base, startup_timeout=1)
                     else:
-                        result = opencode.catalog(self.manager, self.manager.home('default'), {}, cwd=self.base, startup_timeout=1)
+                        result = opencode.catalog(self.manager, self.manager.home('designated'), {}, cwd=self.base, startup_timeout=1)
                         self.assertEqual(result['data'], [{'id': 'example'}])
                 self.assertIsNotNone(process.poll())
                 self.assertTrue(process.stdout.closed)
@@ -251,15 +255,15 @@ class OpenCodeTests(unittest.TestCase):
         with patch('agent_manager.providers.opencode.subprocess.Popen') as query, \
                 patch.object(self.manager, 'budget', return_value=dict(scope='provider-connection', status='unknown')):
             rows = list_profiles(self.manager)
-            self.assertEqual(select_profile(self.manager)['profile'], 'default')
+            self.assertEqual(select_profile(self.manager)['profile'], 'designated')
         query.assert_not_called()
-        self.assertEqual(rows[1]['model'], 'opencode/big-pickle')
+        self.assertEqual(next(row for row in rows if row['profile'] == 'free')['model'], 'opencode/big-pickle')
         self.manager.rename('free', 'renamed')
         self.assertEqual(self.manager.state()['models'], {self.manager.resolve_profile('renamed').environment_id: 'opencode/big-pickle'})
         execute(self.cli + ['profile', 'model', 'renamed', '--clear'])
         self.assertEqual(self.manager.state()['models'], {})
         execute(self.cli + ['start', '--model', 'opencode/big-pickle'])
-        self.assertEqual(self.observed('default')['config']['model'], 'opencode/big-pickle')
+        self.assertEqual(self.observed('designated')['config']['model'], 'opencode/big-pickle')
 
     def test_model_discovery_uses_costs_not_a_hardcoded_name_list(self):
         def entry(identifier, costs, enabled=True):
@@ -298,9 +302,11 @@ class OpenCodeTests(unittest.TestCase):
             db.execute('INSERT INTO session_v2 VALUES (?, ?, ?, ?, NULL, NULL)',
                        ('ses_test123', 'Title', 1000, str(self.base)))
         prompts = []
-        def picker(title, *args):
+        def picker(title, columns, rows, detail):
             prompts.append(title)
-            return 1 if title == 'Choose an execution profile' else 0
+            if title == 'Choose an execution profile':
+                return next(index for index, row in enumerate(rows) if row[0] == 'work')
+            return 0
         with patch('agent_manager.interfaces.cli.continuation.Path.cwd', return_value=self.base):
             continue_session(self.manager, [], picker=picker)
         self.assertEqual(prompts, ['Choose a native session', 'Choose an execution profile'])
@@ -310,7 +316,7 @@ class OpenCodeTests(unittest.TestCase):
         for args, model in (([], 'invalid'), (['--server', 'http://remote'], None),
                             (['--model', 'provider/one'], 'provider/two')):
             with self.assertRaises(Error):
-                self.manager._run_native('default', args, model=model)
+                self.manager._run_native('designated', args, model=model)
         self.assertEqual(self.manager.state()['runs'], {})
 
 

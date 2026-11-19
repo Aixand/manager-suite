@@ -70,6 +70,8 @@ class OpenCodeFrontendTests(unittest.IsolatedAsyncioTestCase):
         self.config.write_text(
             "[providers.opencode]\nexecutable="
             + json.dumps(shutil.which("opencode"))
+            + "\nnative_home="
+            + json.dumps(str(self.root / "native-opencode"))
             + "\n"
         )
         self.manager = Manager(
@@ -107,9 +109,11 @@ class OpenCodeFrontendTests(unittest.IsolatedAsyncioTestCase):
             agent_config=self.config,
             agent_root=self.root / "agents",
         )
-        self.agent = (await self.client.available_agents(providers=("opencode",)))[0][
-            "reference"
-        ]
+        rows = await self.client.available_agents(providers=("opencode",))
+        self.agent = next(
+            row["reference"] for row in rows
+            if row["reference"]["environment_id"] == self.identifier
+        )
         self.conversations = []
         self.operations = []
 

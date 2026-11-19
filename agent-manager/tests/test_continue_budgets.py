@@ -38,7 +38,7 @@ class ContinueBudgetTests(BudgetFixture, unittest.TestCase):
             if name not in manager.state()['profiles']: manager.new_profile(name)
         homes = {manager.home(name): rows for name, rows in values.items()}
         def read(current, home, policy):
-            value = homes[home]
+            value = homes.get(home, BudgetError("authentication"))
             if isinstance(value, Exception): raise value
             return value
         return self.enterContext(patch('agent_manager.budgets.adapters.read', side_effect=read))
@@ -64,7 +64,7 @@ class ContinueBudgetTests(BudgetFixture, unittest.TestCase):
                 reader.assert_not_called()
                 return 0
             self.assertEqual(columns, ['Profile', 'Budget', 'Native home'])
-            self.assertEqual([row[:2] for row in rows], [('backup', '50%'), ('work', '10%'), ('empty', '0% — exhausted')])
+            self.assertEqual([row[:2] for row in rows], [('backup', '50%'), ('work', '10%'), ('empty', '0% — exhausted'), ('default', 'Unavailable')])
             self.assertIn('all rows selectable', detail)
             return 2
         self.assertEqual(continue_session(self.manager, picker=picker), 23)
@@ -114,9 +114,9 @@ class ContinueBudgetTests(BudgetFixture, unittest.TestCase):
         reader = self.prepare({'work': windows(80), 'backup': windows(80)})
         self.manager.alias_profile('favorite', 'backup'); self.manager.set_default('favorite')
         available = choices(self.manager, list(self.manager.state()['profiles']))
-        self.assertEqual([str(row.target) for row in available], ['favorite', 'backup', 'work'])
-        self.assertEqual([row.budget for row in available], ['80%'] * 3)
-        self.assertEqual(reader.call_count, 2)
+        self.assertEqual([str(row.target) for row in available], ['favorite', 'backup', 'work', 'default'])
+        self.assertEqual([row.budget for row in available], ['80%'] * 3 + ['Unavailable'])
+        self.assertEqual(reader.call_count, 3)
 
     def test_fresh_exhausted_unknown_stale_and_failed_readings_are_distinct(self):
         self.prepare({'work': windows(70), 'empty': windows(0), 'unknown': windows(None),
@@ -132,7 +132,7 @@ class ContinueBudgetTests(BudgetFixture, unittest.TestCase):
         labels = {str(row.target): row.budget for row in available}
         self.assertEqual(labels, {'work': '70%', 'empty': '0% — exhausted', 'unknown': 'Unknown',
             'old': 'Stale', 'reset': 'Stale', 'disabled': 'Disabled', 'signed-out': 'Unavailable',
-            'unsupported': 'Unsupported CLI', 'unreadable': 'Unavailable'})
+            'unsupported': 'Unsupported CLI', 'unreadable': 'Unavailable', 'default': 'Unavailable'})
 
     def test_unlimited_sorts_above_full_finite_allowance(self):
         manager = self.managers['copilot']

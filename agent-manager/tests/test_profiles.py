@@ -11,10 +11,9 @@ from tests.support import ProfileFixture
 
 
 class ProfileSelectionTests(ProfileFixture, unittest.TestCase):
-    def test_default_is_required_even_with_one_available_profile(self):
+    def test_native_default_is_used_without_a_preference(self):
         self.create()
-        with self.assertRaisesRegex(Error, 'explicit default profile'):
-            select_profile(self.manager)
+        self.assertEqual(select_profile(self.manager)['profile'], 'default')
 
     def test_selection_follows_the_explicit_default_and_rename(self):
         self.create(); self.create('other')

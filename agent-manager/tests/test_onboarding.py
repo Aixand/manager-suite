@@ -18,28 +18,30 @@ class OnboardingTests(ProfileFixture, unittest.TestCase):
         self.enterContext(patch('sys.stdin.isatty', return_value=True))
         self.enterContext(patch('sys.stdout.isatty', return_value=True))
 
-    def test_setup_creates_default_profile_and_cancellation_creates_nothing(self):
+    def test_setup_creates_profile_without_changing_preference(self):
         self.terminal()
         self.assertIsNone(onboarding.setup(self.manager, picker=lambda *a, **k: None))
-        self.assertFalse(self.manager.state()['profiles'])
-        target = onboarding.setup(self.manager, picker=lambda *a, **k: 0, prompt=lambda *a, **k: 'new')
+        self.assertEqual(set(self.manager.state()['profiles']), {'default'})
+        self.assertFalse(self.manager.state_path.exists())
+        target = onboarding.setup(self.manager, picker=lambda *a, **k: 1, prompt=lambda *a, **k: 'new')
         self.assertEqual(str(target), 'new')
-        self.assertEqual(self.manager.resolve_profile().profile_id, target.profile_id)
+        self.assertEqual(self.manager.resolve_profile(), 'default')
 
     def test_setup_invalid_name_can_retry(self):
         self.terminal()
         names = iter(['invalid/name', 'valid'])
-        target = onboarding.setup(self.manager, picker=lambda *a, **k: 0,
+        picks = iter([1, 0, 1])
+        target = onboarding.setup(self.manager, picker=lambda *a, **k: next(picks),
             prompt=lambda *a, **k: next(names))
         self.assertEqual(str(target), 'valid')
 
     def test_existing_profiles_are_selected_without_new_profile(self):
         self.terminal()
         self.manager.new_profile('first'); self.manager.new_profile('second')
-        selections = iter([0, 1])
+        selections = iter([0, 2])
         target = onboarding.setup(self.manager, picker=lambda *a, **k: next(selections))
         self.assertEqual(str(target), 'second')
-        self.assertEqual(len(self.manager.state()['profiles']), 2)
+        self.assertEqual(len(self.manager.state()['profiles']), 3)
 
     def test_signed_in_authentication_never_prompts(self):
         self.manager.new_profile('work')
@@ -52,7 +54,7 @@ class OnboardingTests(ProfileFixture, unittest.TestCase):
         directory = self.base / 'existing'; directory.mkdir()
         marker = directory / 'native-marker'; marker.write_text('keep')
         values = iter(['connected', str(directory)])
-        target = onboarding.setup(self.manager, picker=lambda *a, **k: 1,
+        target = onboarding.setup(self.manager, picker=lambda *a, **k: 2,
             prompt=lambda *a, **k: next(values))
         self.assertEqual(self.manager.home(target), directory)
         self.assertEqual(marker.read_text(), 'keep')
@@ -63,20 +65,23 @@ class OnboardingTests(ProfileFixture, unittest.TestCase):
              patch('agent_manager.providers.installation.engine.command', return_value=0) as install:
             self.assertIsNone(onboarding.setup(self.manager, picker=lambda *a, **k: None))
             install.assert_not_called()
-        self.assertFalse(self.manager.state()['profiles'])
+        self.assertEqual(set(self.manager.state()['profiles']), {'default'})
+        self.assertFalse(self.manager.state_path.exists())
 
     def test_setup_missing_cli_reuses_installer_and_continues(self):
         self.terminal()
         with patch.object(self.manager, 'provider', 'codex'), patch.object(onboarding.shutil, 'which', side_effect=[None, str(self.fake)]), \
              patch('agent_manager.providers.installation.engine.command', return_value=0) as install:
-            target = onboarding.setup(self.manager, picker=lambda *a, **k: 0, prompt=lambda *a, **k: 'main')
+            picks = iter([0, 1])
+            target = onboarding.setup(self.manager, picker=lambda *a, **k: next(picks), prompt=lambda *a, **k: 'main')
         self.assertEqual(str(target), 'main')
         self.assertEqual(install.call_args.args[0].target, 'codex')
         self.assertEqual(install.call_args.kwargs['home'], self.manager.root.parent)
 
-    def test_start_without_profiles_uses_setup_and_preserves_launch_options(self):
+    def test_start_without_cli_uses_setup_and_preserves_launch_options(self):
         self.terminal()
-        with patch.object(onboarding, 'setup', side_effect=lambda m: m.resolve_profile(m.new_profile('new')['profile'])), \
+        with patch.object(onboarding.shutil, 'which', return_value=None), \
+             patch.object(onboarding, 'setup', side_effect=lambda m: m.resolve_profile(m.new_profile('new')['profile'])), \
              patch.object(onboarding, 'authenticate', return_value=True), patch.object(self.manager, '_run_native', return_value=7) as run:
             self.assertEqual(start(self.manager, ['--native'], model='example'), 7)
         self.assertEqual(str(run.call_args.args[0]), 'new')
@@ -85,7 +90,8 @@ class OnboardingTests(ProfileFixture, unittest.TestCase):
 
     def test_unknown_budget_can_launch_explicit_profile_but_other_errors_propagate(self):
         self.terminal(); self.manager.new_profile('work')
-        with patch('agent_manager.profiles.selection.choose', side_effect=SelectionUnavailable('unavailable')), \
+        with patch.object(onboarding, 'select', return_value=self.manager.resolve_profile('work')), \
+             patch('agent_manager.profiles.selection.choose', side_effect=SelectionUnavailable('unavailable')), \
              patch.object(onboarding, 'authenticate', return_value=True), patch.object(self.manager, '_run_native', return_value=0) as run:
             self.assertEqual(start(self.manager, []), 0)
             run.assert_called_once()
@@ -93,7 +99,7 @@ class OnboardingTests(ProfileFixture, unittest.TestCase):
             with self.assertRaisesRegex(Error, 'changed'): start(self.manager, [])
 
     def test_noninteractive_incomplete_setup_is_actionable(self):
-        with patch('sys.stdin.isatty', return_value=False):
+        with patch('sys.stdin.isatty', return_value=False), patch.object(onboarding.shutil, 'which', return_value=None):
             with self.assertRaisesRegex(Error, 'onboarding'): start(self.manager, [])
 
     def test_authentication_cancel_failure_and_unknown_status_launch(self):
@@ -115,7 +121,7 @@ class OnboardingTests(ProfileFixture, unittest.TestCase):
     def test_profile_output_defaults_to_text_and_json_remains_explicit(self):
         self.assertIn('Created test profile "work"', self.invoke('profile', 'new', 'work'))
         self.assertIn('Profile', self.invoke('profile', 'list'))
-        self.assertEqual(json.loads(self.invoke('profile', 'list', '--json'))[0]['profile'], 'work')
+        self.assertEqual([row['profile'] for row in json.loads(self.invoke('profile', 'list', '--json'))], ['default', 'work'])
         self.assertEqual(json.loads(self.invoke('profile', 'new', 'other', '--json'))['profile'], 'other')
 
     def test_global_onboarding_routes_before_provider_resolution(self):

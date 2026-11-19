@@ -15,7 +15,7 @@ def continue_session(manager, args=(), *, session=None, profile=None, picker=Non
         require_terminal()
         picker = pick
     if session is None:
-        rows = listing(manager, cwd=Path.cwd())
+        rows = listing(manager, cwd=Path.cwd(), discovered_only=manager.provider == 'codex')
         if not rows:
             from agent_manager.interfaces.cli.native_sessions import native_session
             return native_session(manager, args, picker=picker, profile=profile, model=model, **options)

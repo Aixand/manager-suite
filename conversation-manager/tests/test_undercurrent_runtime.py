@@ -93,9 +93,7 @@ class CodexRuntimeTests(DaemonMixin, unittest.IsolatedAsyncioTestCase):
             self.tmp.cleanup()
 
     async def start(self, key="start", process=None):
-        agent = (await self.client.available_agents(providers=("codex",)))[0][
-            "reference"
-        ]
+        agent = await codex_tests.LocalCodexTests.work_agent(self)
         self.startups.append(key)
         chat = await self.client.start_conversation(
             agent=agent, cwd=self.root, operation_id=key, process=process
@@ -166,9 +164,7 @@ class CodexRuntimeTests(DaemonMixin, unittest.IsolatedAsyncioTestCase):
     async def test_launch_from_cli_survives_cli_exit_and_default_client_recovers_owner(
         self,
     ):
-        agent = (await self.client.available_agents(providers=("codex",)))[0][
-            "reference"
-        ]
+        agent = await codex_tests.LocalCodexTests.work_agent(self)
         self.startups.append("cli")
         process = await asyncio.create_subprocess_exec(
             sys.executable,
@@ -313,9 +309,7 @@ class CodexRuntimeTests(DaemonMixin, unittest.IsolatedAsyncioTestCase):
 
     async def test_runtime_change_conflicts_without_duplicate_launch(self):
         chat = await self.start()
-        agent = (await self.client.available_agents(providers=("codex",)))[0][
-            "reference"
-        ]
+        agent = await codex_tests.LocalCodexTests.work_agent(self)
         with self.assertRaises(ConversationError) as caught:
             await ConversationClient(self.client.home).start_conversation(
                 agent=agent, cwd=self.root, operation_id="start"

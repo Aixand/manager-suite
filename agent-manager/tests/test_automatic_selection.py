@@ -34,8 +34,10 @@ class AutomaticSelectionTests(BudgetFixture, unittest.TestCase):
         for name in values:
             if name not in manager.state()['profiles']: manager.new_profile(name)
         homes = {manager.home(name): rows for name, rows in values.items()}
-        return self.enterContext(patch('agent_manager.budgets.adapters.read',
-            side_effect=lambda m, home, policy: homes[home]))
+        def read(manager, home, policy):
+            if home not in homes: raise BudgetError('unavailable')
+            return homes[home]
+        return self.enterContext(patch('agent_manager.budgets.adapters.read', side_effect=read))
 
     def test_highest_limiting_window_wins_without_changing_the_default(self):
         reader = self.prepare({'work': windows(95, 10), 'other': windows(60, 50)})
@@ -44,7 +46,7 @@ class AutomaticSelectionTests(BudgetFixture, unittest.TestCase):
         self.assertEqual(str(decision.target), 'other')
         self.assertEqual(decision.score.remaining_percent, 50)
         self.assertEqual(self.manager.state()['default_profile_id'], default)
-        self.assertEqual(reader.call_count, 2)
+        self.assertEqual(reader.call_count, 3)
         verify(self.manager, decision)
 
     def test_codex_single_view_without_a_limit_id_is_an_applicable_allowance(self):
@@ -59,27 +61,27 @@ class AutomaticSelectionTests(BudgetFixture, unittest.TestCase):
         self.assertEqual(decision.score.buckets, ('default:primary',))
 
     def test_aliases_query_once_and_ties_use_default_then_stable_name(self):
-        reader = self.prepare({'work': windows(80), 'other': windows(80)})
+        reader = self.prepare({'work': windows(80), 'other': windows(80), 'default': windows(20)})
         self.manager.alias_profile('favorite', 'other'); self.manager.set_default('favorite')
         decision = choose(self.manager)
         self.assertEqual(str(decision.target), 'favorite')
-        self.assertEqual(reader.call_count, 2)
+        self.assertEqual(reader.call_count, 3)
         self.manager.rename('favorite', 'renamed')
         self.assertEqual(str(choose(self.manager).target), 'renamed')
         state = self.manager.state(); state['default_profile_id'] = None; self.manager.save(state)
         self.assertEqual(str(choose(self.manager).target), 'other')
-        self.assertEqual(reader.call_count, 2)
+        self.assertEqual(reader.call_count, 3)
 
     def test_budget_selection_needs_no_default_and_ignores_unnamed_environments(self):
         reader = self.prepare({'work': windows(60), 'other': windows(90)})
         self.manager.new_profile('unnamed'); delete_profile(self.manager, 'unnamed')
         state = self.manager.state(); state['default_profile_id'] = None; self.manager.save(state)
         self.assertEqual(str(choose(self.manager).target), 'other')
-        self.assertEqual(reader.call_count, 2)
+        self.assertEqual(reader.call_count, 3)
 
-    def test_empty_registry_has_an_actionable_error(self):
+    def test_unavailable_native_default_has_an_actionable_error(self):
         delete_profile(self.manager, 'work')
-        with self.assertRaisesRegex(Error, 'Create or connect'):
+        with self.assertRaisesRegex(Error, 'default:'):
             choose(self.manager)
 
     def test_no_fallback_to_a_default_with_exhausted_unknown_or_expired_allowance(self):
@@ -174,6 +176,7 @@ class AutomaticSelectionTests(BudgetFixture, unittest.TestCase):
     def test_rename_and_name_reuse_during_inspection_do_not_redirect_the_target(self):
         original = self.manager.resolve_profile('work')
         def read(manager, home, policy):
+            if home != manager.home(original): raise BudgetError('unavailable')
             manager.rename('work', 'renamed')
             manager.new_profile('work')
             return windows(60)
@@ -223,6 +226,10 @@ class AutomaticSelectionTests(BudgetFixture, unittest.TestCase):
         self.assertEqual(self.manager.state()['default_profile_id'], before)
         with patch('agent_manager.manager.Manager.budget', side_effect=AssertionError('Explicit run must not inspect budgets')):
             self.assertEqual(execute([*arguments, 'run', 'work']), 0)
+
+    def test_builtin_default_can_win_automatic_selection(self):
+        self.prepare({'default': windows(90), 'work': windows(60)})
+        self.assertEqual(choose(self.manager).target, 'default')
 
     def test_cli_installs_final_validation_without_silently_reselecting(self):
         self.prepare({'work': windows(60)})

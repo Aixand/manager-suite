@@ -48,6 +48,10 @@ def choose(manager, *, model=None, args=(), environment_ids=None):
         return Decision(target, revision(state, target.environment_id), 'Configured default profile', model)
     identifiers = {row['environment_id'] for row in state['profiles'].values()}
     if allowed is not None: identifiers &= allowed
+    if conditional and len(identifiers) > 1:
+        native = resolve(state, 'default')
+        if not manager.home(native).is_dir():
+            identifiers.discard(native.environment_id)
     if not identifiers and allowed is not None:
         raise SelectionUnavailable('No profile can continue the selected native session')
     if not identifiers:

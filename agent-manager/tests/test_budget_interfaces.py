@@ -43,6 +43,8 @@ class BudgetFixture:
             program.chmod(0o700)
             with self.config.open('a') as stream:
                 stream.write(f'[providers.{provider}]\nexecutable={json.dumps(str(program))}\n')
+                if provider == 'opencode':
+                    stream.write('native_home=' + json.dumps(str(user / 'opencode-data')) + '\n')
             manager = Manager(provider, self.config, self.root)
             if provider == 'opencode':
                 # This fixture covers provider-account readers. Integration
@@ -118,9 +120,9 @@ class NativeBudgetTests(BudgetFixture, unittest.TestCase):
         self.manager.new_profile('other')
         delete_profile(self.manager, 'other')
         rows = self.manager.budgets()
-        self.assertEqual(len(rows), 2)
-        self.assertEqual(len({row['environment_id'] for row in rows}), 2)
-        self.assertEqual(sorted(len(row['profiles']) for row in rows), [0, 2])
+        self.assertEqual(len(rows), 3)
+        self.assertEqual(len({row['environment_id'] for row in rows}), 3)
+        self.assertEqual(sorted(len(row['profiles']) for row in rows), [0, 1, 2])
         self.assertTrue(all('total' not in row for row in rows))
 
     def test_cached_only_skips_native_probes_and_opencode_budget_is_unsupported(self):
@@ -232,7 +234,7 @@ class NativeBudgetTests(BudgetFixture, unittest.TestCase):
         self.assertEqual(json.loads(output.getvalue())['status'], 'ok')
         with redirect_stdout(io.StringIO()) as output:
             execute(['--config', str(self.config), '--home', str(self.root), 'codex', 'budget', '--all', '--cached', '--json'])
-        self.assertEqual(len(json.loads(output.getvalue())), 1)
+        self.assertEqual(len(json.loads(output.getvalue())), 2)
         with self.assertRaises(Error):
             execute(['--config', str(self.config), '--home', str(self.root), 'codex', 'budget', 'work', '--all'])
 
@@ -249,12 +251,12 @@ class AsyncBudgetInterfaces(BudgetFixture, unittest.IsolatedAsyncioTestCase):
         client = Client('codex', config=self.config, root=self.root, runtime=FakeRuntime())
         first = await client.budget('work')
         rows = await client.budgets(cached=True)
-        self.assertEqual(rows[0]['observed_at'], first['observed_at'])
+        self.assertEqual(next(row for row in rows if row['profiles'] == ['work'])['observed_at'], first['observed_at'])
         backend = LocalBackend(config=self.config, home=self.root)
         result = await backend.execute('get_budget', {'provider': 'codex', 'profile': 'work', 'cached': True}, 'read')
         self.assertEqual(result['budget']['observed_at'], first['observed_at'])
         result = await backend.execute('list_budgets', {'provider': 'codex', 'cached': True}, 'read')
-        self.assertEqual(len(result['budgets']), 1)
+        self.assertEqual(len(result['budgets']), 2)
 
 
 class BudgetContractTests(unittest.TestCase):

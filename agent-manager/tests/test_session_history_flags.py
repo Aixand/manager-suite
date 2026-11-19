@@ -19,7 +19,9 @@ class SessionHistoryFlagTests(unittest.IsolatedAsyncioTestCase):
         self.base = Path(folder.name)
 
     def client(self, provider):
-        client = Client(provider, root=self.base / provider, runtime=SimpleNamespace())
+        config = self.base / 'providers.toml'
+        config.write_text(f'[providers.{provider}]\nnative_home = ' + json.dumps(str(self.base / 'native')) + '\n')
+        client = Client(provider, config=config, root=self.base / provider, runtime=SimpleNamespace())
         client.manager.new_profile('work')
         return client
 

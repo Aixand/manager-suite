@@ -199,8 +199,7 @@ class ThreadStore:
     def path(self, profile, thread_id):
         name(profile)
         name(thread_id)
-        from agent_manager.profiles.identities import storage_key
-        return self.root / storage_key(self.manager.root, profile) / (thread_id + ".json")
+        return self.root / self.manager.resolve_profile(profile).environment_id / (thread_id + ".json")
 
     def read(self, profile, thread_id):
         path = self.path(profile, thread_id)
@@ -208,8 +207,8 @@ class ThreadStore:
             return None
         try:
             record = json.loads(path.read_text())
-            from agent_manager.profiles.identities import storage_key, resolve_record
-            if record["environment_id"] != storage_key(self.manager.root, profile) or record["thread_id"] != thread_id:
+            from agent_manager.profiles.identities import resolve_record
+            if record["environment_id"] != self.manager.resolve_profile(profile).environment_id or record["thread_id"] != thread_id:
                 raise ValueError
             Context(record["labels"], record["metadata"])
             record = resolve_record(self.manager.state(), record)
@@ -238,8 +237,7 @@ class ThreadStore:
             raise Error("limit must be an integer between 1 and 1000")
         if profile is not None:
             name(profile)
-        from agent_manager.profiles.identities import storage_key
-        paths = (self.root / storage_key(self.manager.root, profile)).glob("*.json") if profile else self.root.glob("*/*.json")
+        paths = (self.root / self.manager.resolve_profile(profile).environment_id).glob("*.json") if profile else self.root.glob("*/*.json")
         result = []
         for path in paths:
             from agent_manager.profiles.identities import for_environment

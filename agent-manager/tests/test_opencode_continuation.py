@@ -98,7 +98,7 @@ class OpenCodeContinuationTests(CopyFixture, unittest.TestCase):
                 patch.object(Manager, 'budget', return_value={'scope': 'provider-connection', 'status': 'unknown'}) as budgets:
             self.assertEqual(execute(['--config', str(self.config), '--home', str(self.manager.root.parent),
                 'opencode', 'continue', copied['conversation_id']]), 0)
-        self.assertEqual(budgets.call_count, 3)
+        self.assertEqual(budgets.call_count, 4)
         self.assertEqual(prompts, ['Choose an execution profile'])
         observed = self.observed('third')
         self.assertEqual(observed['account'], 'third-account')

@@ -182,7 +182,7 @@ class DisabledSessionCapabilityTests(unittest.TestCase):
         self.assertTrue(manager.provider_spec.capabilities()['crossEnvironmentResume'])
         self.assertIsNone(manager.provider_spec.capabilities()['crossEnvironmentResumeReason'])
         manager.new_profile('work'); manager.new_profile('backup')
-        self.assertEqual(execution_profiles(manager, {'history_home': str(manager.home('work'))}), ['backup', 'work'])
+        self.assertEqual(execution_profiles(manager, {'history_home': str(manager.home('work'))}), ['backup', 'default', 'work'])
 
 
 if __name__ == '__main__':

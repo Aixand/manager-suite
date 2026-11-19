@@ -22,8 +22,8 @@ class ManagedSDKTests(ManagedFixture, unittest.IsolatedAsyncioTestCase):
     async def test_profiles_expose_native_identity_without_saved_auth_fields(self):
         self.create()
         rows = await self.client().profiles()
-        self.assertEqual([row['profile'] for row in rows], ['work'])
-        self.assertEqual(rows[0]['home'], str(self.manager.home('work')))
+        self.assertEqual([row['profile'] for row in rows], ['default', 'work'])
+        self.assertEqual([row['home'] for row in rows], [str(self.manager.home(name)) for name in ('default', 'work')])
         self.assertNotIn('auth', rows[0])
         self.assertNotIn('weekly_left', rows[0])
 
